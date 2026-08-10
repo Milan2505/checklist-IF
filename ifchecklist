@@ -102,6 +102,12 @@ header{
   font-family:var(--mono);font-size:14px;padding:8px 9px;border-radius:7px;min-height:38px;
 }
 .fld input:focus{outline:none;border-color:var(--cyan)}
+/* groupes de saisie du panneau */
+.grp{grid-column:1/-1;font-family:var(--display);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--amber);border-bottom:1px solid var(--line);
+  padding:9px 0 5px;margin-top:2px}
+.grp:first-child{margin-top:0;padding-top:0}
+.fld.wide{grid-column:span 2}
 .hint{padding:0 12px 12px;font-size:12px;color:var(--muted)}
 
 /* ---------- phases ---------- */
@@ -248,7 +254,7 @@ header{
   <section class="sheet" id="valuesSheet" hidden>
     <h2>Valeurs du vol</h2>
     <div class="grid" id="valGrid"></div>
-    <p class="hint">Ces valeurs s'affichent dans les lignes de la checklist là où elles servent. Elles viennent de l'OFP et du MCDU — tapez-les une fois, elles suivent tout le vol.</p>
+    <p class="hint">Ces valeurs s'affichent dans les lignes de la checklist là où elles servent. Elles viennent de SimBrief, de l'OFP et du MCDU — tapez-les une fois, elles suivent tout le vol.</p>
   </section>
 
   <div id="phases"></div>
@@ -287,31 +293,60 @@ header{
    t : ligne de checklist · d : detail · r : renvoi · w : point de vigilance
    {{cle}} : valeur du vol, saisie dans le panneau Valeurs
 ============================================================ */
+/* [cle, libelle, groupe] — le groupe ordonne le panneau par moment de saisie.
+   Les cles et libelles d'origine sont inchanges ; s'y ajoutent les valeurs
+   que la phase 1 fait taper dans SimBrief et qui n'avaient pas de case. */
 const FIELDS = [
-  ['callsign','Callsign'],['route','DEP → ARR'],['type','Type / immat'],
-  ['piste','Piste dép.'],['v1','V1'],['vr','VR'],['v2','V2'],
-  ['flex','Flex °C'],['volets','Volets dép.'],['thrred','Réduction ft'],['accel','Accél. ft'],
-  ['fl','Croisière FL'],['bloc','Bloc kg'],['bingo','BINGO kg'],['mindiv','MIN DIV kg'],
-  ['arrpiste','Piste arr.'],['ils','ILS'],['da','DA ft'],['lw','LW t'],
-  ['vref','Vref kt'],['vapp','Vapp kt'],['inbound','Inbound NM'],['inbwpt','Point inbound'],
-  ['degag','Dégagement'],['degcap','Cap dégag.'],['degdist','Dist. dégag. NM']
+  ['callsign','Callsign','Identité du vol'],
+  ['airline','Compagnie','Identité du vol'],
+  ['fltnum','N° de vol','Identité du vol'],
+  ['route','DEP → ARR','Identité du vol'],
+  ['eobt','EOBT UTC','Identité du vol'],
+  ['type','Type / immat','Identité du vol'],
+  ['pilotid','Pilot ID','Identité du vol'],
+  ['airac','Cycle AIRAC','Identité du vol'],
+
+  ['pax','Passagers','Masses & chargement'],
+  ['fret','Fret kg','Masses & chargement'],
+  ['payload','Payload kg','Masses & chargement'],
+  ['zfw','ZFW kg','Masses & chargement'],
+  ['blocktime','Bloc prévu h:min','Masses & chargement'],
+  ['taxitime','Taxi min dép/arr','Masses & chargement'],
+
+  ['piste','Piste dép.','Départ'],['v1','V1','Départ'],['vr','VR','Départ'],['v2','V2','Départ'],
+  ['flex','Flex °C','Départ'],['volets','Volets dép.','Départ'],
+  ['thrred','Réduction ft','Départ'],['accel','Accél. ft','Départ'],
+  ['trans','Transition ft','Départ'],
+
+  ['fl','Croisière FL','Croisière'],
+  ['rte','Route ATC','Croisière'],
+
+  ['bloc','Bloc kg','Carburant'],['bingo','BINGO kg','Carburant'],['mindiv','MIN DIV kg','Carburant'],
+  ['extra','EXTRA kg','Carburant'],['fuelfactor','Fuel Factor','Carburant'],
+
+  ['arrpiste','Piste arr.','Arrivée'],['ils','ILS','Arrivée'],['da','DA ft','Arrivée'],
+  ['lw','LW t','Arrivée'],['vref','Vref kt','Arrivée'],['vapp','Vapp kt','Arrivée'],
+  ['inbound','Inbound NM','Arrivée'],['inbwpt','Point inbound','Arrivée'],
+
+  ['degag','Dégagement','Dégagement'],['degcap','Cap dégag.','Dégagement'],
+  ['degdist','Dist. dégag. NM','Dégagement']
 ];
 
 const PHASES = [
   { n:"Feuille SimBrief", s:"Saisie du formulaire, avant génération", items:[
-    {t:"Flight Info saisi", d:"Airline, Flight Number, Depart · Arrive, EOBT en UTC.", r:"0"},
-    {t:"Dégagement nommé dans Alternate", d:"Jamais AUTO : c'est le terrain à briefer, il doit tenir la météo de l'ETA.", r:"0", w:1},
-    {t:"Aircraft Info saisi", d:"Type dans la variante exacte volée dans IF, Airframe générique, ATC Callsign identique à celui d'IF, Fuel Factor P00, immatriculation.", r:"0", w:1},
+    {t:"Flight Info saisi", d:"Airline, Flight Number, Depart · Arrive, EOBT en UTC. {{airline}} {{fltnum}} · {{route}} · {{eobt}}.", r:"0"},
+    {t:"Dégagement nommé dans Alternate", d:"Jamais AUTO : c'est le terrain à briefer, il doit tenir la météo de l'ETA. {{degag}} · {{degcap}} · {{degdist}} NM.", r:"0", w:1},
+    {t:"Aircraft Info saisi", d:"Type dans la variante exacte volée dans IF, Airframe générique, ATC Callsign identique à celui d'IF, Fuel Factor P00, immatriculation. {{type}} · Callsign {{callsign}} · Fuel Factor {{fuelfactor}}.", r:"0", w:1},
     {t:"Champs secondaires traités", d:"Fin Number, SELCAL, Mode-S remplis. Equipment, transpondeur, PBN et item 18 laissés aux valeurs grisées : ils n'entrent dans aucun calcul.", r:"0"},
-    {t:"Selections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi 20/8 · IFR · Scheduled · 1 alternate.", r:"0"},
+    {t:"Selections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi 20/8 · IFR · Scheduled · 1 alternate. Taxi retenu {{taxitime}}.", r:"0"},
     {t:"Les six interrupteurs sur ON", d:"Detailed Navlog, ETOPS Planning, Plan Stepclimbs, Runway Analysis, Include NOTAMs, FIR NOTAMs. En éteindre un rouvre un trou que rien ne comble.", r:"0", w:1},
-    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import.", r:"0"},
-    {t:"Optional Entries chiffrés", d:"Sched Block Time, Altitude (FL retenu), Passengers, Freight, Payload. Aucune case en AUTO.", r:"0"},
-    {t:"ZFW forcé", d:"Masse à vide d'IF pour le type + payload. Laisser AUTO, c'est planifier un avion qui n'existe pas.", r:"0", w:1},
-    {t:"Pistes laissées en AUTO", d:"AUTO choisit au vent réel, comme IF. La piste attendue se note pour comparaison, elle ne se tape pas.", r:"0"},
-    {t:"Fuel Planning réglé", d:"MEL, ATC, WXX et Tankering à 0. EXTRA non nul seulement avec un motif écrit.", r:"0"},
-    {t:"Text Entries remplis", d:"Pilot ID, Captain Name, et dans les remarks : piste attendue, seuil BINGO, dégagement.", r:"0"},
-    {t:"Route collée dans Selected Route", d:"Format ATC, sans les terrains.", r:"0"},
+    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import. Cycle {{airac}}.", r:"0"},
+    {t:"Optional Entries chiffrés", d:"Sched Block Time, Altitude (FL retenu), Passengers, Freight, Payload. Aucune case en AUTO. {{blocktime}} · FL {{fl}} · {{pax}} pax · fret {{fret}} · payload {{payload}}.", r:"0"},
+    {t:"ZFW forcé", d:"Masse à vide d'IF pour le type + payload. Laisser AUTO, c'est planifier un avion qui n'existe pas. ZFW {{zfw}}.", r:"0", w:1},
+    {t:"Pistes laissées en AUTO", d:"AUTO choisit au vent réel, comme IF. La piste attendue se note pour comparaison, elle ne se tape pas. Attendues : {{piste}} au départ, {{arrpiste}} à l'arrivée.", r:"0"},
+    {t:"Fuel Planning réglé", d:"MEL, ATC, WXX et Tankering à 0. EXTRA non nul seulement avec un motif écrit. EXTRA {{extra}}.", r:"0"},
+    {t:"Text Entries remplis", d:"Pilot ID, Captain Name, et dans les remarks : piste attendue, seuil BINGO, dégagement. Pilot ID {{pilotid}} · BINGO {{bingo}} · {{degag}}.", r:"0"},
+    {t:"Route collée dans Selected Route", d:"Format ATC, sans les terrains. {{rte}}.", r:"0"},
     {t:"Alternate Airports réglé", d:"Critères 400 / 600 / 3000 / 7000, dégagement en DCT. Takeoff et Enroute seulement si le vol l'exige.", r:"0"},
     {t:"ETOPS traité", d:"n/a sur vol continental. Sinon Threshold 60 min, Scenario Auto, puis Calculate.", r:"0"},
     {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé.", r:"0", w:1}
@@ -345,7 +380,7 @@ const PHASES = [
   ]},
 
   { n:"Briefing départ", s:"Ce que rien ne déclenchera tout seul", items:[
-    {t:"Trois altitudes notées", d:"Réduction {{thrred}} ft · Accélération {{accel}} ft · Transition. Absentes du MCDU : elles se tiennent à la main.", r:"4", w:1},
+    {t:"Trois altitudes notées", d:"Réduction {{thrred}} ft · Accélération {{accel}} ft · Transition {{trans}} ft. Absentes du MCDU : elles se tiennent à la main.", r:"4", w:1},
     {t:"Briefing panne énoncé", d:"Avant V1 : interruption, idle, freinage max, inverseurs, spoilers, immobilisation, annonce. Après V1 : assiette V2, symétrie, EOSID ou cap piste, altitude de sécurité, retour ou dégagement.", r:"4"},
     {t:"Cas cisaillement dit", d:"TOGA, assiette de sauvegarde, configuration conservée. Cisaillement signalé : flex interdite.", r:"4", w:1},
     {t:"Limites de vent du type connues", d:"Travers et arrière maximum, réduits sur piste mouillée ou contaminée. L'OFP ne les porte pas.", r:"4"},
@@ -802,13 +837,25 @@ function paintProgress(){
 ============================================================ */
 /* champs strictement chiffres : clavier numerique sur tablette */
 const NUM = ['v1','vr','v2','flex','thrred','accel','bloc','bingo','mindiv',
-             'da','lw','vref','vapp','inbound','degcap','degdist'];
+             'da','lw','vref','vapp','inbound','degcap','degdist',
+             'fltnum','pilotid','airac','pax','fret','payload','zfw','trans','extra'];
+
+/* champs a valeur longue : deux colonnes */
+const WIDE = ['eobt','rte'];
 
 function buildValues(){
   const frag = document.createDocumentFragment();
-  FIELDS.forEach(([k,label])=>{
+  let groupe = null;
+  FIELDS.forEach(([k,label,g])=>{
+    if(g && g !== groupe){
+      groupe = g;
+      const h = document.createElement('div');
+      h.className = 'grp';
+      h.textContent = g;
+      frag.appendChild(h);
+    }
     const d = document.createElement('div');
-    d.className = 'fld';
+    d.className = 'fld' + (WIDE.indexOf(k) >= 0 ? ' wide' : '');
     d.innerHTML =
       '<label for="f-'+k+'">'+esc(label)+'</label>'+
       '<input id="f-'+k+'" autocomplete="off" spellcheck="false" enterkeyhint="done"'+
