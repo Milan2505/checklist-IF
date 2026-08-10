@@ -488,9 +488,12 @@ const PHASES = [
 ============================================================ */
 const KEY = 'if-checklist-v1';
 const DOC_KEY = 'if-checklist-doc-v1';
+const SHEET_KEY = 'if-checklist-sheet-v1';
 
-let state = { done:{}, values:{}, auto:{}, open:0, doc:null, rev:null };
-let allOpen = false, memoryOnly = false, docDirty = false;
+let state = { done:{}, values:{}, auto:{}, open:0,
+              doc:null, rev:null,          /* dossier de reference */
+              sheet:null, sheetRev:null }; /* feuille du vol */
+let allOpen = false, memoryOnly = false, docDirty = false, sheetDirty = false;
 
 const store = (function(){
   const host = (window.storage && typeof window.storage.get === 'function') ? window.storage : null;
@@ -528,8 +531,10 @@ function adopt(o){
   if(o.auto   && typeof o.auto   === 'object') state.auto   = Object.assign({}, o.auto);
   if(typeof o.open === 'number') state.open = o.open;
   if(typeof o.rev  === 'string') state.rev  = o.rev;
+  if(typeof o.sheetRev === 'string') state.sheetRev = o.sheetRev;
   /* ancienne version : le briefing vivait dans la meme cle */
   if(typeof o.doc === 'string' && o.doc){ state.doc = o.doc; docDirty = true; }
+  if(typeof o.sheet === 'string' && o.sheet){ state.sheet = o.sheet; sheetDirty = true; }
 }
 
 async function load(){
@@ -540,6 +545,8 @@ async function load(){
   try{
     const doc = await store.get(DOC_KEY);
     if(doc) state.doc = doc;
+    const sheet = await store.get(SHEET_KEY);
+    if(sheet) state.sheet = sheet;
   }catch(e){ /* le bouton Charger reste la */ }
 }
 
@@ -550,7 +557,8 @@ async function flush(){
   clearTimeout(saveTimer); saveTimer = null;
   try{
     await store.set(KEY, JSON.stringify({
-      done:state.done, values:state.values, auto:state.auto, open:state.open, rev:state.rev
+      done:state.done, values:state.values, auto:state.auto, open:state.open,
+      rev:state.rev, sheetRev:state.sheetRev
     }));
   }catch(e){
     if(!memoryOnly){ memoryOnly = true; toast("Progression gardée pour cette session seulement"); }
@@ -565,7 +573,17 @@ async function flush(){
       /* dossier trop lourd pour le stockage : on le garde en memoire,
          la progression, elle, vient d'etre ecrite */
       try{ await store.remove(DOC_KEY); }catch(e2){}
-      toast("Briefing gardé pour cette session seulement");
+      toast("Dossier gardé pour cette session seulement");
+    }
+  }
+  if(sheetDirty){
+    sheetDirty = false;
+    try{
+      if(state.sheet) await store.set(SHEET_KEY, state.sheet);
+      else await store.remove(SHEET_KEY);
+    }catch(e){
+      try{ await store.remove(SHEET_KEY); }catch(e2){}
+      toast("Feuille gardée pour cette session seulement");
     }
   }
 }
@@ -898,28 +916,69 @@ el.btnValues.addEventListener('click', ()=>{
 /* ============================================================
    CHARGEMENT DU BRIEFING + LECTURE DES SECTIONS
 ============================================================ */
-let docLines = null, docHeads = null;
+/* Deux documents, deux roles, jamais confondus :
+   - le DOSSIER porte la methode et les sections § ; son §0 est un gabarit,
+     ses colonnes decrivent quoi taper et ne contiennent aucune valeur ;
+   - la FEUILLE DU VOL porte les valeurs du jour.
+   Un fichier qui resout au moins dix renvois est un dossier, pas une feuille. */
+let docIdx = null, sheetIdx = null;
 
-function applyDoc(txt){
-  state.doc = txt;
-  docLines = docHeads = null;                 /* index a reconstruire */
-  const m = txt.match(/REV\s*(\d+)/i);
-  state.rev = m ? ('REV '+m[1]) : 'BRIEFING';
-  el.revTag.textContent = state.rev;
-  docDirty = true;
-  markRefs();
-  const vals = fillFromDoc();          /* les cases vides se remplissent seules */
-  save();
-  return { refs:availableRefs().length, vals:vals };
+function buildIndex(txt){
+  const lines = txt.split('\n'), heads = [];
+  let inCode = false;
+  lines.forEach((l,i)=>{
+    if(/^```/.test(l)){ inCode = !inCode; return; }
+    if(inCode) return;                        /* un # dans un bloc de code n'est pas un titre */
+    const m = l.match(/^(#{1,4})\s+(.*)$/);
+    if(m) heads.push({lvl:m[1].length, txt:m[2].replace(/[`*]/g,'').trim(), i:i});
+  });
+  return { lines:lines, heads:heads };
+}
+/* l'entete annonce ce qui est charge : dossier, feuille, ou les deux */
+function badgeRev(){
+  return [state.rev, state.sheetRev].filter(Boolean).join(' + ') || 'REV 11';
+}
+function idxDoc(){   if(!docIdx   && state.doc)   docIdx   = buildIndex(state.doc);   return docIdx; }
+function idxSheet(){ if(!sheetIdx && state.sheet) sheetIdx = buildIndex(state.sheet); return sheetIdx; }
+
+/* "2" ne doit pas attraper "2.1" : apres le numero, un separateur est exige */
+function findHead(idx, ref){
+  if(!idx) return -1;
+  return idx.heads.findIndex(h=>
+    h.txt === ref || (h.txt.slice(0,ref.length) === ref && /^[\s·:\-–—]/.test(h.txt.slice(ref.length)))
+  );
+}
+function countRefs(idx){
+  let n = 0;
+  ALL_REFS.forEach(r=>{ if(findHead(idx, r) >= 0) n++; });
+  return n;
 }
 
-/* le chargement doit se voir : valeurs reprises, puis couverture des renvois */
+function applyDoc(txt){
+  const idx = buildIndex(txt);
+  const dossier = countRefs(idx) >= 10;
+  const m = txt.match(/REV\s*(\d+)/i);
+  const rev = m ? ('REV '+m[1]) : 'BRIEFING';
+  if(dossier){ state.doc = txt;   state.rev = rev;      docIdx = idx;   docDirty = true; }
+  else       { state.sheet = txt; state.sheetRev = rev; sheetIdx = idx; sheetDirty = true; }
+  el.revTag.textContent = badgeRev();
+  markRefs();
+  /* seule la feuille du vol alimente les cases : le gabarit du dossier remplirait
+     "Compagnie" avec "OACI 3 lettres" */
+  const vals = dossier ? 0 : fillFromDoc();
+  save();
+  return { refs:availableRefs().length, vals:vals, dossier:dossier, rev:rev };
+}
+
+/* le chargement doit se voir : nature du fichier, valeurs reprises, couverture */
 function announceDoc(r){
   const tot = ALL_REFS.length;
+  const b = r.refs === tot ? 'les '+tot+' renvois § sont lisibles'
+                           : r.refs+' renvoi'+(r.refs>1?'s':'')+' § sur '+tot;
+  if(r.dossier){ toast(r.rev+' · dossier chargé — '+b); return; }
   const a = r.vals ? r.vals+' valeur'+(r.vals>1?'s':'')+' reprise'+(r.vals>1?'s':'')
                    : 'aucune valeur reconnue';
-  const b = r.refs === tot ? 'les '+tot+' renvois §' : r.refs+' renvoi'+(r.refs>1?'s':'')+' § sur '+tot;
-  toast(state.rev+' chargé — '+a+' · '+b);
+  toast(r.rev+' · feuille du vol — '+a+' · '+b);
 }
 
 async function readFile(f){
@@ -949,19 +1008,6 @@ document.addEventListener('drop', async e=>{
   e.preventDefault();
   await readFile(e.dataTransfer.files[0]);
 });
-
-/* index des titres, construit une fois par dossier charge */
-function indexDoc(){
-  docLines = state.doc.split('\n');
-  docHeads = [];
-  let inCode = false;
-  docLines.forEach((l,i)=>{
-    if(/^```/.test(l)){ inCode = !inCode; return; }
-    if(inCode) return;                         /* un # dans un bloc de code n'est pas un titre */
-    const m = l.match(/^(#{1,4})\s+(.*)$/);
-    if(m) docHeads.push({lvl:m[1].length, txt:m[2].replace(/[*`]/g,'').trim(), i:i});
-  });
-}
 
 /* ------------------------------------------------------------
    EXTRACTION DES VALEURS DU BRIEFING
@@ -1100,8 +1146,8 @@ function extractValues(txt){
 
 /* remplit les cases vides et les marque comme venant du briefing */
 function fillFromDoc(){
-  if(!state.doc) return 0;
-  const got = extractValues(state.doc);
+  if(!state.sheet) return 0;
+  const got = extractValues(state.sheet);
   const connues = FIELDS.map(f=>f[0]);
   let n = 0;
   Object.keys(got).forEach(k=>{
@@ -1121,52 +1167,53 @@ function fillFromDoc(){
   return n;
 }
 
-/* index du titre correspondant a un renvoi, -1 s'il n'est pas dans le fichier */
-function headIndex(ref){
-  if(!state.doc) return -1;
-  if(!docHeads) indexDoc();
-  /* "2" ne doit pas attraper "2.1" : apres le numero, un separateur est exige */
-  return docHeads.findIndex(h=>
-    h.txt === ref || (h.txt.slice(0,ref.length) === ref && /^[\s·:\-–—]/.test(h.txt.slice(ref.length)))
-  );
-}
-
 /* tous les renvois cites par la checklist, sans doublon */
 const ALL_REFS = Array.from(new Set(
   PHASES.reduce((a,p)=> a.concat(p.items.map(it=>it.r).filter(Boolean)), [])
 ));
 
-/* ceux que le dossier charge sait reellement ouvrir */
+/* un renvoi est lisible s'il figure dans l'un des deux documents charges */
+function hasRef(ref){
+  return findHead(idxDoc(), ref) >= 0 || findHead(idxSheet(), ref) >= 0;
+}
 function availableRefs(){
   const ok = [];
-  if(state.doc) ALL_REFS.forEach(r=>{ if(headIndex(r) >= 0) ok.push(r); });
+  ALL_REFS.forEach(r=>{ if(hasRef(r)) ok.push(r); });
   return ok;
 }
+function loaded(){ return !!(state.doc || state.sheet); }
 
-/* chaque pastille § annonce si sa section figure dans le fichier charge :
+/* chaque pastille § annonce si sa section figure dans ce qui est charge :
    c'est le retour visible qui manquait au chargement */
 function markRefs(){
   const ok = availableRefs();
   el.phases.querySelectorAll('.ref').forEach(b=>{
-    if(!state.doc){ b.classList.remove('ok','miss'); b.removeAttribute('title'); return; }
+    if(!loaded()){ b.classList.remove('ok','miss'); b.removeAttribute('title'); return; }
     const has = ok.indexOf(b.dataset.ref) >= 0;
     b.classList.toggle('ok', has);
     b.classList.toggle('miss', !has);
-    b.title = has ? 'Section présente dans le dossier chargé'
-                  : 'Absente du dossier chargé';
+    b.title = has ? 'Section présente dans les documents chargés'
+                  : 'Absente des documents chargés';
   });
 }
 
-/* extrait une section du markdown a partir de son numero (0, 2.3, 6.6, A.4) */
+/* extrait une section du markdown a partir de son numero (0, 2.3, 6.6, A.4).
+   La feuille du vol passe avant le dossier : quand les deux portent la meme
+   section (§0, §A.4), c'est celle du vol du jour qui sert, chiffres compris. */
 function section(ref){
-  const start = headIndex(ref);
-  if(start < 0) return null;
-  const h = docHeads[start];
-  let end = docLines.length;
-  for(let k = start+1; k < docHeads.length; k++){
-    if(docHeads[k].lvl <= h.lvl){ end = docHeads[k].i; break; }
+  const sources = [idxSheet(), idxDoc()];
+  for(let s = 0; s < sources.length; s++){
+    const idx = sources[s];
+    const start = findHead(idx, ref);
+    if(start < 0) continue;
+    const h = idx.heads[start];
+    let end = idx.lines.length;
+    for(let k = start+1; k < idx.heads.length; k++){
+      if(idx.heads[k].lvl <= h.lvl){ end = idx.heads[k].i; break; }
+    }
+    return { title:h.txt, body:idx.lines.slice(h.i+1, end).join('\n').trim() };
   }
-  return { title:h.txt, body:docLines.slice(h.i+1, end).join('\n').trim() };
+  return null;
 }
 
 /* rendu markdown minimal, suffisant pour ce dossier */
@@ -1227,20 +1274,22 @@ function md2html(src){
 
 let lastFocus = null;
 function openRef(ref){
-  if(!state.doc){
+  if(!loaded()){
     el.drTitle.textContent = '§'+ref;
-    el.drBody.innerHTML = '<div class="empty-state">Le briefing n\'est pas chargé. Touchez « Charger le briefing » en haut et choisissez le fichier .md de la REV 11 : le texte exact de chaque renvoi s\'ouvrira ici.</div>';
+    el.drBody.innerHTML = '<div class="empty-state">Le briefing n\'est pas chargé. Touchez « Charger le briefing » en haut et choisissez le fichier .md du dossier : le texte exact de chaque renvoi s\'ouvrira ici.</div>';
   }else{
     const s = section(ref);
     if(!s){
       el.drTitle.textContent = '§'+ref;
       const ok = availableRefs();
       const liste = ok.length ? ok.map(r=>'§'+r).join(' · ') : 'aucun';
+      const chargés = [state.rev ? 'dossier '+state.rev : null,
+                       state.sheetRev ? 'feuille '+state.sheetRev : null].filter(Boolean).join(' + ');
       el.drBody.innerHTML =
         '<div class="empty-state">'+
-        '<p>La section <strong>§'+esc(ref)+'</strong> ne figure pas dans le fichier chargé ('+esc(state.rev||'')+').</p>'+
+        '<p>La section <strong>§'+esc(ref)+'</strong> ne figure pas dans ce qui est chargé ('+esc(chargés)+').</p>'+
         '<p>Renvois réellement disponibles : '+esc(liste)+' — soit <strong>'+ok.length+' sur '+ALL_REFS.length+'</strong>.</p>'+
-        '<p>Ce fichier est donc un extrait du dossier, pas le dossier complet.</p>'+
+        '<p>Il manque le dossier complet, ou la section porte un autre titre.</p>'+
         '</div>';
     }else{
       el.drTitle.textContent = s.title;
@@ -1322,18 +1371,23 @@ function toast(msg){
 /* le briefing publie a cote de la page se charge seul, sans rien toucher */
 async function autoLoad(){
   if(state.doc) return;
-  try{
-    const r = await fetch('./briefing-REV11.md', {cache:'no-store'});
-    if(!r.ok) return;
-    const txt = await r.text();
-    if(!/BRIEFING/i.test(txt)) return;
-    announceDoc(applyDoc(txt));
-  }catch(e){ /* page ouverte hors serveur : le bouton reste la */ }
+  /* le dossier publie a cote de la page, quelle que soit sa revision */
+  const noms = ['./briefing-REV13.md','./briefing-REV12.md','./briefing-REV11.md','./briefing.md'];
+  for(let i = 0; i < noms.length; i++){
+    try{
+      const r = await fetch(noms[i], {cache:'no-store'});
+      if(!r.ok) continue;
+      const txt = await r.text();
+      if(!/BRIEFING/i.test(txt)) continue;
+      announceDoc(applyDoc(txt));
+      return;
+    }catch(e){ /* page ouverte hors serveur : le bouton reste la */ }
+  }
 }
 
 (async function(){
   await load();
-  if(state.rev) el.revTag.textContent = state.rev;
+  if(state.rev || state.sheetRev) el.revTag.textContent = badgeRev();
   buildNodes();
   buildValues();
   syncOpenBtn();
