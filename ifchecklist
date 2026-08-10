@@ -1021,7 +1021,8 @@ const LABELS = {
   'flight number':'fltnum',
   'route':'route', 'depart · arrive':'route', 'depart arrive':'route',
   'appareil':'type', 'aircraft':'type',
-  'departure time (eobt)':'eobt',
+  'departure time (eobt)':'eobt', 'departure time':'eobt',
+  'eobt':'eobt', 'heure de depart':'eobt',
   'alternate':'degag', 'degagement':'degag',
   'fuel factor':'fuelfactor',
   'airac cycle':'airac',
@@ -1049,8 +1050,34 @@ const LABELS = {
   'lw':'lw', 'landing weight':'lw',
   'vref':'vref', 'vapp':'vapp',
   'inbound':'inbound', 'distance inbound':'inbound',
-  'point inbound':'inbwpt', 'announce inbound':'inbwpt'
+  'point inbound':'inbwpt', 'announce inbound':'inbwpt',
+  /* formulaire affiche en francais : libelles sans equivalent anglais entre parentheses */
+  'cycle airac':'airac',
+  'taxi sortie / entree':'taxitime',
+  'bloc horaire prevu':'blocktime',
+  'depart runway':'piste', 'arrivee runway':'arrpiste',
+  'altitude (pieds)':'fl',
+  'passagers':'pax',
+  'fret':'fret',
+  'charge utile':'payload',
+  'poids zero carburant':'zfw',
+  'identifiant du pilote':'pilotid',
+  'partir':'_dep', 'arriver':'_arr'      /* recomposes en DEP → ARR si besoin */
 };
+
+/* Un libelle peut s'ecrire "Compagnie aérienne (Airline)" : on essaie la chaine
+   entiere, puis chaque moitie. Aucune correspondance partielle, pour qu'un
+   "Extra FPL Info (Item 18)" ne soit jamais pris pour le champ EXTRA. */
+function labelKey(raw){
+  const n = normLabel(raw);
+  if(LABELS[n]) return LABELS[n];
+  const m = n.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  if(m){
+    if(LABELS[m[1]]) return LABELS[m[1]];
+    if(LABELS[m[2]]) return LABELS[m[2]];
+  }
+  return null;
+}
 
 function normLabel(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -1135,11 +1162,13 @@ function extractValues(txt){
     if(/^\s*\|[\s\-:|]+$/.test(l)) return;              /* ligne de separation */
     const cells = l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
     if(cells.length < 2) return;
-    const k = LABELS[normLabel(cells[0])];
+    const k = labelKey(cells[0]);
     if(!k || out[k]) return;                            /* la premiere occurrence fait foi */
     const v = pickValue(cells, k);
     if(v) out[k] = v;
   });
+  /* formulaire francais : depart et arrivee sur deux lignes distinctes */
+  if(!out.route && out._dep && out._arr) out.route = out._dep+' → '+out._arr;
   scanProse(txt, out);
   return out;
 }
