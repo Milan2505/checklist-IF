@@ -108,6 +108,9 @@ header{
   padding:9px 0 5px;margin-top:2px}
 .grp:first-child{margin-top:0;padding-top:0}
 .fld.wide{grid-column:span 2}
+/* valeur reprise du briefing, pas encore confirmee par le pilote */
+.fld.auto input{border-style:dashed;border-color:#4a6b7a}
+.fld.auto label::after{content:" ⇠ briefing";color:#5f7f8d;letter-spacing:0}
 .hint{padding:0 12px 12px;font-size:12px;color:var(--muted)}
 
 /* ---------- phases ---------- */
@@ -486,7 +489,7 @@ const PHASES = [
 const KEY = 'if-checklist-v1';
 const DOC_KEY = 'if-checklist-doc-v1';
 
-let state = { done:{}, values:{}, open:0, doc:null, rev:null };
+let state = { done:{}, values:{}, auto:{}, open:0, doc:null, rev:null };
 let allOpen = false, memoryOnly = false, docDirty = false;
 
 const store = (function(){
@@ -522,6 +525,7 @@ function adopt(o){
   if(!o || typeof o !== 'object') return;
   if(o.done   && typeof o.done   === 'object') state.done   = Object.assign({}, o.done);
   if(o.values && typeof o.values === 'object') state.values = Object.assign({}, o.values);
+  if(o.auto   && typeof o.auto   === 'object') state.auto   = Object.assign({}, o.auto);
   if(typeof o.open === 'number') state.open = o.open;
   if(typeof o.rev  === 'string') state.rev  = o.rev;
   /* ancienne version : le briefing vivait dans la meme cle */
@@ -546,7 +550,7 @@ async function flush(){
   clearTimeout(saveTimer); saveTimer = null;
   try{
     await store.set(KEY, JSON.stringify({
-      done:state.done, values:state.values, open:state.open, rev:state.rev
+      done:state.done, values:state.values, auto:state.auto, open:state.open, rev:state.rev
     }));
   }catch(e){
     if(!memoryOnly){ memoryOnly = true; toast("Progression gardée pour cette session seulement"); }
@@ -862,9 +866,16 @@ function buildValues(){
       (NUM.indexOf(k) >= 0 ? ' inputmode="decimal"' : '')+'>';
     const inp = d.querySelector('input');
     inp.value = state.values[k] || '';
+    if(state.auto[k]){                     /* reprise du briefing, non confirmee */
+      d.classList.add('auto');
+      inp.title = 'Valeur reprise du briefing — à confirmer sur l\'OFP';
+    }
     /* saisie : on rafraichit les pastilles, on ne reconstruit pas la checklist */
     inp.addEventListener('input', ()=>{
       state.values[k] = inp.value;
+      d.classList.remove('auto');          /* corrigee a la main : plus une reprise */
+      delete state.auto[k];
+      inp.removeAttribute('title');
       refreshValues();
       save();
     });
@@ -896,17 +907,19 @@ function applyDoc(txt){
   state.rev = m ? ('REV '+m[1]) : 'BRIEFING';
   el.revTag.textContent = state.rev;
   docDirty = true;
-  save();
   markRefs();
-  return availableRefs().length;
+  const vals = fillFromDoc();          /* les cases vides se remplissent seules */
+  save();
+  return { refs:availableRefs().length, vals:vals };
 }
 
-/* le chargement doit se voir : on annonce ce que le fichier couvre reellement */
-function announceDoc(n){
+/* le chargement doit se voir : valeurs reprises, puis couverture des renvois */
+function announceDoc(r){
   const tot = ALL_REFS.length;
-  if(n === 0)        toast(state.rev+' chargé — aucun renvoi § ne correspond');
-  else if(n === tot) toast(state.rev+' chargé — les '+tot+' renvois § sont lisibles');
-  else               toast(state.rev+' chargé — '+n+' renvoi'+(n>1?'s':'')+' § sur '+tot);
+  const a = r.vals ? r.vals+' valeur'+(r.vals>1?'s':'')+' reprise'+(r.vals>1?'s':'')
+                   : 'aucune valeur reconnue';
+  const b = r.refs === tot ? 'les '+tot+' renvois §' : r.refs+' renvoi'+(r.refs>1?'s':'')+' § sur '+tot;
+  toast(state.rev+' chargé — '+a+' · '+b);
 }
 
 async function readFile(f){
@@ -948,6 +961,164 @@ function indexDoc(){
     const m = l.match(/^(#{1,4})\s+(.*)$/);
     if(m) docHeads.push({lvl:m[1].length, txt:m[2].replace(/[*`]/g,'').trim(), i:i});
   });
+}
+
+/* ------------------------------------------------------------
+   EXTRACTION DES VALEURS DU BRIEFING
+   Les tableaux du dossier portent "| Libelle | valeur | ... |".
+   On associe le libelle a une case du panneau, on ne remplit que
+   les cases vides : ce que le pilote a tape n'est jamais ecrase.
+------------------------------------------------------------ */
+const LABELS = {
+  'callsign':'callsign', 'atc callsign':'callsign',
+  'airline':'airline',
+  'flight number':'fltnum',
+  'route':'route', 'depart · arrive':'route', 'depart arrive':'route',
+  'appareil':'type', 'aircraft':'type',
+  'departure time (eobt)':'eobt',
+  'alternate':'degag', 'degagement':'degag',
+  'fuel factor':'fuelfactor',
+  'airac cycle':'airac',
+  'taxi time (min)':'taxitime',
+  'sched block time':'blocktime',
+  'altitude (feet)':'fl',
+  'passengers':'pax',
+  'freight':'fret',
+  'payload':'payload',
+  'zfw':'zfw',
+  'pilot id':'pilotid',
+  'selected route':'rte',
+  'extra':'extra',
+  /* cartouche : valeurs de l'OFP et du MCDU (temps 2) */
+  'depart rwy':'piste', 'piste dep.':'piste', 'piste depart':'piste',
+  'arrival rwy':'arrpiste', 'piste arr.':'arrpiste', 'piste arrivee':'arrpiste',
+  'v1':'v1', 'vr':'vr', 'v2':'v2',
+  'flex':'flex', 'flex temp':'flex',
+  'volets':'volets', 'volets depart':'volets', 'flaps':'volets',
+  'reduction':'thrred', 'thrust reduction':'thrred',
+  'acceleration':'accel',
+  'transition':'trans', 'altitude de transition':'trans',
+  'ils':'ils',
+  'da':'da', 'decision altitude':'da',
+  'lw':'lw', 'landing weight':'lw',
+  'vref':'vref', 'vapp':'vapp',
+  'inbound':'inbound', 'distance inbound':'inbound',
+  'point inbound':'inbwpt', 'announce inbound':'inbwpt'
+};
+
+function normLabel(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .replace(/[`*]/g,'').replace(/\s+/g,' ').trim();
+}
+function cleanCell(s){
+  return s.replace(/[`*]/g,'').replace(/\[(SIM|FORM|NAV|CALC)\]/g,'')
+          .replace(/\s+/g,' ').trim();
+}
+function digits(s){ return s.replace(/[\s\u00A0\u202F]/g,''); }
+
+/* remet une valeur brute dans la forme attendue par la case, ou '' si elle
+   ne convient pas — l'appelant essaie alors la cellule suivante */
+function refine(k, v){
+  if(!v || v === '—' || v === '-' || /^(laisser vide|auto|n\/a|vide)$/i.test(v)) return '';
+  if(k === 'airac')    { const m = v.match(/\b\d{4}\b/);        return m ? m[0] : ''; }
+  if(k === 'callsign') { const m = v.match(/^[A-Z]{2,3}\d{1,4}/i); return m ? m[0] : ''; }
+  if(k === 'degag')    { const m = v.match(/\b[A-Z]{4}\b/);      return m ? m[0] : ''; }
+  if(k === 'fl'){
+    const m = digits(v).match(/^\d{3,5}$/);
+    if(!m) return '';
+    const n = parseInt(m[0], 10);
+    return n > 1000 ? String(Math.round(n/100)) : m[0];   /* 35000 ft -> FL350 */
+  }
+  if(['pax','fret','payload','zfw','pilotid','fltnum','extra'].indexOf(k) >= 0){
+    const m = digits(v).match(/^\d+/); return m ? m[0] : '';
+  }
+  /* piste : le designateur ouvre la cellule, le commentaire suit — "03 — nortada..." */
+  if(k === 'piste' || k === 'arrpiste'){
+    const m = v.match(/^(\d{2}[LRC]?)\b/); return m ? m[0] : '';
+  }
+  /* masse d'atterrissage : la case est en tonnes, le dossier l'ecrit en kg */
+  if(k === 'lw'){
+    const n = parseFloat(v.replace(/[^\d.,]/g,'').replace(',','.'));
+    if(!isFinite(n) || n <= 0) return '';
+    return n > 1000 ? String(Math.round(n/100)/10) : String(n);
+  }
+  if(['v1','vr','v2','vref','vapp','flex','thrred','accel','trans','da','inbound'].indexOf(k) >= 0){
+    const m = digits(v).match(/^\d+/); return m ? m[0] : '';
+  }
+  return v.length > 60 ? '' : v;
+}
+
+function pickValue(cells, k){
+  const cand = [];
+  for(let i = 1; i < cells.length; i++){ if(/`[^`]+`/.test(cells[i])) cand.push(cleanCell(cells[i])); }
+  for(let i = 1; i < cells.length; i++){ const c = cleanCell(cells[i]); if(c) cand.push(c); }
+  for(let i = 0; i < cand.length; i++){ const v = refine(k, cand[i]); if(v) return v; }
+  return '';
+}
+
+/* valeurs qui vivent dans la prose et non dans un tableau */
+function scanProse(txt, out){
+  let m;
+  m = txt.match(/(\d{1,3})\s*°\s*\/\s*(\d{1,4})\s*NM/);
+  if(m){ if(!out.degcap) out.degcap = m[1]; if(!out.degdist) out.degdist = m[2]; }
+  m = txt.match(/MIN\s*DIV[^\n]*=\s*([\d][\d\s\u00A0\u202F]*)kg/i);
+  if(m && !out.mindiv) out.mindiv = digits(m[1]);
+  m = txt.match(/BINGO[^\n]*=\s*([\d][\d\s\u00A0\u202F]*)kg/i);
+  if(m && !out.bingo) out.bingo = digits(m[1]);
+  m = txt.match(/bloc attendu[^\n]*?=\s*\*\*([\d\s\u00A0\u202F]+)kg/i);
+  if(m && !out.bloc) out.bloc = digits(m[1]);
+  /* pistes attendues, telles qu'elles figurent dans les remarks de l'OFP */
+  m = txt.match(/DEP\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
+  if(m && !out.piste) out.piste = m[1];
+  m = txt.match(/ARR\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
+  if(m && !out.arrpiste) out.arrpiste = m[1];
+  /* "LW 59 280 kg" \u2014 le \b evite d'attraper le MLW */
+  m = txt.match(/\bLW\s+([\d\s\u00A0\u202F]+)kg/i);
+  if(m && !out.lw){
+    const n = parseInt(digits(m[1]), 10);
+    if(n > 0) out.lw = n > 1000 ? String(Math.round(n/100)/10) : String(n);
+  }
+}
+
+function extractValues(txt){
+  const out = {};
+  let inCode = false;
+  txt.split('\n').forEach(l=>{
+    if(/^```/.test(l)){ inCode = !inCode; return; }
+    if(inCode || !/^\s*\|/.test(l)) return;
+    if(/^\s*\|[\s\-:|]+$/.test(l)) return;              /* ligne de separation */
+    const cells = l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+    if(cells.length < 2) return;
+    const k = LABELS[normLabel(cells[0])];
+    if(!k || out[k]) return;                            /* la premiere occurrence fait foi */
+    const v = pickValue(cells, k);
+    if(v) out[k] = v;
+  });
+  scanProse(txt, out);
+  return out;
+}
+
+/* remplit les cases vides et les marque comme venant du briefing */
+function fillFromDoc(){
+  if(!state.doc) return 0;
+  const got = extractValues(state.doc);
+  const connues = FIELDS.map(f=>f[0]);
+  let n = 0;
+  Object.keys(got).forEach(k=>{
+    if(connues.indexOf(k) < 0) return;
+    if((state.values[k]||'').trim()) return;            /* saisie du pilote : intouchable */
+    state.values[k] = got[k];
+    state.auto[k] = 1;
+    const inp = document.getElementById('f-'+k);
+    if(inp){
+      inp.value = got[k];
+      inp.parentElement.classList.add('auto');
+      inp.title = 'Valeur reprise du briefing — à confirmer sur l\'OFP';
+    }
+    n++;
+  });
+  if(n) refreshValues();
+  return n;
 }
 
 /* index du titre correspondant a un renvoi, -1 s'il n'est pas dans le fichier */
@@ -1126,8 +1297,11 @@ el.btnOpen.addEventListener('click', ()=>{
 
 el.btnReset.addEventListener('click', ()=>{
   if(!confirm('Nouveau vol : toutes les cases se décochent et les valeurs du vol s\'effacent. Le briefing chargé reste.')) return;
-  state.done = {}; state.values = {}; state.open = 0;
-  FIELDS.forEach(([k])=>{ const i = document.getElementById('f-'+k); if(i) i.value = ''; });
+  state.done = {}; state.values = {}; state.auto = {}; state.open = 0;
+  FIELDS.forEach(([k])=>{
+    const i = document.getElementById('f-'+k);
+    if(i){ i.value = ''; i.removeAttribute('title'); i.parentElement.classList.remove('auto'); }
+  });
   render();
   save();
   window.scrollTo({top:0, behavior:'smooth'});
