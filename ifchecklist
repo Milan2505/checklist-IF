@@ -160,6 +160,10 @@ header{
 }
 .ref:hover{border-color:var(--magenta)}
 .ref:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+/* dossier charge : la pastille dit si sa section est dans le fichier */
+.ref.ok{border-color:var(--magenta)}
+.ref.miss{color:#4e5c66;border-color:#212d35;background:#0d151a}
+.ref.miss:hover{border-color:#2f3f4a}
 
 /* ---------- lecteur de section ---------- */
 .drawer{
@@ -657,6 +661,7 @@ function render(){
   applyOpen();
   PHASES.forEach((_,pi)=> paintPhase(pi));
   paintProgress();
+  markRefs();
 }
 
 /* un seul ecouteur pour toute la liste : rien a rebrancher a chaque redessin */
@@ -845,6 +850,16 @@ function applyDoc(txt){
   el.revTag.textContent = state.rev;
   docDirty = true;
   save();
+  markRefs();
+  return availableRefs().length;
+}
+
+/* le chargement doit se voir : on annonce ce que le fichier couvre reellement */
+function announceDoc(n){
+  const tot = ALL_REFS.length;
+  if(n === 0)        toast(state.rev+' chargé — aucun renvoi § ne correspond');
+  else if(n === tot) toast(state.rev+' chargé — les '+tot+' renvois § sont lisibles');
+  else               toast(state.rev+' chargé — '+n+' renvoi'+(n>1?'s':'')+' § sur '+tot);
 }
 
 async function readFile(f){
@@ -853,7 +868,7 @@ async function readFile(f){
     toast('Fichier ignoré : .md, .markdown ou .txt attendu'); return false;
   }
   try{
-    applyDoc(await f.text());
+    announceDoc(applyDoc(await f.text()));
     return true;
   }catch(e){
     toast('Lecture du fichier impossible'); return false;
@@ -862,9 +877,8 @@ async function readFile(f){
 
 el.btnLoad.addEventListener('click', ()=> el.file.click());
 el.file.addEventListener('change', async e=>{
-  const f = e.target.files[0];
+  await readFile(e.target.files[0]);
   e.target.value = '';                        /* le meme fichier peut etre recharge */
-  if(await readFile(f)) toast('Briefing chargé — les renvois § sont lisibles');
 });
 
 /* on n'intercepte que les fichiers : le glisser-deposer de texte dans un champ reste possible */
@@ -873,7 +887,7 @@ document.addEventListener('dragover', e=>{ if(hasFiles(e)) e.preventDefault(); }
 document.addEventListener('drop', async e=>{
   if(!hasFiles(e)) return;
   e.preventDefault();
-  if(await readFile(e.dataTransfer.files[0])) toast('Briefing chargé');
+  await readFile(e.dataTransfer.files[0]);
 });
 
 /* index des titres, construit une fois par dossier charge */
@@ -889,14 +903,45 @@ function indexDoc(){
   });
 }
 
-/* extrait une section du markdown a partir de son numero (0, 2.3, 6.6, A.4) */
-function section(ref){
-  if(!state.doc) return null;
+/* index du titre correspondant a un renvoi, -1 s'il n'est pas dans le fichier */
+function headIndex(ref){
+  if(!state.doc) return -1;
   if(!docHeads) indexDoc();
   /* "2" ne doit pas attraper "2.1" : apres le numero, un separateur est exige */
-  const start = docHeads.findIndex(h=>
+  return docHeads.findIndex(h=>
     h.txt === ref || (h.txt.slice(0,ref.length) === ref && /^[\s·:\-–—]/.test(h.txt.slice(ref.length)))
   );
+}
+
+/* tous les renvois cites par la checklist, sans doublon */
+const ALL_REFS = Array.from(new Set(
+  PHASES.reduce((a,p)=> a.concat(p.items.map(it=>it.r).filter(Boolean)), [])
+));
+
+/* ceux que le dossier charge sait reellement ouvrir */
+function availableRefs(){
+  const ok = [];
+  if(state.doc) ALL_REFS.forEach(r=>{ if(headIndex(r) >= 0) ok.push(r); });
+  return ok;
+}
+
+/* chaque pastille § annonce si sa section figure dans le fichier charge :
+   c'est le retour visible qui manquait au chargement */
+function markRefs(){
+  const ok = availableRefs();
+  el.phases.querySelectorAll('.ref').forEach(b=>{
+    if(!state.doc){ b.classList.remove('ok','miss'); b.removeAttribute('title'); return; }
+    const has = ok.indexOf(b.dataset.ref) >= 0;
+    b.classList.toggle('ok', has);
+    b.classList.toggle('miss', !has);
+    b.title = has ? 'Section présente dans le dossier chargé'
+                  : 'Absente du dossier chargé';
+  });
+}
+
+/* extrait une section du markdown a partir de son numero (0, 2.3, 6.6, A.4) */
+function section(ref){
+  const start = headIndex(ref);
   if(start < 0) return null;
   const h = docHeads[start];
   let end = docLines.length;
@@ -971,7 +1016,14 @@ function openRef(ref){
     const s = section(ref);
     if(!s){
       el.drTitle.textContent = '§'+ref;
-      el.drBody.innerHTML = '<div class="empty-state">Section introuvable dans le fichier chargé. Vérifiez qu\'il s\'agit bien du dossier complet, et non d\'un extrait.</div>';
+      const ok = availableRefs();
+      const liste = ok.length ? ok.map(r=>'§'+r).join(' · ') : 'aucun';
+      el.drBody.innerHTML =
+        '<div class="empty-state">'+
+        '<p>La section <strong>§'+esc(ref)+'</strong> ne figure pas dans le fichier chargé ('+esc(state.rev||'')+').</p>'+
+        '<p>Renvois réellement disponibles : '+esc(liste)+' — soit <strong>'+ok.length+' sur '+ALL_REFS.length+'</strong>.</p>'+
+        '<p>Ce fichier est donc un extrait du dossier, pas le dossier complet.</p>'+
+        '</div>';
     }else{
       el.drTitle.textContent = s.title;
       el.drBody.innerHTML = md2html(s.body);
@@ -1054,7 +1106,7 @@ async function autoLoad(){
     if(!r.ok) return;
     const txt = await r.text();
     if(!/BRIEFING/i.test(txt)) return;
-    applyDoc(txt);
+    announceDoc(applyDoc(txt));
   }catch(e){ /* page ouverte hors serveur : le bouton reste la */ }
 }
 
