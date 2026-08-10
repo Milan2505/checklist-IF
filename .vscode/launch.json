@@ -9,7 +9,15 @@
             "request": "launch",
             "name": "Launch Chrome against localhost",
             "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}",
+            // Profil dedie, hors du profil Chrome habituel : sans lui, un Chrome
+            // deja ouvert absorbe le lancement et le debogueur n'a rien a quoi
+            // s'attacher ("Unable to attach to browser").
+            "userDataDir": "${env:TEMP}/vscode-chrome-checklist",
+            "runtimeArgs": [
+                "--no-first-run",
+                "--no-default-browser-check"
+            ]
         }
     ]
 }
