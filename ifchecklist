@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0A1117">
+<meta name="description" content="Checklist de vol Infinite Flight — préparation SimBrief, MCDU, départ, croisière, arrivée et après-vol.">
+<title>CHECKLIST VOL — Infinite Flight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A1117;
+  --panel:#101A21;
+  --panel-2:#152229;
+  --line:#1E2E37;
+  --line-soft:#182630;
+  --txt:#E7EEF2;
+  --muted:#7E939F;
+  --green:#33D67A;    /* normal / fait */
+  --amber:#FFB01F;    /* limite, seuil, piege */
+  --magenta:#E86BD4;  /* calcule */
+  --cyan:#4FD8F5;     /* saisi par le pilote */
+  --display:"Barlow Condensed", "Oswald", Impact, sans-serif;
+  --body:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --r:10px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:var(--body);
+  font-size:15px;line-height:1.5;
+  padding-bottom:96px;
+  background-image:radial-gradient(120% 60% at 50% -10%, #14242e 0%, var(--bg) 60%);
+  background-attachment:fixed;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* ---------- entete ---------- */
+header{
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,rgba(10,17,23,.98) 70%,rgba(10,17,23,.86));
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.hdr-top{display:flex;align-items:baseline;gap:10px;padding:12px 0 8px}
+.brand{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:.13em;text-transform:uppercase}
+.rev{font-family:var(--mono);font-size:11px;color:var(--amber);border:1px solid #4a3a12;background:#221a08;padding:2px 7px;border-radius:999px;letter-spacing:.06em}
+.hdr-top .spacer{flex:1}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.count b{color:var(--green);font-weight:600}
+
+/* ---------- signature : profil de vol ---------- */
+.profile{position:relative;padding:2px 0 10px}
+.profile svg{display:block;width:100%;height:64px;overflow:visible}
+.pf-track{fill:none;stroke:var(--line);stroke-width:1.5}
+.pf-done{fill:none;stroke:var(--green);stroke-width:2.5;stroke-linecap:round;
+  filter:drop-shadow(0 0 5px rgba(51,214,122,.45));transition:stroke-dasharray .45s ease}
+.node{cursor:pointer}
+.node circle{transition:all .25s ease}
+.node .ring{fill:var(--bg);stroke:var(--line);stroke-width:1.5}
+.node.done .ring{stroke:var(--green);fill:#0d2418}
+.node.active .ring{stroke:var(--amber);fill:#241a05;r:7}
+.node .num{font-family:var(--mono);font-size:8px;fill:var(--muted);text-anchor:middle;dominant-baseline:middle}
+.node.done .num{fill:var(--green)}
+.node.active .num{fill:var(--amber);font-weight:700}
+.pf-label{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;fill:var(--amber);text-anchor:middle}
+
+/* ---------- barres ---------- */
+.bar{height:3px;background:var(--line-soft);border-radius:2px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--green);width:0;transition:width .3s ease}
+
+/* ---------- boutons outils ---------- */
+.tools{display:flex;gap:8px;padding:0 0 12px;flex-wrap:wrap}
+.btn{
+  font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  background:var(--panel);color:var(--txt);border:1px solid var(--line);
+  padding:9px 13px;border-radius:var(--r);cursor:pointer;min-height:40px;
+}
+.btn:hover{border-color:#2d4351}
+.btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.btn.on{border-color:var(--amber);color:var(--amber)}
+.btn.ghost{background:transparent}
+.btn.danger:hover{border-color:#7a2b2b;color:#ff8b8b}
+
+/* ---------- panneau valeurs du vol ---------- */
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin:0 0 14px;overflow:hidden}
+.sheet h2{
+  font-family:var(--display);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
+  margin:0;padding:13px 14px;border-bottom:1px solid var(--line);color:var(--muted);font-weight:600;
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;padding:12px}
+.fld label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.fld input{
+  width:100%;background:#0A1319;border:1px solid var(--line);color:var(--cyan);
+  font-family:var(--mono);font-size:14px;padding:8px 9px;border-radius:7px;min-height:38px;
+}
+.fld input:focus{outline:none;border-color:var(--cyan)}
+.hint{padding:0 12px 12px;font-size:12px;color:var(--muted)}
+
+/* ---------- phases ---------- */
+.phase{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:10px;overflow:hidden}
+.phase.active{border-color:#2b4250}
+.ph-head{
+  display:flex;align-items:center;gap:11px;width:100%;
+  background:none;border:0;color:inherit;text-align:left;
+  padding:13px 14px;cursor:pointer;min-height:56px;
+}
+.ph-head:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+.ph-idx{font-family:var(--mono);font-size:11px;color:var(--muted);width:20px;flex:none}
+.phase.complete .ph-idx{color:var(--green)}
+.ph-title{font-family:var(--display);font-size:17px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;flex:1;line-height:1.15}
+.ph-sub{display:block;margin-top:3px;font-family:var(--body);font-size:11.5px;letter-spacing:0;
+  text-transform:none;font-weight:400;color:var(--muted);line-height:1.35}
+.phase.complete .ph-title{color:var(--green)}
+.ph-count{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
+.chev{width:9px;height:9px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);
+  transform:rotate(45deg);margin-left:2px;flex:none;transition:transform .2s}
+.phase.open .chev{transform:rotate(-135deg)}
+.ph-bar{padding:0 14px 11px}
+.ph-body{display:none;padding:2px 0 6px;border-top:1px solid var(--line-soft)}
+.phase.open .ph-body{display:block}
+
+/* ---------- items ---------- */
+.item{
+  display:flex;gap:12px;align-items:flex-start;width:100%;
+  background:none;border:0;border-bottom:1px solid var(--line-soft);color:inherit;text-align:left;
+  padding:13px 14px;cursor:pointer;min-height:52px;font-family:var(--body);font-size:15px;
+}
+.item:last-child{border-bottom:0}
+.item:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+.box{
+  width:21px;height:21px;flex:none;margin-top:1px;border-radius:5px;
+  border:1.5px solid #3b5060;position:relative;transition:all .18s;
+}
+.item.warn .box{border-color:#6a5316}
+.item.done .box{background:var(--green);border-color:var(--green)}
+.item.done .box::after{
+  content:"";position:absolute;left:6.5px;top:2.5px;width:5px;height:10px;
+  border:solid #06210f;border-width:0 2.2px 2.2px 0;transform:rotate(42deg);
+}
+.it-txt{flex:1;min-width:0}
+.it-t{display:block}
+.item.warn .it-t::before{content:"⚠ ";color:var(--amber)}
+.item.done .it-t{color:var(--muted);text-decoration:line-through;text-decoration-color:#2c4a39}
+.it-d{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+.item.done .it-d{opacity:.5}
+.val{font-family:var(--mono);color:var(--cyan);font-size:13.5px}
+.val.empty{color:#5d7280}
+.ref{
+  flex:none;font-family:var(--mono);font-size:10.5px;color:var(--magenta);
+  border:1px solid #43244a;background:#1c1022;border-radius:6px;padding:3px 6px;margin-top:1px;
+  cursor:pointer;-webkit-appearance:none;appearance:none;line-height:1.25;font-weight:500;
+}
+.ref:hover{border-color:var(--magenta)}
+.ref:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* ---------- lecteur de section ---------- */
+.drawer{
+  position:fixed;inset:0;z-index:60;display:none;
+  background:rgba(4,8,11,.72);backdrop-filter:blur(3px);
+}
+.drawer.open{display:block}
+.dr-panel{
+  position:absolute;left:0;right:0;bottom:0;max-height:84vh;overflow:auto;overscroll-behavior:contain;
+  background:var(--panel-2);border-top:1px solid var(--line);
+  border-radius:16px 16px 0 0;padding:0 16px calc(28px + env(safe-area-inset-bottom));
+  animation:up .22s ease;
+}
+@keyframes up{from{transform:translateY(22px);opacity:.4}to{transform:none;opacity:1}}
+.dr-head{position:sticky;top:0;background:var(--panel-2);display:flex;align-items:center;gap:10px;padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.dr-head h3{margin:0;flex:1;font-family:var(--display);font-size:16px;letter-spacing:.12em;text-transform:uppercase}
+.md{font-size:14.5px;line-height:1.62;padding-top:12px}
+.md h1,.md h2,.md h3{font-family:var(--display);letter-spacing:.09em;text-transform:uppercase;margin:20px 0 8px;font-size:16px;color:var(--txt)}
+.md p{margin:9px 0}
+.md ul,.md ol{margin:9px 0;padding-left:19px}
+.md li{margin:5px 0}
+.md code{font-family:var(--mono);font-size:13px;background:#0a141a;border:1px solid var(--line);padding:1px 5px;border-radius:5px;color:var(--cyan)}
+.md pre{font-family:var(--mono);font-size:12.5px;background:#091217;border:1px solid var(--line);padding:11px;border-radius:8px;overflow:auto;white-space:pre;color:#a9c3d0}
+.md table{width:100%;border-collapse:collapse;margin:11px 0;font-size:13px}
+.md th,.md td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.md th{background:#0d181e;font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+.md .w{color:var(--amber)}
+.md strong{color:#fff}
+.empty-state{padding:26px 0 10px;color:var(--muted);font-size:14px}
+
+/* ---------- pied ---------- */
+.foot{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:linear-gradient(180deg,rgba(10,17,23,.5),rgba(10,17,23,.97) 40%);
+  border-top:1px solid var(--line);
+  padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+}
+.foot-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.foot .lbl{font-family:var(--display);font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);flex:none}
+.foot .bar{flex:1}
+.foot .pct{font-family:var(--mono);font-size:13px;color:var(--green);flex:none;min-width:38px;text-align:right}
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:70;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
+  padding:9px 14px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s
+}
+.toast.show{opacity:1}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:2px 2px 16px}
+.legend i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="hdr-top">
+      <div class="brand">Checklist vol</div>
+      <div class="rev" id="revTag">REV 11</div>
+      <div class="spacer"></div>
+      <div class="count" id="hdrCount"><b>0</b>/0</div>
+    </div>
+    <div class="profile">
+      <svg id="pf" viewBox="0 0 1000 64" preserveAspectRatio="none" aria-hidden="true">
+        <path id="pfPath" class="pf-track" d="M 14 56 L 120 56 C 210 56 235 12 340 12 L 660 12 C 770 12 800 50 880 56 L 986 56"/>
+        <path id="pfDone" class="pf-done" d="M 14 56 L 120 56 C 210 56 235 12 340 12 L 660 12 C 770 12 800 50 880 56 L 986 56"/>
+        <g id="pfNodes"></g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tools">
+    <button type="button" class="btn" id="btnLoad">Charger le briefing</button>
+    <button type="button" class="btn ghost" id="btnValues" aria-expanded="false" aria-controls="valuesSheet">Valeurs du vol</button>
+    <button type="button" class="btn ghost" id="btnOpen" aria-pressed="false">Tout déplier</button>
+    <button type="button" class="btn ghost danger" id="btnReset">Nouveau vol</button>
+    <input type="file" id="file" accept=".md,.markdown,.txt" hidden>
+  </div>
+
+  <section class="sheet" id="valuesSheet" hidden>
+    <h2>Valeurs du vol</h2>
+    <div class="grid" id="valGrid"></div>
+    <p class="hint">Ces valeurs s'affichent dans les lignes de la checklist là où elles servent. Elles viennent de l'OFP et du MCDU — tapez-les une fois, elles suivent tout le vol.</p>
+  </section>
+
+  <div id="phases"></div>
+
+  <div class="legend">
+    <span><i style="background:var(--green)"></i>fait</span>
+    <span><i style="background:var(--amber)"></i>limite ou piège</span>
+    <span><i style="background:var(--magenta)"></i>renvoi au dossier</span>
+    <span><i style="background:var(--cyan)"></i>valeur saisie</span>
+  </div>
+</main>
+
+<div class="foot">
+  <div class="foot-in">
+    <span class="lbl" id="footPhase">Vol</span>
+    <div class="bar" role="progressbar" aria-label="Avancement du vol" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="footBar"></span></div>
+    <span class="pct" id="footPct">0%</span>
+  </div>
+</div>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drTitle" aria-hidden="true">
+  <div class="dr-panel">
+    <div class="dr-head">
+      <h3 id="drTitle">Section</h3>
+      <button type="button" class="btn ghost" id="drClose">Fermer</button>
+    </div>
+    <div class="md" id="drBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+/* ============================================================
+   CONTENU — tire du BRIEFING PRE-VOL INFINITE FLIGHT, REV 11
+   t : ligne de checklist · d : detail · r : renvoi · w : point de vigilance
+   {{cle}} : valeur du vol, saisie dans le panneau Valeurs
+============================================================ */
+const FIELDS = [
+  ['callsign','Callsign'],['route','DEP → ARR'],['type','Type / immat'],
+  ['piste','Piste dép.'],['v1','V1'],['vr','VR'],['v2','V2'],
+  ['flex','Flex °C'],['volets','Volets dép.'],['thrred','Réduction ft'],['accel','Accél. ft'],
+  ['fl','Croisière FL'],['bloc','Bloc kg'],['bingo','BINGO kg'],['mindiv','MIN DIV kg'],
+  ['arrpiste','Piste arr.'],['ils','ILS'],['da','DA ft'],['lw','LW t'],
+  ['vref','Vref kt'],['vapp','Vapp kt'],['inbound','Inbound NM'],['inbwpt','Point inbound'],
+  ['degag','Dégagement'],['degcap','Cap dégag.'],['degdist','Dist. dégag. NM']
+];
+
+const PHASES = [
+  { n:"Feuille SimBrief", s:"Saisie du formulaire, avant génération", items:[
+    {t:"Flight Info saisi", d:"Airline, Flight Number, Depart · Arrive, EOBT en UTC.", r:"0"},
+    {t:"Dégagement nommé dans Alternate", d:"Jamais AUTO : c'est le terrain à briefer, il doit tenir la météo de l'ETA.", r:"0", w:1},
+    {t:"Aircraft Info saisi", d:"Type dans la variante exacte volée dans IF, Airframe générique, ATC Callsign identique à celui d'IF, Fuel Factor P00, immatriculation.", r:"0", w:1},
+    {t:"Champs secondaires traités", d:"Fin Number, SELCAL, Mode-S remplis. Equipment, transpondeur, PBN et item 18 laissés aux valeurs grisées : ils n'entrent dans aucun calcul.", r:"0"},
+    {t:"Selections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi 20/8 · IFR · Scheduled · 1 alternate.", r:"0"},
+    {t:"Les six interrupteurs sur ON", d:"Detailed Navlog, ETOPS Planning, Plan Stepclimbs, Runway Analysis, Include NOTAMs, FIR NOTAMs. En éteindre un rouvre un trou que rien ne comble.", r:"0", w:1},
+    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import.", r:"0"},
+    {t:"Optional Entries chiffrés", d:"Sched Block Time, Altitude (FL retenu), Passengers, Freight, Payload. Aucune case en AUTO.", r:"0"},
+    {t:"ZFW forcé", d:"Masse à vide d'IF pour le type + payload. Laisser AUTO, c'est planifier un avion qui n'existe pas.", r:"0", w:1},
+    {t:"Pistes laissées en AUTO", d:"AUTO choisit au vent réel, comme IF. La piste attendue se note pour comparaison, elle ne se tape pas.", r:"0"},
+    {t:"Fuel Planning réglé", d:"MEL, ATC, WXX et Tankering à 0. EXTRA non nul seulement avec un motif écrit.", r:"0"},
+    {t:"Text Entries remplis", d:"Pilot ID, Captain Name, et dans les remarks : piste attendue, seuil BINGO, dégagement.", r:"0"},
+    {t:"Route collée dans Selected Route", d:"Format ATC, sans les terrains.", r:"0"},
+    {t:"Alternate Airports réglé", d:"Critères 400 / 600 / 3000 / 7000, dégagement en DCT. Takeoff et Enroute seulement si le vol l'exige.", r:"0"},
+    {t:"ETOPS traité", d:"n/a sur vol continental. Sinon Threshold 60 min, Scenario Auto, puis Calculate.", r:"0"},
+    {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé.", r:"0", w:1}
+  ]},
+
+  { n:"OFP & cartouche", s:"Lecture du plan, seuils carburant", items:[
+    {t:"Cartouche rempli", d:"Piste {{piste}} · V1/VR/V2 {{v1}}/{{vr}}/{{v2}} · Flex {{flex}} · Volets {{volets}} · Bloc {{bloc}} · ILS {{ils}} · DA {{da}} · Vapp {{vapp}} · Dégagement {{degag}}.", r:"A.4"},
+    {t:"Masses dans les limites", d:"TOW sous MTOW et LW sous MLW. Hors limite = NO-GO, sans discussion.", r:"8", w:1},
+    {t:"Bloc supérieur à la somme des postes", d:"Sinon NO-GO.", r:"8", w:1},
+    {t:"Route contrôlée", d:"Aucun waypoint dupliqué, FL conforme à la règle semi-circulaire. SimBrief ne signale ni l'un ni l'autre.", r:"1", w:1},
+    {t:"MIN DIV calculé", d:"Dégagement + réserve finale = {{mindiv}}.", r:"3"},
+    {t:"BINGO calculé", d:"MIN DIV + 5 % = {{bingo}}. En dessous, la décision de dérouter se prend, elle ne se discute plus.", r:"3"},
+    {t:"Points de contrôle carburant choisis", d:"Deux ou trois waypoints du navlog, à comparer à la jauge en vol.", r:"3"},
+    {t:"Météo des trois terrains lue", d:"METAR et TAF départ, arrivée, dégagement. Minima d'arrivée contre la météo prévue à l'ETA.", r:"6"},
+    {t:"NOTAM lus", d:"Départ, arrivée, dégagement, FIR.", r:"1"},
+    {t:"OFP de moins de 2 h", d:"Au-delà, la météo et les vents ne valent plus.", r:"8"}
+  ]},
+
+  { n:"Import & MCDU", s:"Les trois contrôles qui décident si le vol est préparé", items:[
+    {t:"Import SimBrief lancé, F-PLN affichée", d:"FROM/TO, FLT NBR, CI, ZFW, BLOCK, CRZ FL, piste, FLAPS/THS, FLEX, V1/VR/V2 et la page APPR arrivent seuls. On relit, on ne retape pas.", r:"2.1"},
+    {t:"① Distance MCDU ≈ distance OFP", d:"Écart toléré 10 NM ou 2 %. 0.0 NM après import = route NON construite : rien d'autre ne se paramètre avant correction.", r:"2.2", w:1},
+    {t:"② Vitesses cohérentes et pour la bonne piste", d:"V1 ≤ VR ≤ V2. V1 = VR est normal ; seul V1 > VR est une erreur.", r:"2.2", w:1},
+    {t:"Masse réelle contrôlée", d:"GW en FUEL PRED comparée à l'ETOW : le ZFW s'importe faux (2,1 t constatées sur A318). Marge au MTOW à vérifier sur la masse réelle.", r:"2.3", w:1},
+    {t:"③ Croisière saisie", d:"CRZ FL/TEMP au format FL350/-54 sur INIT 1/2 ou PERF CRUISE. L'altitude sélectionnée au pilote automatique bouge avec : la revérifier.", r:"2.2", w:1},
+    {t:"ALTN saisi à la main sur INIT 1/2", d:"L'import ne l'apporte pas. Appui LSK à scratchpad vide pour restaurer la valeur SimBrief.", r:"2.1"},
+    {t:"Contraintes d'altitude saisies et relues", d:"Via VERT REV. Le magenta sur la F-PLN ne prouve rien : seul ALT CSTR renseigné confirme une contrainte.", r:"2.1", w:1},
+    {t:"Contraintes de vitesse notées à part", d:"Elles n'existent pas dans le MCDU. À tenir au sélecteur du pilote automatique.", r:"2.1"},
+    {t:"Page APPR relue", d:"Piste {{arrpiste}}, ILS {{ils}}, fréquence, TRANS LVL (affiché sans préfixe FL), VAPP, LDG CONF.", r:"2.1"},
+    {t:"Écart Vapp arbitré", d:"Vapp du MCDU observée 11 kt sous SimBrief. Écart supérieur à 5 kt : c'est la valeur SimBrief qui se tient au sélecteur.", r:"2.3", w:1},
+    {t:"Scratchpad vide, aucun message ambre", d:"Dernier contrôle avant repoussage.", r:"2.2"}
+  ]},
+
+  { n:"Briefing départ", s:"Ce que rien ne déclenchera tout seul", items:[
+    {t:"Trois altitudes notées", d:"Réduction {{thrred}} ft · Accélération {{accel}} ft · Transition. Absentes du MCDU : elles se tiennent à la main.", r:"4", w:1},
+    {t:"Briefing panne énoncé", d:"Avant V1 : interruption, idle, freinage max, inverseurs, spoilers, immobilisation, annonce. Après V1 : assiette V2, symétrie, EOSID ou cap piste, altitude de sécurité, retour ou dégagement.", r:"4"},
+    {t:"Cas cisaillement dit", d:"TOGA, assiette de sauvegarde, configuration conservée. Cisaillement signalé : flex interdite.", r:"4", w:1},
+    {t:"Limites de vent du type connues", d:"Travers et arrière maximum, réduits sur piste mouillée ou contaminée. L'OFP ne les porte pas.", r:"4"},
+    {t:"Point d'ANNOUNCE INBOUND préparé", d:"{{inbwpt}} à {{inbound}} NM du seuil, cumulé à l'envers depuis la ligne de la piste.", r:"6.6"},
+    {t:"GO prononcé", d:"Ou NO-GO motivé sur l'un des quatre points bloquants.", r:"8"}
+  ]},
+
+  { n:"Avant mise en route", s:"Poste préparé, avion pas encore vivant", items:[
+    {t:"ATIS écouté", d:"Piste en service, QNH, information en cours.", r:"7"},
+    {t:"Feux de position, puis beacon avant démarrage", d:"", r:"7"},
+    {t:"Altimètres au QNH", d:"Contrôle : élévation affichée à ± 75 ft.", r:"7"},
+    {t:"Transpondeur sur STBY", d:"Il passe sur ALT à l'alignement, pas avant.", r:"7"},
+    {t:"Volets {{volets}}, trim réglé, spoilers armés", d:"IF ne fournit pas de centrage : le trim se prend dans la table du type, le champ THS reste à tirets.", r:"7"},
+    {t:"Briefing décollage énoncé", d:"", r:"7"}
+  ]},
+
+  { n:"Roulage", s:"Du repoussage au point d'arrêt", items:[
+    {t:"Pushback et taxi obtenus au Ground", d:"IF n'a pas de Clearance Delivery. Le squawk est attribué automatiquement : ne pas le demander.", r:"7", w:1},
+    {t:"Carte sol suivie en continu", d:"", r:"7"},
+    {t:"QNH confirmé, piste confirmée à l'ATIS", d:"", r:"7"},
+    {t:"Piste en service = piste prévue", d:"Sinon les quatre vitesses et la flex sont à REFAIRE, pas à ajuster.", r:"7", w:1},
+    {t:"Durée de roulage comparée au taxi fuel", d:"", r:"7"},
+    {t:"Contrôle avant alignement", d:"Volets, trim, spoilers, transpondeur ALT, landing lights, strobes, A/THR armé, vitesses affichées — et l'approche finale regardée, pas seulement la piste.", r:"7"}
+  ]},
+
+  { n:"Décollage & montée", s:"Jusqu'au niveau de croisière", items:[
+    {t:"A/THR armé avant lâcher frein", d:"", r:"4"},
+    {t:"Poussée stabilisée avant 80 kt", d:"", r:"4"},
+    {t:"Rotation à VR {{vr}}, 3°/s", d:"", r:"4"},
+    {t:"Train rentré à Vz positive", d:"", r:"4"},
+    {t:"Réduction de poussée à {{thrred}} ft", d:"À commander à la main : rien ne la déclenchera.", r:"4", w:1},
+    {t:"Volets rentrés à l'accélération", d:"Schedule lu à l'envers : F speed, puis S speed, puis green dot. Les VFE s'appliquent aussi à la rentrée.", r:"6.1", w:1},
+    {t:"250 kt tenus sous 10 000 ft", d:"", r:"5"},
+    {t:"Profil de montée tenu", d:"1800–2200 fpm sous 10 000, puis dégressif. Transition IAS → Mach vers FL260–280.", r:"5"},
+    {t:"Vz de fin de montée surveillée", d:"Sous 300 fpm, le niveau est trop élevé pour la masse : demander plus bas.", r:"5", w:1},
+    {t:"RVSM entre FL290 et FL410", d:"Écart entre altimètres inférieur à 200 ft.", r:"5"}
+  ]},
+
+  { n:"Croisière", s:"Surveillance, pas pilotage", items:[
+    {t:"Croisière {{fl}} établie et confirmée au MCDU", d:"", r:"2.2"},
+    {t:"Marge de buffet respectée", d:"Voler au moins 2000 ft sous le FL maximum.", r:"5", w:1},
+    {t:"Carburant relevé au 1ᵉʳ point de contrôle", d:"Jauge contre colonne du navlog. Ne pas se fier à FUEL PRED, qui extrapole le débit courant.", r:"3", w:1},
+    {t:"Carburant relevé au 2ᵉ point de contrôle", d:"Écart défavorable de plus de 3 % du bloc : ZFW et CI, vent réel, niveau, Mach LRC, puis déroutement.", r:"3"},
+    {t:"GS et ETA suivis", d:"Un écart qui grandit à chaque point est une tendance : elle se traite là où on la voit.", r:"5"},
+    {t:"Step climb traité s'il y en a un", d:"Tout step change le CRZ FL : reprendre le contrôle ③.", r:"5"},
+    {t:"OAT réelle comparée au navlog", d:"Un écart notable fausse le TOD.", r:"5"},
+    {t:"Météo destination prise au plus tard 1 h avant le TOD", d:"Dégagement toujours utilisable, sinon on en change maintenant.", r:"5"}
+  ]},
+
+  { n:"Préparation arrivée & descente", s:"Tout se calcule avant de descendre", items:[
+    {t:"Distances cumulées à l'envers depuis la piste", d:"La colonne de la F-PLN donne la longueur du tronçon menant au point, pas la distance restante.", r:"6.6", w:1},
+    {t:"Point d'ANNOUNCE INBOUND retenu", d:"{{inbwpt}} à {{inbound}} NM. Environ 25 NM du seuil avec ATC, 10 NM sur Unicom. Secours : l'IAF plus un tronçon.", r:"6.6"},
+    {t:"TOD manuel calculé", d:"(milliers de ft à perdre) × 3, + 10 NM pour décélérer, ± 1 NM par 10 kt de vent. À comparer au TOD du MCDU une fois établi en croisière, écart max 15 NM.", r:"5"},
+    {t:"Minima chartés notés", d:"DA {{da}} ft, DH, RVR mini, FAF et course. Ils sont sur les cartes, pas dans le MCDU.", r:"6"},
+    {t:"Météo à l'ETA au-dessus des minima", d:"Sinon dégagement, décidé maintenant.", r:"6", w:1},
+    {t:"Vref calculée à la masse d'arrivée", d:"LW {{lw}} t → Vref {{vref}} kt, conf FULL. La masse se lit sur le LW de l'OFP, pas sur le ZFW ni l'ETOW.", r:"6.2"},
+    {t:"Vapp arrêtée", d:"{{vapp}} kt. Vref + 5 au minimum, + 1/3 de la composante de face, + l'incrément de rafale, plafond Vref + 15.", r:"6.2"},
+    {t:"Descente conduite", d:"1500–2000 fpm, 250 kt sous 10 000, aérofreins jusqu'à 50 %. Ne jamais combiner aérofreins et train pour rattraper un profil : demander une attente.", r:"5", w:1},
+    {t:"Carburant contrôlé au-dessus du BINGO", d:"{{bingo}}. En dessous, on déroute.", r:"3", w:1},
+    {t:"ANNOUNCE INBOUND fait au point prévu", d:"Type d'approche et piste annoncés. Trop tôt encombre la fréquence, trop tard fait découvrir l'avion à un trafic déjà en vent arrière.", r:"6.6"}
+  ]},
+
+  { n:"Approche & configuration", s:"Le schedule volets, cran par cran", items:[
+    {t:"Décélération vers green dot, avion lisse", d:"", r:"6.1"},
+    {t:"Conf 1 sélectionnée vers 205 kt", d:"VFE 230 kt. On sélectionne à la vitesse de sélection, jamais à la VFE.", r:"6.1", w:1},
+    {t:"Conf 2 à S speed, vers 190 kt", d:"VFE 200 kt.", r:"6.1"},
+    {t:"Conf 3 et train ensemble, vers 175 kt", d:"VFE 185 kt. Un point sous le plan ou vers 2000 ft.", r:"6.1"},
+    {t:"FULL une fois établi, vers 160 kt", d:"VFE 177 kt. Sortir FULL tôt fait traîner l'avion et brûle le carburant qu'on compte.", r:"6.1", w:1},
+    {t:"Tower contacté, ou annonce de finale sur Unicom", d:"Entre 15 et 10 NM avec ATC. Sur 122.800 : intentions, position, piste, aéroport nommé.", r:"6.6"},
+    {t:"Stabilisation contrôlée à 1000 ft IMC / 500 ft VMC", d:"Configuration finale, Vapp +10/−5, dans l'axe et sur le plan, moins de 1000 fpm, poussée stabilisée. Un seul critère non tenu : remise de gaz.", r:"6.4", w:1}
+  ]},
+
+  { n:"Arrondi & atterrissage", s:"Ce qui se pilote est l'assiette", items:[
+    {t:"50 ft — Vapp tenue, plan tenu, axe tenu", d:"", r:"6.3"},
+    {t:"30 ft — arrondi commencé, assiette vers 5°", d:"Il n'y a pas de vitesse cible dans l'arrondi. Chercher un chiffre au badin produit un arrondi haut ou un toucher dur.", r:"6.3", w:1},
+    {t:"20 ft — gaz réduits à idle", d:"", r:"6.3"},
+    {t:"Toucher train principal, assiette maintenue", d:"Assiette au maximum 7,5° : la limite de tail strike est à 11,7° train comprimé. Ne pas reposer le train avant brutalement.", r:"6.3", w:1},
+    {t:"Toucher dans la zone visée", d:"1000 ft après le seuil, ± 300. Au-delà de 2000 ft : remise de gaz obligatoire.", r:"6.5", w:1},
+    {t:"Spoilers vérifiés, sortie manuelle si besoin", d:"", r:"6.5"},
+    {t:"Inverseurs, autobrake, puis freinage manuel en fin de course", d:"", r:"6.5"},
+    {t:"Piste dégagée annoncée après dégagement complet", d:"", r:"6.5"}
+  ]},
+
+  { n:"Parking & après-vol", s:"Le vol ne se termine pas au frein de parc", items:[
+    {t:"Ground contacté, taxi jusqu'au poste", d:"", r:"7"},
+    {t:"Frein de parc, feux de position seuls", d:"", r:"7"},
+    {t:"AIDS FLIGHT REPORT relevé", d:"FOB, GW, temps moteur, temps de vol. Il remplace le relevé à la jauge.", r:"9"},
+    {t:"AIDS LANDING REPORT relevé", d:"Vitesse au toucher, Vz, G max, écart d'axe. Seule mesure objective de la tenue d'approche.", r:"9"},
+    {t:"Ligne ajoutée au tableau des relevés de toucher", d:"GW, TD IAS, Vz, G, axe — la plage de décélération d'arrondi est en observation.", r:"6.3"},
+    {t:"Écarts SimBrief relevés", d:"Les six lignes laissées en AUTO : pistes, contingence, réserve, taxi, FOB, FOD.", r:"9"},
+    {t:"Carburant, ETE et TOD prévus contre réels", d:"Trois vols alimentent le Fuel Factor : si IF brûle systématiquement plus, P00 devient Pxx.", r:"9"},
+    {t:"Comportement FMS inattendu noté", d:"Et la ligne du dossier à corriger.", r:"9"},
+    {t:"Rubrique en doublon avec l'OFP notée", d:"Elle saute à la révision suivante.", r:"9"}
+  ]}
+];
+
+/* ============================================================
+   ETAT ET STOCKAGE
+   Progression et valeurs dans une cle, briefing dans une autre :
+   un dossier volumineux ne peut plus faire perdre le vol en cours.
+   Repli automatique : hote -> localStorage -> memoire de session.
+============================================================ */
+const KEY = 'if-checklist-v1';
+const DOC_KEY = 'if-checklist-doc-v1';
+
+let state = { done:{}, values:{}, open:0, doc:null, rev:null };
+let allOpen = false, memoryOnly = false, docDirty = false;
+
+const store = (function(){
+  const host = (window.storage && typeof window.storage.get === 'function') ? window.storage : null;
+  let useHost = !!host;
+  function ls(){ try{ return window.localStorage; }catch(e){ return null; } }
+  return {
+    async get(k){
+      if(useHost){
+        try{ const r = await host.get(k); return (r && r.value != null) ? r.value : null; }
+        catch(e){ useHost = false; }
+      }
+      const s = ls(); return s ? s.getItem(k) : null;
+    },
+    async set(k,v){
+      if(useHost){
+        try{ await host.set(k,v); return; }
+        catch(e){ useHost = false; }
+      }
+      const s = ls();
+      if(!s) throw new Error('stockage indisponible');
+      s.setItem(k,v);
+    },
+    async remove(k){
+      if(useHost){ try{ await host.set(k,''); return; }catch(e){ useHost = false; } }
+      const s = ls(); if(s) s.removeItem(k);
+    }
+  };
+})();
+
+/* on n'adopte que ce qui a le bon type : un stockage abime ne casse pas la page */
+function adopt(o){
+  if(!o || typeof o !== 'object') return;
+  if(o.done   && typeof o.done   === 'object') state.done   = Object.assign({}, o.done);
+  if(o.values && typeof o.values === 'object') state.values = Object.assign({}, o.values);
+  if(typeof o.open === 'number') state.open = o.open;
+  if(typeof o.rev  === 'string') state.rev  = o.rev;
+  /* ancienne version : le briefing vivait dans la meme cle */
+  if(typeof o.doc === 'string' && o.doc){ state.doc = o.doc; docDirty = true; }
+}
+
+async function load(){
+  try{
+    const raw = await store.get(KEY);
+    if(raw) adopt(JSON.parse(raw));
+  }catch(e){ /* premiere ouverture, ou stockage indisponible */ }
+  try{
+    const doc = await store.get(DOC_KEY);
+    if(doc) state.doc = doc;
+  }catch(e){ /* le bouton Charger reste la */ }
+}
+
+let saveTimer = null;
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(flush, 250); }
+
+async function flush(){
+  clearTimeout(saveTimer); saveTimer = null;
+  try{
+    await store.set(KEY, JSON.stringify({
+      done:state.done, values:state.values, open:state.open, rev:state.rev
+    }));
+  }catch(e){
+    if(!memoryOnly){ memoryOnly = true; toast("Progression gardée pour cette session seulement"); }
+    return;
+  }
+  if(docDirty){
+    docDirty = false;
+    try{
+      if(state.doc) await store.set(DOC_KEY, state.doc);
+      else await store.remove(DOC_KEY);
+    }catch(e){
+      /* dossier trop lourd pour le stockage : on le garde en memoire,
+         la progression, elle, vient d'etre ecrite */
+      try{ await store.remove(DOC_KEY); }catch(e2){}
+      toast("Briefing gardé pour cette session seulement");
+    }
+  }
+}
+
+/* une case cochee juste avant de fermer l'onglet ne se perd pas */
+function flushNow(){ if(saveTimer) flush(); }
+window.addEventListener('pagehide', flushNow);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') flushNow(); });
+
+const id = (p,i)=> p+'-'+i;
+
+/* ============================================================
+   ELEMENTS
+============================================================ */
+const el = {
+  phases:   document.getElementById('phases'),
+  hdrCount: document.getElementById('hdrCount'),
+  header:   document.querySelector('header'),
+  footBar:  document.getElementById('footBar'),
+  footPct:  document.getElementById('footPct'),
+  footWrap: document.querySelector('.foot .bar'),
+  footPhase:document.getElementById('footPhase'),
+  revTag:   document.getElementById('revTag'),
+  pfPath:   document.getElementById('pfPath'),
+  pfDone:   document.getElementById('pfDone'),
+  pfNodes:  document.getElementById('pfNodes'),
+  drawer:   document.getElementById('drawer'),
+  drTitle:  document.getElementById('drTitle'),
+  drBody:   document.getElementById('drBody'),
+  drClose:  document.getElementById('drClose'),
+  toastEl:  document.getElementById('toast'),
+  valGrid:  document.getElementById('valGrid'),
+  valuesSheet: document.getElementById('valuesSheet'),
+  btnValues:document.getElementById('btnValues'),
+  btnOpen:  document.getElementById('btnOpen'),
+  btnLoad:  document.getElementById('btnLoad'),
+  btnReset: document.getElementById('btnReset'),
+  file:     document.getElementById('file')
+};
+
+/* ============================================================
+   RENDU
+============================================================ */
+function esc(s){
+  return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+/* {{cle}} devient une pastille reperable, mise a jour sans reconstruire la liste */
+const PLACEHOLDER = /\{\{(\w+)\}\}/g;
+function valSpan(k){
+  const v = (state.values[k]||'').trim();
+  return '<span class="val'+(v?'':' empty')+'" data-k="'+esc(k)+'">'+esc(v||'___')+'</span>';
+}
+function inject(txt){
+  let out = '', last = 0, m;
+  PLACEHOLDER.lastIndex = 0;
+  while((m = PLACEHOLDER.exec(txt))){
+    out += esc(txt.slice(last, m.index)) + valSpan(m[1]);
+    last = PLACEHOLDER.lastIndex;
+  }
+  return out + esc(txt.slice(last));
+}
+function refreshValues(){
+  el.phases.querySelectorAll('.val[data-k]').forEach(node=>{
+    const v = (state.values[node.dataset.k]||'').trim();
+    node.textContent = v || '___';
+    node.classList.toggle('empty', !v);
+  });
+}
+
+const secs = [];   /* une section par phase, dans l'ordre */
+
+function render(){
+  const frag = document.createDocumentFragment();
+  secs.length = 0;
+
+  PHASES.forEach((ph,pi)=>{
+    const sec = document.createElement('section');
+    sec.className = 'phase';
+    sec.dataset.p = pi;
+
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'ph-head';
+    head.id = 'ph-head-'+pi;
+    head.setAttribute('aria-controls', 'ph-body-'+pi);
+    head.innerHTML =
+      '<span class="ph-idx">'+String(pi+1).padStart(2,'0')+'</span>'+
+      '<span class="ph-title">'+esc(ph.n)+
+        (ph.s ? '<span class="ph-sub">'+esc(ph.s)+'</span>' : '')+
+      '</span>'+
+      '<span class="ph-count"></span>'+
+      '<span class="chev" aria-hidden="true"></span>';
+    sec.appendChild(head);
+
+    const barw = document.createElement('div');
+    barw.className = 'ph-bar';
+    barw.innerHTML = '<div class="bar"><span></span></div>';
+    sec.appendChild(barw);
+
+    const body = document.createElement('div');
+    body.className = 'ph-body';
+    body.id = 'ph-body-'+pi;
+    body.setAttribute('role','group');
+    body.setAttribute('aria-labelledby','ph-head-'+pi);
+
+    ph.items.forEach((it,ii)=>{
+      const on = !!state.done[id(pi,ii)];
+      const row = document.createElement('div');
+      row.className = 'item' + (on?' done':'') + (it.w?' warn':'');
+      row.dataset.p = pi; row.dataset.i = ii;
+      row.setAttribute('role','checkbox');
+      row.setAttribute('aria-checked', on?'true':'false');
+      row.tabIndex = 0;
+      row.innerHTML =
+        '<span class="box" aria-hidden="true"></span>'+
+        '<span class="it-txt"><span class="it-t">'+inject(it.t)+'</span>'+
+          (it.d ? '<span class="it-d">'+inject(it.d)+'</span>' : '')+
+        '</span>'+
+        (it.r ? '<button type="button" class="ref" data-ref="'+esc(it.r)+'"'+
+                ' aria-label="Ouvrir la section '+esc(it.r)+' du briefing">§'+esc(it.r)+'</button>' : '');
+      body.appendChild(row);
+    });
+
+    sec.appendChild(body);
+    frag.appendChild(sec);
+    secs.push(sec);
+  });
+
+  el.phases.innerHTML = '';
+  el.phases.appendChild(frag);
+  applyOpen();
+  PHASES.forEach((_,pi)=> paintPhase(pi));
+  paintProgress();
+}
+
+/* un seul ecouteur pour toute la liste : rien a rebrancher a chaque redessin */
+el.phases.addEventListener('click', e=>{
+  const ref = e.target.closest('.ref');
+  if(ref){ openRef(ref.dataset.ref); return; }
+  const head = e.target.closest('.ph-head');
+  if(head){ onHead(+head.parentElement.dataset.p); return; }
+  const row = e.target.closest('.item');
+  if(row) toggleRow(row);
+});
+el.phases.addEventListener('keydown', e=>{
+  if(e.key !== ' ' && e.key !== 'Enter') return;
+  const row = e.target.classList && e.target.classList.contains('item') ? e.target : null;
+  if(row){ e.preventDefault(); toggleRow(row); }
+});
+
+/* cocher ne reconstruit plus la page : defilement, focus et sections
+   depliees restent ou le pilote les a laisses */
+function toggleRow(row){
+  const pi = +row.dataset.p, key = id(pi, +row.dataset.i);
+  if(state.done[key]) delete state.done[key]; else state.done[key] = true;
+  const on = !!state.done[key];
+  row.classList.toggle('done', on);
+  row.setAttribute('aria-checked', on?'true':'false');
+  paintPhase(pi);
+  paintProgress();
+  save();
+}
+
+function doneCount(pi){
+  let d = 0;
+  PHASES[pi].items.forEach((_,ii)=>{ if(state.done[id(pi,ii)]) d++; });
+  return d;
+}
+
+function paintPhase(pi){
+  const sec = secs[pi]; if(!sec) return;
+  const total = PHASES[pi].items.length, done = doneCount(pi);
+  sec.querySelector('.ph-count').textContent = done+'/'+total;
+  sec.querySelector('.ph-bar .bar span').style.width = (total ? done/total*100 : 0)+'%';
+  sec.classList.toggle('complete', total > 0 && done === total);
+}
+
+function applyOpen(){
+  secs.forEach((sec,pi)=>{
+    const open = allOpen || state.open === pi;
+    sec.classList.toggle('open', open);
+    sec.classList.toggle('active', state.open === pi);
+    sec.querySelector('.ph-head').setAttribute('aria-expanded', open ? 'true':'false');
+  });
+}
+
+function onHead(pi){
+  if(allOpen){                       /* tout est deplie : on ne referme que celle-ci */
+    const sec = secs[pi];
+    const open = !sec.classList.contains('open');
+    sec.classList.toggle('open', open);
+    sec.querySelector('.ph-head').setAttribute('aria-expanded', open ? 'true':'false');
+    return;
+  }
+  state.open = (state.open === pi ? -1 : pi);
+  applyOpen();
+  paintProgress();
+  save();
+  if(state.open === pi) scrollPhase(pi);
+}
+
+function openPhase(pi){
+  allOpen = false; syncOpenBtn();
+  state.open = pi;
+  applyOpen(); paintProgress(); save(); scrollPhase(pi);
+}
+
+function scrollPhase(pi){
+  if(pi < 0) return;
+  requestAnimationFrame(()=>{
+    const sec = secs[pi]; if(!sec) return;
+    const marge = (el.header ? el.header.offsetHeight : 130) + 12;
+    const y = sec.getBoundingClientRect().top + window.scrollY - marge;
+    window.scrollTo({top:Math.max(0,y), behavior:'smooth'});
+  });
+}
+
+/* --- profil de vol + compteurs --- */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs){
+  const e = document.createElementNS(SVGNS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function buildNodes(){
+  const L = el.pfPath.getTotalLength(), n = PHASES.length;
+  el.pfNodes.textContent = '';
+  PHASES.forEach((ph,i)=>{
+    const p = el.pfPath.getPointAtLength(n > 1 ? L*(i/(n-1)) : L/2);
+    const g = svgEl('g', {'class':'node', 'data-p':i});
+    g.appendChild(svgEl('circle', {'class':'ring', cx:p.x, cy:p.y, r:6}));
+    const t = svgEl('text', {'class':'num', x:p.x, y:p.y+0.5});
+    t.textContent = i+1;
+    g.appendChild(t);
+    g.addEventListener('click', ()=> openPhase(i));
+    el.pfNodes.appendChild(g);
+  });
+  el.pfNodes.appendChild(svgEl('text', {'class':'pf-label', id:'pfLabel', x:500, y:34}));
+}
+
+function paintProgress(){
+  let all = 0, ok = 0, lastComplete = -1;
+  PHASES.forEach((ph,pi)=>{
+    const d = doneCount(pi);
+    all += ph.items.length; ok += d;
+    if(d === ph.items.length) lastComplete = pi;
+  });
+  const pct = all ? ok/all : 0, pctInt = Math.round(pct*100);
+
+  el.hdrCount.innerHTML = '<b>'+ok+'</b>/'+all;
+  el.footBar.style.width = (pct*100)+'%';
+  el.footPct.textContent = pctInt+'%';
+  if(el.footWrap) el.footWrap.setAttribute('aria-valuenow', pctInt);
+
+  const cur = state.open >= 0 ? state.open : Math.min(lastComplete+1, PHASES.length-1);
+  el.footPhase.textContent = PHASES[cur] ? PHASES[cur].n : 'Vol';
+
+  const L = el.pfPath.getTotalLength();
+  el.pfDone.style.strokeDasharray = (L*pct)+' '+L;
+  el.pfNodes.querySelectorAll('.node').forEach((g,i)=>{
+    g.classList.toggle('done', doneCount(i) === PHASES[i].items.length);
+    g.classList.toggle('active', i === cur);
+  });
+  const lbl = document.getElementById('pfLabel');
+  if(lbl) lbl.textContent = PHASES[cur] ? PHASES[cur].n : '';
+}
+
+/* ============================================================
+   VALEURS DU VOL
+============================================================ */
+/* champs strictement chiffres : clavier numerique sur tablette */
+const NUM = ['v1','vr','v2','flex','thrred','accel','bloc','bingo','mindiv',
+             'da','lw','vref','vapp','inbound','degcap','degdist'];
+
+function buildValues(){
+  const frag = document.createDocumentFragment();
+  FIELDS.forEach(([k,label])=>{
+    const d = document.createElement('div');
+    d.className = 'fld';
+    d.innerHTML =
+      '<label for="f-'+k+'">'+esc(label)+'</label>'+
+      '<input id="f-'+k+'" autocomplete="off" spellcheck="false" enterkeyhint="done"'+
+      (NUM.indexOf(k) >= 0 ? ' inputmode="decimal"' : '')+'>';
+    const inp = d.querySelector('input');
+    inp.value = state.values[k] || '';
+    /* saisie : on rafraichit les pastilles, on ne reconstruit pas la checklist */
+    inp.addEventListener('input', ()=>{
+      state.values[k] = inp.value;
+      refreshValues();
+      save();
+    });
+    frag.appendChild(d);
+  });
+  el.valGrid.appendChild(frag);
+}
+
+el.btnValues.addEventListener('click', ()=>{
+  const shown = el.valuesSheet.hidden;
+  el.valuesSheet.hidden = !shown;
+  el.btnValues.classList.toggle('on', shown);
+  el.btnValues.setAttribute('aria-expanded', shown ? 'true':'false');
+  if(shown){
+    const first = el.valGrid.querySelector('input');
+    if(first) first.focus({preventScroll:true});
+  }
+});
+
+/* ============================================================
+   CHARGEMENT DU BRIEFING + LECTURE DES SECTIONS
+============================================================ */
+let docLines = null, docHeads = null;
+
+function applyDoc(txt){
+  state.doc = txt;
+  docLines = docHeads = null;                 /* index a reconstruire */
+  const m = txt.match(/REV\s*(\d+)/i);
+  state.rev = m ? ('REV '+m[1]) : 'BRIEFING';
+  el.revTag.textContent = state.rev;
+  docDirty = true;
+  save();
+}
+
+async function readFile(f){
+  if(!f) return false;
+  if(!/\.(md|markdown|txt)$/i.test(f.name)){
+    toast('Fichier ignoré : .md, .markdown ou .txt attendu'); return false;
+  }
+  try{
+    applyDoc(await f.text());
+    return true;
+  }catch(e){
+    toast('Lecture du fichier impossible'); return false;
+  }
+}
+
+el.btnLoad.addEventListener('click', ()=> el.file.click());
+el.file.addEventListener('change', async e=>{
+  const f = e.target.files[0];
+  e.target.value = '';                        /* le meme fichier peut etre recharge */
+  if(await readFile(f)) toast('Briefing chargé — les renvois § sont lisibles');
+});
+
+/* on n'intercepte que les fichiers : le glisser-deposer de texte dans un champ reste possible */
+const hasFiles = e => !!(e.dataTransfer && Array.from(e.dataTransfer.types||[]).indexOf('Files') >= 0);
+document.addEventListener('dragover', e=>{ if(hasFiles(e)) e.preventDefault(); });
+document.addEventListener('drop', async e=>{
+  if(!hasFiles(e)) return;
+  e.preventDefault();
+  if(await readFile(e.dataTransfer.files[0])) toast('Briefing chargé');
+});
+
+/* index des titres, construit une fois par dossier charge */
+function indexDoc(){
+  docLines = state.doc.split('\n');
+  docHeads = [];
+  let inCode = false;
+  docLines.forEach((l,i)=>{
+    if(/^```/.test(l)){ inCode = !inCode; return; }
+    if(inCode) return;                         /* un # dans un bloc de code n'est pas un titre */
+    const m = l.match(/^(#{1,4})\s+(.*)$/);
+    if(m) docHeads.push({lvl:m[1].length, txt:m[2].replace(/[*`]/g,'').trim(), i:i});
+  });
+}
+
+/* extrait une section du markdown a partir de son numero (0, 2.3, 6.6, A.4) */
+function section(ref){
+  if(!state.doc) return null;
+  if(!docHeads) indexDoc();
+  /* "2" ne doit pas attraper "2.1" : apres le numero, un separateur est exige */
+  const start = docHeads.findIndex(h=>
+    h.txt === ref || (h.txt.slice(0,ref.length) === ref && /^[\s·:\-–—]/.test(h.txt.slice(ref.length)))
+  );
+  if(start < 0) return null;
+  const h = docHeads[start];
+  let end = docLines.length;
+  for(let k = start+1; k < docHeads.length; k++){
+    if(docHeads[k].lvl <= h.lvl){ end = docHeads[k].i; break; }
+  }
+  return { title:h.txt, body:docLines.slice(h.i+1, end).join('\n').trim() };
+}
+
+/* rendu markdown minimal, suffisant pour ce dossier */
+function md2html(src){
+  const out = [], lines = src.split('\n');
+  let i = 0, inCode = false, code = [];
+  const inline = s => esc(s)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/⚠/g,'<span class="w">⚠</span>');
+  const BLOCK = /^(#{1,4}\s|\s*[-*]\s|\s*\d+[.)]\s|\s*\||```)/;
+
+  while(i < lines.length){
+    const l = lines[i];
+    if(/^```/.test(l)){
+      if(inCode){ out.push('<pre>'+esc(code.join('\n'))+'</pre>'); code = []; inCode = false; }
+      else inCode = true;
+      i++; continue;
+    }
+    if(inCode){ code.push(l); i++; continue; }
+
+    if(/^\s*\|/.test(l) && /^\s*\|/.test(lines[i+1]||'') && /-{2,}/.test(lines[i+1]||'')){
+      const cells = r => r.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      const head = cells(l); i += 2;
+      const rows = [];
+      while(i < lines.length && /^\s*\|/.test(lines[i])){ rows.push(cells(lines[i])); i++; }
+      out.push('<table><thead><tr>'+head.map(c=>'<th>'+inline(c)+'</th>').join('')+'</tr></thead><tbody>'+
+        rows.map(r=>'<tr>'+r.map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table>');
+      continue;
+    }
+
+    const hm = l.match(/^(#{1,4})\s+(.*)$/);
+    if(hm){ out.push('<h3>'+inline(hm[2])+'</h3>'); i++; continue; }
+
+    if(/^\s*[-*]\s+/.test(l)){
+      const items = [];
+      while(i < lines.length && /^\s*[-*]\s+/.test(lines[i])){ items.push(lines[i].replace(/^\s*[-*]\s+/,'')); i++; }
+      out.push('<ul>'+items.map(t=>'<li>'+inline(t)+'</li>').join('')+'</ul>');
+      continue;
+    }
+    if(/^\s*\d+[.)]\s+/.test(l)){
+      const items = [];
+      while(i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])){ items.push(lines[i].replace(/^\s*\d+[.)]\s+/,'')); i++; }
+      out.push('<ol>'+items.map(t=>'<li>'+inline(t)+'</li>').join('')+'</ol>');
+      continue;
+    }
+
+    if(/^\s*---+\s*$/.test(l)){ i++; continue; }
+    if(l.trim() === ''){ i++; continue; }
+
+    const para = [];
+    while(i < lines.length && lines[i].trim() !== '' && !BLOCK.test(lines[i])){ para.push(lines[i]); i++; }
+    out.push('<p>'+inline(para.join(' '))+'</p>');
+  }
+  if(inCode && code.length) out.push('<pre>'+esc(code.join('\n'))+'</pre>');
+  return out.join('');
+}
+
+let lastFocus = null;
+function openRef(ref){
+  if(!state.doc){
+    el.drTitle.textContent = '§'+ref;
+    el.drBody.innerHTML = '<div class="empty-state">Le briefing n\'est pas chargé. Touchez « Charger le briefing » en haut et choisissez le fichier .md de la REV 11 : le texte exact de chaque renvoi s\'ouvrira ici.</div>';
+  }else{
+    const s = section(ref);
+    if(!s){
+      el.drTitle.textContent = '§'+ref;
+      el.drBody.innerHTML = '<div class="empty-state">Section introuvable dans le fichier chargé. Vérifiez qu\'il s\'agit bien du dossier complet, et non d\'un extrait.</div>';
+    }else{
+      el.drTitle.textContent = s.title;
+      el.drBody.innerHTML = md2html(s.body);
+    }
+  }
+  lastFocus = document.activeElement;
+  el.drawer.classList.add('open');
+  el.drawer.removeAttribute('aria-hidden');
+  document.body.style.overflow = 'hidden';
+  el.drBody.parentElement.scrollTop = 0;
+  el.drClose.focus({preventScroll:true});
+}
+
+function closeRef(){
+  if(!el.drawer.classList.contains('open')) return;
+  el.drawer.classList.remove('open');
+  el.drawer.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+  if(lastFocus && lastFocus.focus) lastFocus.focus({preventScroll:true});
+  lastFocus = null;
+}
+
+el.drClose.addEventListener('click', closeRef);
+el.drawer.addEventListener('click', e=>{ if(e.target === el.drawer) closeRef(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeRef(); });
+
+/* le clavier reste dans le lecteur tant qu'il est ouvert */
+el.drawer.addEventListener('keydown', e=>{
+  if(e.key !== 'Tab') return;
+  const f = Array.prototype.filter.call(
+    el.drawer.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'),
+    x => x.offsetParent !== null
+  );
+  if(!f.length) return;
+  const first = f[0], last = f[f.length-1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+
+/* ============================================================
+   OUTILS
+============================================================ */
+function syncOpenBtn(){
+  el.btnOpen.textContent = allOpen ? 'Tout replier' : 'Tout déplier';
+  el.btnOpen.classList.toggle('on', allOpen);
+  el.btnOpen.setAttribute('aria-pressed', allOpen ? 'true':'false');
+}
+el.btnOpen.addEventListener('click', ()=>{
+  allOpen = !allOpen;
+  syncOpenBtn();
+  applyOpen();
+});
+
+el.btnReset.addEventListener('click', ()=>{
+  if(!confirm('Nouveau vol : toutes les cases se décochent et les valeurs du vol s\'effacent. Le briefing chargé reste.')) return;
+  state.done = {}; state.values = {}; state.open = 0;
+  FIELDS.forEach(([k])=>{ const i = document.getElementById('f-'+k); if(i) i.value = ''; });
+  render();
+  save();
+  window.scrollTo({top:0, behavior:'smooth'});
+  toast('Checklist remise à zéro');
+});
+
+let toastTimer = null;
+function toast(msg){
+  el.toastEl.textContent = msg;
+  el.toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.toastEl.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   DEMARRAGE
+============================================================ */
+/* le briefing publie a cote de la page se charge seul, sans rien toucher */
+async function autoLoad(){
+  if(state.doc) return;
+  try{
+    const r = await fetch('./briefing-REV11.md', {cache:'no-store'});
+    if(!r.ok) return;
+    const txt = await r.text();
+    if(!/BRIEFING/i.test(txt)) return;
+    applyDoc(txt);
+  }catch(e){ /* page ouverte hors serveur : le bouton reste la */ }
+}
+
+(async function(){
+  await load();
+  if(state.rev) el.revTag.textContent = state.rev;
+  buildNodes();
+  buildValues();
+  syncOpenBtn();
+  render();
+  await autoLoad();
+})();
+</script>
+</body>
+</html>
