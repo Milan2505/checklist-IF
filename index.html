@@ -1559,19 +1559,25 @@ function toast(msg){
    DEMARRAGE
 ============================================================ */
 /* le briefing publie a cote de la page se charge seul, sans rien toucher */
+async function tryFetch(nom){
+  try{
+    const r = await fetch(nom, {cache:'no-store'});
+    if(!r.ok) return null;
+    const txt = await r.text();
+    return /BRIEFING/i.test(txt) ? txt : null;
+  }catch(e){ return null; }   /* page ouverte hors serveur : le bouton reste la */
+}
 async function autoLoad(){
-  if(state.doc) return;
-  /* le dossier publie a cote de la page, quelle que soit sa revision */
-  const noms = ['./briefing-REV13.md','./briefing-REV12.md','./briefing-REV11.md','./briefing.md'];
-  for(let i = 0; i < noms.length; i++){
-    try{
-      const r = await fetch(noms[i], {cache:'no-store'});
-      if(!r.ok) continue;
-      const txt = await r.text();
-      if(!/BRIEFING/i.test(txt)) continue;
-      announceDoc(applyDoc(txt));
-      return;
-    }catch(e){ /* page ouverte hors serveur : le bouton reste la */ }
+  /* Noms canoniques, sans numero de revision : la revision se lit DANS le
+     document (le badge l'affiche), pas dans le nom du fichier. Un seul nom
+     stable evite de sonder une dizaine de variantes a chaque ouverture. */
+  if(!state.doc){
+    const t = await tryFetch('./briefing.md');
+    if(t) announceDoc(applyDoc(t));
+  }
+  if(!state.sheet){
+    const t = await tryFetch('./feuille.md');
+    if(t) announceDoc(applyDoc(t));
   }
 }
 
