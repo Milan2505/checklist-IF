@@ -1062,6 +1062,7 @@ const LABELS = {
   'charge utile':'payload',
   'poids zero carburant':'zfw',
   'identifiant du pilote':'pilotid',
+  'heure de depart':'eobt', 'eobt':'eobt',
   'partir':'_dep', 'arriver':'_arr'      /* recomposes en DEP → ARR si besoin */
 };
 
@@ -1083,6 +1084,7 @@ function normLabel(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
           .replace(/[`*]/g,'').replace(/\s+/g,' ').trim();
 }
+
 function cleanCell(s){
   return s.replace(/[`*]/g,'').replace(/\[(SIM|FORM|NAV|CALC)\]/g,'')
           .replace(/\s+/g,' ').trim();
