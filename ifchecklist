@@ -51,7 +51,13 @@ header{
 }
 .hdr-top{display:flex;align-items:baseline;gap:10px;padding:12px 0 8px}
 .brand{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:.13em;text-transform:uppercase}
-.rev{font-family:var(--mono);font-size:11px;color:var(--amber);border:1px solid #4a3a12;background:#221a08;padding:2px 7px;border-radius:999px;letter-spacing:.06em}
+.rev{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.rev-chip{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:999px;
+  letter-spacing:.06em;border:1px solid;white-space:nowrap}
+.rev-chip.doc{color:var(--amber);border-color:#4a3a12;background:#221a08}
+.rev-chip.sheet{color:var(--cyan);border-color:#1c4453;background:#071a20}
+.rev-chip.vide{color:var(--muted);border-color:var(--line);background:transparent}
+.rev-note{font-family:var(--body);font-size:11px;color:var(--muted);letter-spacing:0}
 .hdr-top .spacer{flex:1}
 .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .count b{color:var(--green);font-weight:600}
@@ -112,6 +118,11 @@ header{
 .fld.auto input{border-style:dashed;border-color:#4a6b7a}
 .fld.auto label::after{content:" ⇠ briefing";color:#5f7f8d;letter-spacing:0}
 .hint{padding:0 12px 12px;font-size:12px;color:var(--muted)}
+/* bandeau d'anomalie du cartouche */
+.alert{border:1px solid #6a4212;background:#241605;color:#f0d0a4;border-radius:var(--r);
+  padding:11px 13px;margin:0 0 12px;font-size:13px;line-height:1.5}
+.alert strong{color:var(--amber)}
+.alert-note{display:block;margin-top:6px;color:#b08a5e;font-size:12px}
 
 /* ---------- phases ---------- */
 .phase{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:10px;overflow:hidden}
@@ -231,7 +242,7 @@ header{
   <div class="wrap">
     <div class="hdr-top">
       <div class="brand">Checklist vol</div>
-      <div class="rev" id="revTag">REV 11</div>
+      <div class="rev" id="revTag"><span class="rev-chip vide">aucun briefing</span></div>
       <div class="spacer"></div>
       <div class="count" id="hdrCount"><b>0</b>/0</div>
     </div>
@@ -253,6 +264,8 @@ header{
     <button type="button" class="btn ghost danger" id="btnReset">Nouveau vol</button>
     <input type="file" id="file" accept=".md,.markdown,.txt" hidden>
   </div>
+
+  <div class="alert" id="alert" role="alert" hidden></div>
 
   <section class="sheet" id="valuesSheet" hidden>
     <h2>Valeurs du vol</h2>
@@ -492,7 +505,7 @@ const SHEET_KEY = 'if-checklist-sheet-v1';
 
 let state = { done:{}, values:{}, auto:{}, open:0,
               doc:null, rev:null,          /* dossier de reference */
-              sheet:null, sheetRev:null }; /* feuille du vol */
+              sheet:null, sheetRev:null, sheetCallsign:null }; /* feuille du vol */
 let allOpen = false, memoryOnly = false, docDirty = false, sheetDirty = false;
 
 const store = (function(){
@@ -532,6 +545,7 @@ function adopt(o){
   if(typeof o.open === 'number') state.open = o.open;
   if(typeof o.rev  === 'string') state.rev  = o.rev;
   if(typeof o.sheetRev === 'string') state.sheetRev = o.sheetRev;
+  if(typeof o.sheetCallsign === 'string') state.sheetCallsign = o.sheetCallsign;
   /* ancienne version : le briefing vivait dans la meme cle */
   if(typeof o.doc === 'string' && o.doc){ state.doc = o.doc; docDirty = true; }
   if(typeof o.sheet === 'string' && o.sheet){ state.sheet = o.sheet; sheetDirty = true; }
@@ -558,7 +572,7 @@ async function flush(){
   try{
     await store.set(KEY, JSON.stringify({
       done:state.done, values:state.values, auto:state.auto, open:state.open,
-      rev:state.rev, sheetRev:state.sheetRev
+      rev:state.rev, sheetRev:state.sheetRev, sheetCallsign:state.sheetCallsign
     }));
   }catch(e){
     if(!memoryOnly){ memoryOnly = true; toast("Progression gardée pour cette session seulement"); }
@@ -617,6 +631,7 @@ const el = {
   toastEl:  document.getElementById('toast'),
   valGrid:  document.getElementById('valGrid'),
   valuesSheet: document.getElementById('valuesSheet'),
+  alert:    document.getElementById('alert'),
   btnValues:document.getElementById('btnValues'),
   btnOpen:  document.getElementById('btnOpen'),
   btnLoad:  document.getElementById('btnLoad'),
@@ -935,9 +950,28 @@ function buildIndex(txt){
   return { lines:lines, heads:heads };
 }
 /* l'entete annonce ce qui est charge : dossier, feuille, ou les deux */
+/* Deux pastilles distinctes : le dossier ne bouge qu'a un changement de
+   protocole, la feuille se refait a chaque vol. Voir la paire d'un coup
+   d'oeil evite de voler sur la feuille d'hier. */
 function badgeRev(){
-  return [state.rev, state.sheetRev].filter(Boolean).join(' + ') || 'REV 11';
+  const out = [];
+  if(state.rev) out.push('<span class="rev-chip doc" title="Dossier de référence">'+esc(state.rev)+'</span>');
+  if(state.sheetRev){
+    const cs = (state.sheetCallsign||'').trim();
+    out.push('<span class="rev-chip sheet" title="Feuille du vol">'+
+             esc(state.sheetRev + (cs ? ' · '+cs : ''))+'</span>');
+    /* quatorze cases vides ne disent pas si le document n'en porte pas ou si la
+       lecture a echoue : on leve l'ambiguite sans crier. Uniquement quand la
+       section est absente — anomalie et cellules vides ont leur propre traitement. */
+    if(state.sheet && !cartouche){
+      out.push('<span class="rev-note" title="Aucune section A.4 · CARTOUCHE dans cette feuille">'+
+               'feuille sans cartouche</span>');
+    }
+  }
+  if(!out.length) out.push('<span class="rev-chip vide">aucun briefing</span>');
+  return out.join('');
 }
+function paintBadge(){ el.revTag.innerHTML = badgeRev(); }
 function idxDoc(){   if(!docIdx   && state.doc)   docIdx   = buildIndex(state.doc);   return docIdx; }
 function idxSheet(){ if(!sheetIdx && state.sheet) sheetIdx = buildIndex(state.sheet); return sheetIdx; }
 
@@ -961,13 +995,20 @@ function applyDoc(txt){
   const rev = m ? ('REV '+m[1]) : 'BRIEFING';
   if(dossier){ state.doc = txt;   state.rev = rev;      docIdx = idx;   docDirty = true; }
   else       { state.sheet = txt; state.sheetRev = rev; sheetIdx = idx; sheetDirty = true; }
-  el.revTag.textContent = badgeRev();
-  markRefs();
   /* seule la feuille du vol alimente les cases : le gabarit du dossier remplirait
      "Compagnie" avec "OACI 3 lettres" */
-  const vals = dossier ? 0 : fillFromDoc();
+  let vals = 0;
+  if(!dossier){
+    const got = extractValues(txt);        /* renseigne aussi le cartouche lu */
+    state.sheetCallsign = got.callsign || '';
+    vals = fillFrom(got);
+    paintAlert();
+  }
+  paintBadge();
+  markRefs();
   save();
-  return { refs:availableRefs().length, vals:vals, dossier:dossier, rev:rev };
+  return { refs:availableRefs().length, vals:vals, dossier:dossier, rev:rev,
+           anomalies: cartouche ? (cartouche.bad.length + cartouche.unknown.length + cartouche.missing.length) : 0 };
 }
 
 /* le chargement doit se voir : nature du fichier, valeurs reprises, couverture */
@@ -978,6 +1019,8 @@ function announceDoc(r){
   if(r.dossier){ toast(r.rev+' · dossier chargé — '+b); return; }
   const a = r.vals ? r.vals+' valeur'+(r.vals>1?'s':'')+' reprise'+(r.vals>1?'s':'')
                    : 'aucune valeur reconnue';
+  /* l'anomalie de cartouche passe devant le reste : elle se corrige avant de voler */
+  if(r.anomalies){ toast(r.rev+' · feuille du vol — '+a+' · cartouche à vérifier'); return; }
   toast(r.rev+' · feuille du vol — '+a+' · '+b);
 }
 
@@ -1155,13 +1198,98 @@ function scanProse(txt, out){
   }
 }
 
+/* ------------------------------------------------------------
+   CARTOUCHE §A.4 — lecture stricte
+   Quatorze libelles figes, deux colonnes, rien d'autre. Une ligne
+   a trois cellules a deja fait passer "standard ligne" pour Volets
+   et "374" pour Reduction : la cellule lue n'etait pas la bonne et
+   rien ne l'a signale. Desormais on refuse et on le dit.
+------------------------------------------------------------ */
+/* ⚠ SEULE PORTE D'ENTREE DE LA SECTION CARTOUCHE.
+   Cette liste ne sert pas qu'a traduire : elle definit ce qui est ATTENDU.
+   Un libelle absent d'ici est rejete comme "non reconnu", et un champ de la
+   page absent d'ici n'est jamais compte comme manquant — donc jamais signale.
+   Consequence : ajouter un quinzieme champ au panneau (FIELDS) ne suffit pas.
+   Tant qu'il n'est pas declare ci-dessous, sa case restera vide en silence,
+   exactement le defaut que la lecture stricte est censee supprimer.
+   Toute evolution du cartouche se fait donc en deux endroits, jamais un seul.
+   [libelle normalise, cle du champ, libelle affiche dans le bandeau] */
+const CARTOUCHE = [
+  ['v1','v1','V1'], ['vr','vr','VR'], ['v2','v2','V2'],
+  ['flex','flex','Flex'], ['volets','volets','Volets'],
+  ['reduction','thrred','Réduction'], ['acceleration','accel','Accélération'],
+  ['transition','trans','Transition'], ['ils','ils','ILS'], ['da','da','DA'],
+  ['vref','vref','Vref'], ['vapp','vapp','Vapp'],
+  ['inbound','inbound','Inbound'], ['point inbound','inbwpt','Point inbound']
+];
+const SEPARATEUR = /^\s*\|[\s\-:|]+$/;
+
+/* la section dont le titre porte "cartouche", bornee au titre suivant de meme rang */
+function cartoucheSection(lines){
+  let from = -1, lvl = 0;
+  for(let i = 0; i < lines.length; i++){
+    const m = lines[i].match(/^(#{1,4})\s+(.*)$/);
+    if(!m) continue;
+    if(from < 0){
+      if(/cartouche/.test(normLabel(m[2]))){ from = i; lvl = m[1].length; }
+      continue;
+    }
+    if(m[1].length <= lvl) return { from:from, to:i };
+  }
+  return from < 0 ? null : { from:from, to:lines.length };
+}
+
+/* le premier tableau de la section : la "zone reconnue". Ce qui suit
+   (second tableau, prose des sources) ne concerne pas la checklist. */
+function premierTableau(lines, from, to){
+  for(let i = from; i < to; i++){
+    if(!/^\s*\|/.test(lines[i])) continue;
+    if(!SEPARATEUR.test(lines[i+1] || '')) continue;
+    let end = i + 2;
+    while(end < to && /^\s*\|/.test(lines[end]) && !SEPARATEUR.test(lines[end])) end++;
+    return { from:i + 2, to:end };
+  }
+  return null;
+}
+
+function readCartouche(lines){
+  const sec = cartoucheSection(lines);
+  if(!sec) return null;                                  /* pas de cartouche : rien a valider */
+  const tab = premierTableau(lines, sec.from, sec.to);
+  if(!tab) return { vals:{}, bad:[], unknown:[], missing:CARTOUCHE.map(c=>c[2]), sec:sec, span:null };
+
+  const vals = {}, bad = [], unknown = [], vus = {};
+  for(let i = tab.from; i < tab.to; i++){
+    const cells = lines[i].trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+    const nom = cleanCell(cells[0] || '') || ('ligne '+(i+1));
+    if(cells.length !== 2){ bad.push(nom); continue; }   /* colonne en trop ou en moins */
+    const lbl = normLabel(cells[0]);
+    let cle = null;
+    for(let j = 0; j < CARTOUCHE.length; j++) if(CARTOUCHE[j][0] === lbl) cle = CARTOUCHE[j][1];
+    if(!cle){ unknown.push(nom); continue; }
+    vus[lbl] = 1;
+    const v = refine(cle, cleanCell(cells[1]));
+    if(v) vals[cle] = v;
+  }
+  const missing = CARTOUCHE.filter(c=>!vus[c[0]]).map(c=>c[2]);
+  return { vals:vals, bad:bad, unknown:unknown, missing:missing, sec:sec, span:tab };
+}
+
+let cartouche = null;   /* dernier cartouche lu, pour le bandeau */
+
 function extractValues(txt){
   const out = {};
+  const lines = txt.split('\n');
+  const cart = readCartouche(lines);
+  /* toute la section cartouche est hors de portee du scan generique : une ligne
+     tombee hors du tableau ne doit pas se faire ramasser en douce par ailleurs */
+  const zone = cart ? cart.sec : null;
   let inCode = false;
-  txt.split('\n').forEach(l=>{
+  lines.forEach((l,i)=>{
     if(/^```/.test(l)){ inCode = !inCode; return; }
     if(inCode || !/^\s*\|/.test(l)) return;
-    if(/^\s*\|[\s\-:|]+$/.test(l)) return;              /* ligne de separation */
+    if(SEPARATEUR.test(l)) return;                      /* ligne de separation */
+    if(zone && i >= zone.from && i < zone.to) return;   /* zone cartouche : lecture stricte */
     const cells = l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
     if(cells.length < 2) return;
     const k = labelKey(cells[0]);
@@ -1172,13 +1300,44 @@ function extractValues(txt){
   /* formulaire francais : depart et arrivee sur deux lignes distinctes */
   if(!out.route && out._dep && out._arr) out.route = out._dep+' → '+out._arr;
   scanProse(txt, out);
+  /* le cartouche fait foi sur ses quatorze */
+  if(cart) Object.keys(cart.vals).forEach(k=>{ out[k] = cart.vals[k]; });
+  cartouche = cart;
   return out;
 }
 
+/* bandeau d'anomalie : une case vide et signalee vaut mieux qu'une valeur fausse */
+function paintAlert(){
+  const c = cartouche, parts = [];
+  const pluriel = (n,s,p)=> n > 1 ? p : s;
+  if(c){
+    if(c.bad.length) parts.push(
+      c.bad.length+' '+pluriel(c.bad.length,'ligne ignorée','lignes ignorées')+
+      ' (format ≠ 2 colonnes) : '+c.bad.join(', '));
+    if(c.unknown.length) parts.push(
+      pluriel(c.unknown.length,'libellé non reconnu','libellés non reconnus')+' : '+c.unknown.join(', '));
+    if(c.missing.length) parts.push(
+      pluriel(c.missing.length,'champ absent','champs absents')+' : '+c.missing.join(', '));
+  }
+  if(!parts.length){ el.alert.hidden = true; el.alert.textContent = ''; return; }
+  el.alert.innerHTML =
+    '<strong>Cartouche mal formé.</strong> '+esc(parts.join(' · '))+
+    '<span class="alert-note">Ces cases restent vides et non remplies : sur une feuille de vol, '+
+    'une valeur fausse silencieuse est le pire cas.</span>';
+  el.alert.hidden = false;
+}
+
+/* au demarrage, la feuille restaurée du stockage se revalide.
+   Le badge suit : sa mention "feuille sans cartouche" depend de ce resultat. */
+function validateSheet(){
+  cartouche = state.sheet ? readCartouche(state.sheet.split('\n')) : null;
+  paintAlert();
+  paintBadge();
+}
+
 /* remplit les cases vides et les marque comme venant du briefing */
-function fillFromDoc(){
-  if(!state.sheet) return 0;
-  const got = extractValues(state.sheet);
+function fillFrom(got){
+  if(!got) return 0;
   const connues = FIELDS.map(f=>f[0]);
   let n = 0;
   Object.keys(got).forEach(k=>{
@@ -1418,11 +1577,12 @@ async function autoLoad(){
 
 (async function(){
   await load();
-  if(state.rev || state.sheetRev) el.revTag.textContent = badgeRev();
+  paintBadge();
   buildNodes();
   buildValues();
   syncOpenBtn();
   render();
+  validateSheet();          /* la feuille restaurée du stockage se revalide */
   await autoLoad();
 })();
 </script>
