@@ -117,6 +117,10 @@ header{
 /* valeur reprise du briefing, pas encore confirmee par le pilote */
 .fld.auto input{border-style:dashed;border-color:#4a6b7a}
 .fld.auto label::after{content:" ⇠ briefing";color:#5f7f8d;letter-spacing:0}
+/* attendue au cartouche mais non resolue : distinct d'une case simplement vide */
+.fld.unresolved input{border-color:#6a3a12;background:#1a1005}
+.fld.unresolved label{color:var(--amber)}
+.fld.unresolved label::after{content:" ⚠ non résolu";color:var(--amber);letter-spacing:0}
 .hint{padding:0 12px 12px;font-size:12px;color:var(--muted)}
 /* bandeau d'anomalie du cartouche */
 .alert{border:1px solid #6a4212;background:#241605;color:#f0d0a4;border-radius:var(--r);
@@ -1053,177 +1057,265 @@ document.addEventListener('drop', async e=>{
 });
 
 /* ------------------------------------------------------------
-   EXTRACTION DES VALEURS DU BRIEFING
-   Les tableaux du dossier portent "| Libelle | valeur | ... |".
-   On associe le libelle a une case du panneau, on ne remplit que
-   les cases vides : ce que le pilote a tape n'est jamais ecrase.
------------------------------------------------------------- */
-const LABELS = {
-  'callsign':'callsign', 'atc callsign':'callsign',
-  'airline':'airline',
-  'flight number':'fltnum',
-  'route':'route', 'depart · arrive':'route', 'depart arrive':'route',
-  'appareil':'type', 'aircraft':'type',
-  'departure time (eobt)':'eobt', 'departure time':'eobt',
-  'eobt':'eobt', 'heure de depart':'eobt',
-  'alternate':'degag', 'degagement':'degag',
-  'fuel factor':'fuelfactor',
-  'airac cycle':'airac',
-  'taxi time (min)':'taxitime',
-  'sched block time':'blocktime',
-  'altitude (feet)':'fl',
-  'passengers':'pax',
-  'freight':'fret',
-  'payload':'payload',
-  'zfw':'zfw',
-  'pilot id':'pilotid',
-  'selected route':'rte',
-  'extra':'extra',
-  /* cartouche : valeurs de l'OFP et du MCDU (temps 2) */
-  'depart rwy':'piste', 'piste dep.':'piste', 'piste depart':'piste',
-  'arrival rwy':'arrpiste', 'piste arr.':'arrpiste', 'piste arrivee':'arrpiste',
-  'v1':'v1', 'vr':'vr', 'v2':'v2',
-  'flex':'flex', 'flex temp':'flex',
-  'volets':'volets', 'volets depart':'volets', 'flaps':'volets',
-  'reduction':'thrred', 'thrust reduction':'thrred',
-  'acceleration':'accel',
-  'transition':'trans', 'altitude de transition':'trans',
-  'ils':'ils',
-  'da':'da', 'decision altitude':'da',
-  'lw':'lw', 'landing weight':'lw',
-  'vref':'vref', 'vapp':'vapp',
-  'inbound':'inbound', 'distance inbound':'inbound',
-  'point inbound':'inbwpt', 'announce inbound':'inbwpt',
-  /* formulaire affiche en francais : libelles sans equivalent anglais entre parentheses */
-  'cycle airac':'airac',
-  'taxi sortie / entree':'taxitime',
-  'bloc horaire prevu':'blocktime',
-  'depart runway':'piste', 'arrivee runway':'arrpiste',
-  'altitude (pieds)':'fl',
-  'passagers':'pax',
-  'fret':'fret',
-  'charge utile':'payload',
-  'poids zero carburant':'zfw',
-  'identifiant du pilote':'pilotid',
-  'heure de depart':'eobt', 'eobt':'eobt',
-  'partir':'_dep', 'arriver':'_arr'      /* recomposes en DEP → ARR si besoin */
-};
+   1 · REGISTRE DES CHAMPS LISIBLES
+   Une entree par champ, une seule source de verite. Remplace LABELS
+   et CARTOUCHE, qui divergeaient : un champ declare dans l'un et pas
+   dans l'autre restait vide sans que rien ne le signale.
 
-/* Un libelle peut s'ecrire "Compagnie aérienne (Airline)" : on essaie la chaine
-   entiere, puis chaque moitie. Aucune correspondance partielle, pour qu'un
-   "Extra FPL Info (Item 18)" ne soit jamais pris pour le champ EXTRA. */
-function labelKey(raw){
-  const n = normLabel(raw);
-  if(LABELS[n]) return LABELS[n];
-  const m = n.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
-  if(m){
-    if(LABELS[m[1]]) return LABELS[m[1]];
-    if(LABELS[m[2]]) return LABELS[m[2]];
-  }
-  return null;
-}
+   key       cle de FIELDS
+   labels    libelles acceptes, EGALITE STRICTE apres normLabel()
+   kind      'int' | 'dec' | 'code' | 'text'
+   required  vrai pour les quatorze du cartouche
+   max       longueur maximale de la cellule (defaut 60)
+   display   libelle affiche dans le bandeau
+   xf        transformation optionnelle du nombre valide
+------------------------------------------------------------ */
+const REGISTRE = [
+  /* identite du vol */
+  { key:'callsign', labels:['callsign','atc callsign','indicatif d\'appel atc'], kind:'code', display:'Callsign' },
+  { key:'airline',  labels:['airline','compagnie aerienne','compagnie'], kind:'code', display:'Compagnie' },
+  { key:'fltnum',   labels:['flight number','numero du vol'], kind:'int',  display:'N° de vol' },
+  /* 'route' n'est PAS un libelle lisible : le mot designe deux choses dans les
+     fichiers (le trajet, et l'itineraire du degagement). DEP → ARR se
+     reconstruit systematiquement depuis _dep + _arr, qui sont sans ambiguite. */
+  { key:'_dep',     labels:['partir','depart'], kind:'text', max:40, display:'Départ' },
+  { key:'_arr',     labels:['arriver','arrive'], kind:'text', max:40, display:'Arrivée' },
+  { key:'eobt',     labels:['departure time','eobt','heure de depart'], kind:'text', display:'EOBT UTC' },
+  { key:'type',     labels:['appareil','aircraft','type d\'aeronef','type'], kind:'text', display:'Type / immat' },
+  { key:'pilotid',  labels:['pilot id','identifiant du pilote'], kind:'int', display:'Pilot ID' },
+  { key:'airac',    labels:['airac cycle','cycle airac'], kind:'int', display:'Cycle AIRAC' },
+
+  /* masses et chargement */
+  { key:'pax',      labels:['passengers','passagers'], kind:'int', display:'Passagers' },
+  { key:'fret',     labels:['freight','fret'], kind:'int', display:'Fret' },
+  { key:'payload',  labels:['payload','charge utile'], kind:'int', display:'Charge utile' },
+  { key:'zfw',      labels:['zfw','poids zero carburant'], kind:'int', display:'ZFW' },
+  { key:'blocktime',labels:['sched block time','bloc horaire prevu'], kind:'text', max:20, display:'Bloc prévu' },
+  { key:'taxitime', labels:['taxi time','taxi time (min)','taxi sortie / entree'], kind:'text', max:20, display:'Taxi' },
+
+  /* depart — cinq des quatorze */
+  { key:'piste',    labels:['depart rwy','depart runway','piste depart','piste dep.'], kind:'code', display:'Piste dép.' },
+  { key:'v1',       labels:['v1'], kind:'int', required:true, display:'V1' },
+  { key:'vr',       labels:['vr'], kind:'int', required:true, display:'VR' },
+  { key:'v2',       labels:['v2'], kind:'int', required:true, display:'V2' },
+  { key:'flex',     labels:['flex','flex temp'], kind:'code', required:true, display:'Flex' },
+  { key:'volets',   labels:['volets','volets depart','flaps'], kind:'code', required:true, display:'Volets' },
+  { key:'thrred',   labels:['reduction','thrust reduction'], kind:'int', required:true, display:'Réduction' },
+  { key:'accel',    labels:['acceleration'], kind:'int', required:true, display:'Accélération' },
+  { key:'trans',    labels:['transition','altitude de transition'], kind:'int', required:true, display:'Transition' },
+
+  /* croisiere */
+  { key:'fl',       labels:['altitude','altitude (feet)','altitude (pieds)'], kind:'int', display:'Croisière FL',
+    xf:n => n > 1000 ? Math.round(n/100) : n },                    /* 35000 ft -> FL350 */
+  { key:'rte',      labels:['selected route'], kind:'text', max:400, display:'Route ATC' },
+
+  /* carburant */
+  { key:'bloc',     labels:['bloc'], kind:'int', display:'Bloc' },
+  { key:'bingo',    labels:['bingo'], kind:'int', display:'BINGO' },
+  { key:'mindiv',   labels:['min div'], kind:'int', display:'MIN DIV' },
+  { key:'extra',    labels:['extra'], kind:'int', display:'EXTRA' },
+  { key:'fuelfactor',labels:['fuel factor'], kind:'code', display:'Fuel Factor' },
+
+  /* arrivee — neuf des quatorze */
+  { key:'arrpiste', labels:['arrival rwy','arrivee runway','piste arrivee','piste arr.'], kind:'code', display:'Piste arr.' },
+  { key:'ils',      labels:['ils'], kind:'code', required:true, display:'ILS' },
+  { key:'da',       labels:['da','decision altitude'], kind:'int', required:true, display:'DA' },
+  { key:'lw',       labels:['lw','landing weight'], kind:'dec', display:'LW' },
+  { key:'vref',     labels:['vref'], kind:'int', required:true, display:'Vref' },
+  { key:'vapp',     labels:['vapp'], kind:'int', required:true, display:'Vapp' },
+  { key:'inbound',  labels:['inbound','distance inbound'], kind:'int', required:true, display:'Inbound' },
+  /* "FAF 25R", "IAF STAR 26L" : un nom de point porte des espaces, donc 'text'
+     et non 'code' — sinon les deux feuilles reelles seraient rejetees. */
+  { key:'inbwpt',   labels:['point inbound','announce inbound'], kind:'text', max:24, required:true, display:'Point inbound' },
+
+  /* degagement — cap et distance viennent du bloc identite, atomiques */
+  { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', display:'Dégagement' },
+  { key:'degcap',   labels:['cap degagement'], kind:'int', display:'Cap dégag.' },
+  { key:'degdist',  labels:['distance degagement'], kind:'int', display:'Dist. dégag.' }
+];
+
+/* libelles vus mais volontairement ignores : ils ne polluent pas "non reconnu" */
+/* Libelles vus mais volontairement ignores : ils ne remontent ni en valeur,
+   ni en "libellé non reconnu". Trois familles :
+   — chaine des masses hors champs de la page (TOW, Trip, Masse à vide IF)
+   — en-tetes et intitules de colonnes qui trainent en premiere cellule
+   — champs du bloc identite qui n'ont pas de case : immat, cap départ,
+     altitude initiale — et "Itinéraire (Route)", qui est la route du
+     degagement, pas celle du vol. */
+const IGNORE = ['tow','trip','masse a vide if','poste','champ','marqueur','config','annonce',
+                'itineraire','immatriculation','cap depart','altitude initiale'];
+
+/* index libelle -> entree. Une collision est une faute de declaration : on
+   refuse de demarrer plutot que de resoudre au hasard. */
+const REG_BY_LABEL = new Map();
+REGISTRE.forEach(e=>{
+  e.labels.forEach(l=>{
+    if(REG_BY_LABEL.has(l))
+      throw new Error('REGISTRE : libellé en double « '+l+' » — '+REG_BY_LABEL.get(l).key+' contre '+e.key);
+    REG_BY_LABEL.set(l, e);
+  });
+});
+const REQUIRED = REGISTRE.filter(e=>e.required);
+
+/* controle de demarrage : une cle du registre absente de FIELDS ne remplirait
+   jamais rien, en silence. C'est exactement l'oubli qui a coute BINGO et MIN DIV. */
+(function(){
+  const connues = FIELDS.map(f=>f[0]);
+  REGISTRE.forEach(e=>{
+    if(e.key.charAt(0) === '_') return;                 /* cles internes */
+    if(connues.indexOf(e.key) < 0)
+      console.error('REGISTRE : la clé « '+e.key+' » n\'existe pas dans FIELDS — ce champ ne sera jamais rempli.');
+  });
+})();
 
 function normLabel(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
           .replace(/[`*]/g,'').replace(/\s+/g,' ').trim();
 }
-
 function cleanCell(s){
   return s.replace(/[`*]/g,'').replace(/\[(SIM|FORM|NAV|CALC)\]/g,'')
           .replace(/\s+/g,' ').trim();
 }
 function digits(s){ return s.replace(/[\s\u00A0\u202F]/g,''); }
 
-/* remet une valeur brute dans la forme attendue par la case, ou '' si elle
-   ne convient pas — l'appelant essaie alors la cellule suivante */
-function refine(k, v){
-  if(!v || v === '—' || v === '-' || /^(laisser vide|auto|n\/a|vide)$/i.test(v)) return '';
-  if(k === 'airac')    { const m = v.match(/\b\d{4}\b/);        return m ? m[0] : ''; }
-  if(k === 'callsign') { const m = v.match(/^[A-Z]{2,3}\d{1,4}/i); return m ? m[0] : ''; }
-  if(k === 'degag')    { const m = v.match(/\b[A-Z]{4}\b/);      return m ? m[0] : ''; }
-  if(k === 'fl'){
-    const m = digits(v).match(/^\d{3,5}$/);
-    if(!m) return '';
-    const n = parseInt(m[0], 10);
-    return n > 1000 ? String(Math.round(n/100)) : m[0];   /* 35000 ft -> FL350 */
+/* Un libelle s'ecrit "Compagnie aérienne (Airline)" : on essaie la chaine
+   entiere, puis chaque moitie — trois egalites strictes, jamais un "contient". */
+function regFor(raw){
+  const n = normLabel(raw);
+  if(REG_BY_LABEL.has(n)) return REG_BY_LABEL.get(n);
+  const m = n.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  if(m){
+    if(REG_BY_LABEL.has(m[1])) return REG_BY_LABEL.get(m[1]);
+    if(REG_BY_LABEL.has(m[2])) return REG_BY_LABEL.get(m[2]);
   }
-  if(['pax','fret','payload','zfw','pilotid','fltnum','extra'].indexOf(k) >= 0){
-    const m = digits(v).match(/^\d+/); return m ? m[0] : '';
-  }
-  /* piste : le designateur ouvre la cellule, le commentaire suit — "03 — nortada..." */
-  if(k === 'piste' || k === 'arrpiste'){
-    const m = v.match(/^(\d{2}[LRC]?)\b/); return m ? m[0] : '';
-  }
-  /* masse d'atterrissage : la case est en tonnes, le dossier l'ecrit en kg */
-  if(k === 'lw'){
-    const n = parseFloat(v.replace(/[^\d.,]/g,'').replace(',','.'));
-    if(!isFinite(n) || n <= 0) return '';
-    return n > 1000 ? String(Math.round(n/100)/10) : String(n);
-  }
-  if(['v1','vr','v2','vref','vapp','flex','thrred','accel','trans','da','inbound'].indexOf(k) >= 0){
-    const m = digits(v).match(/^\d+/); return m ? m[0] : '';
-  }
-  return v.length > 60 ? '' : v;
+  return null;
 }
-
-function pickValue(cells, k){
-  const cand = [];
-  for(let i = 1; i < cells.length; i++){ if(/`[^`]+`/.test(cells[i])) cand.push(cleanCell(cells[i])); }
-  for(let i = 1; i < cells.length; i++){ const c = cleanCell(cells[i]); if(c) cand.push(c); }
-  for(let i = 0; i < cand.length; i++){ const v = refine(k, cand[i]); if(v) return v; }
-  return '';
-}
-
-/* valeurs qui vivent dans la prose et non dans un tableau */
-function scanProse(txt, out){
-  let m;
-  m = txt.match(/(\d{1,3})\s*°\s*\/\s*(\d{1,4})\s*NM/);
-  if(m){ if(!out.degcap) out.degcap = m[1]; if(!out.degdist) out.degdist = m[2]; }
-  m = txt.match(/MIN\s*DIV[^\n]*=\s*([\d][\d\s\u00A0\u202F]*)kg/i);
-  if(m && !out.mindiv) out.mindiv = digits(m[1]);
-  m = txt.match(/BINGO[^\n]*=\s*([\d][\d\s\u00A0\u202F]*)kg/i);
-  if(m && !out.bingo) out.bingo = digits(m[1]);
-  m = txt.match(/bloc attendu[^\n]*?=\s*\*\*([\d\s\u00A0\u202F]+)kg/i);
-  if(m && !out.bloc) out.bloc = digits(m[1]);
-  /* pistes attendues, telles qu'elles figurent dans les remarks de l'OFP */
-  m = txt.match(/DEP\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
-  if(m && !out.piste) out.piste = m[1];
-  m = txt.match(/ARR\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
-  if(m && !out.arrpiste) out.arrpiste = m[1];
-  /* "LW 59 280 kg" \u2014 le \b evite d'attraper le MLW */
-  m = txt.match(/\bLW\s+([\d\s\u00A0\u202F]+)kg/i);
-  if(m && !out.lw){
-    const n = parseInt(digits(m[1]), 10);
-    if(n > 0) out.lw = n > 1000 ? String(Math.round(n/100)/10) : String(n);
-  }
+function estIgnore(raw){
+  const n = normLabel(raw);
+  if(IGNORE.indexOf(n) >= 0) return true;
+  const m = n.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  return !!(m && (IGNORE.indexOf(m[1]) >= 0 || IGNORE.indexOf(m[2]) >= 0));
 }
 
 /* ------------------------------------------------------------
-   CARTOUCHE §A.4 — lecture stricte
-   Quatorze libelles figes, deux colonnes, rien d'autre. Une ligne
-   a trois cellules a deja fait passer "standard ligne" pour Volets
-   et "374" pour Reduction : la cellule lue n'etait pas la bonne et
-   rien ne l'a signale. Desormais on refuse et on le dit.
+   3 · VALIDATE — remplace refine(), pickValue() disparait
+   Regle non negociable : aucun /^\d+/ ni /[^\d]/g sur une cellule.
+   Ce racle-tout a produit LW = 6446077.8 en collant trois nombres
+   d'une meme cellule. Une cellule qui contient autre chose qu'une
+   valeur est un rejet, pas une matiere premiere.
 ------------------------------------------------------------ */
-/* ⚠ SEULE PORTE D'ENTREE DE LA SECTION CARTOUCHE.
-   Cette liste ne sert pas qu'a traduire : elle definit ce qui est ATTENDU.
-   Un libelle absent d'ici est rejete comme "non reconnu", et un champ de la
-   page absent d'ici n'est jamais compte comme manquant — donc jamais signale.
-   Consequence : ajouter un quinzieme champ au panneau (FIELDS) ne suffit pas.
-   Tant qu'il n'est pas declare ci-dessous, sa case restera vide en silence,
-   exactement le defaut que la lecture stricte est censee supprimer.
-   Toute evolution du cartouche se fait donc en deux endroits, jamais un seul.
-   [libelle normalise, cle du champ, libelle affiche dans le bandeau] */
-const CARTOUCHE = [
-  ['v1','v1','V1'], ['vr','vr','VR'], ['v2','v2','V2'],
-  ['flex','flex','Flex'], ['volets','volets','Volets'],
-  ['reduction','thrred','Réduction'], ['acceleration','accel','Accélération'],
-  ['transition','trans','Transition'], ['ils','ils','ILS'], ['da','da','DA'],
-  ['vref','vref','Vref'], ['vapp','vapp','Vapp'],
-  ['inbound','inbound','Inbound'], ['point inbound','inbwpt','Point inbound']
-];
-const SEPARATEUR = /^\s*\|[\s\-:|]+$/;
+const UNITE = /(kg|ft|kt|nm|min|°c|°)$/i;
+const VIDE  = /^(auto|n\/a|na|none|laisser vide|vide|—|-)$/i;
 
+function validate(e, raw){
+  const v = (raw || '').trim();
+  if(!v || VIDE.test(v)) return { ok:false, reason:'non fourni' };
+  const max = e.max || 60;
+  if(v.length > max) return { ok:false, reason:'trop long ('+v.length+' car., max '+max+')' };
+
+  if(e.kind === 'int' || e.kind === 'dec'){
+    const s = digits(v).replace(UNITE, '');
+    const motif = e.kind === 'int' ? /^\d+$/ : /^\d+([.,]\d+)?$/;
+    if(!motif.test(s)) return { ok:false, reason:'cellule non atomique : « '+v+' »' };
+    let n = parseFloat(s.replace(',', '.'));
+    if(!isFinite(n)) return { ok:false, reason:'nombre illisible : « '+v+' »' };
+    if(e.kind === 'dec' && n > 1000) n = Math.round(n/100)/10;      /* kg -> t */
+    if(e.xf) n = e.xf(n);
+    return { ok:true, value:String(n) };
+  }
+  if(e.kind === 'code'){
+    if(!/^[A-Z0-9+.\-\/]{1,12}$/i.test(v))
+      return { ok:false, reason:'code attendu, reçu « '+v+' »' };
+    return { ok:true, value:v };
+  }
+  return { ok:true, value:v };                                      /* text */
+}
+
+/* ------------------------------------------------------------
+   2 · LECTURE DES TABLEAUX
+   Une valeur ne vient QUE d'une ligne de tableau dont la forme est
+   declaree. Prose, titre, liste, tableau d'une autre forme : ignores.
+------------------------------------------------------------ */
+const SEPARATEUR = /^\s*\|[\s\-:|]+$/;
+function cellsOf(l){ return l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()); }
+
+function tables(lines){
+  const out = [];
+  let inCode = false;
+  for(let i = 0; i < lines.length; i++){
+    if(/^```/.test(lines[i])){ inCode = !inCode; continue; }
+    if(inCode) continue;
+    if(!/^\s*\|/.test(lines[i])) continue;
+    if(!SEPARATEUR.test(lines[i+1] || '')) continue;
+    let end = i + 2;
+    while(end < lines.length && /^\s*\|/.test(lines[end]) && !SEPARATEUR.test(lines[end])) end++;
+    out.push({ headCells:cellsOf(lines[i]), from:i + 2, to:end });
+    i = end - 1;
+  }
+  return out;
+}
+
+/* quelle colonne porte la valeur, ou null si la forme n'est pas reconnue */
+function valueColumn(headCells){
+  if(headCells.length === 2) return 1;
+  if(headCells.length === 3 && normLabel(headCells[1]).indexOf('a taper') >= 0) return 1;
+  return null;
+}
+
+function readValues(lines){
+  const rows = [], found = [];
+  tables(lines).forEach(t=>{
+    const col = valueColumn(t.headCells);
+    for(let i = t.from; i < t.to; i++){
+      const cells = cellsOf(lines[i]);
+      const label = cells[0] || '';
+      if(col === null){
+        rows.push({ line:i+1, label:label, ok:false, shape:true,
+                    reason:'tableau ignoré ('+t.headCells.length+' colonnes)' });
+        continue;
+      }
+      /* Un libelle explicitement ignore l'emporte sur toute resolution. Sans cela,
+         "Itinéraire (Route)" du tableau de degagement se resout en 'route' par sa
+         moitie anglaise et, avec la regle "la derniere gagne", ecrase le vrai
+         LFML → EDDM par un DCT. Deux sens du mot Route dans un meme fichier. */
+      if(estIgnore(label)){
+        rows.push({ line:i+1, label:label, ok:false, reason:'ignoré volontairement' });
+        continue;
+      }
+      const e = regFor(label);
+      if(!e){
+        rows.push({ line:i+1, label:label, ok:false, unknown:true, reason:'libellé non reconnu' });
+        continue;
+      }
+      const raw = cleanCell(cells[col] || '');
+      const r = validate(e, raw);
+      rows.push({ line:i+1, label:label, key:e.key, raw:raw, value:r.value, ok:r.ok, reason:r.reason });
+      if(r.ok) found.push({ key:e.key, value:r.value, line:i+1 });
+    }
+  });
+  /* Meme cle plusieurs fois : la derniere ligne gagne. Mais un doublon
+     identique est une redondance assumee entre le formulaire et le cartouche,
+     pas un defaut — seul un doublon DIVERGENT merite un avertissement. */
+  const vals = {}, vue = {};
+  found.forEach(f=>{
+    const p = vue[f.key];
+    if(p){
+      if(p.value === f.value)
+        console.info('Briefing : « '+f.key+' » répété lignes '+p.line+' et '+f.line+
+                     ' — même valeur ('+f.value+'), redondance assumée');
+      else
+        console.warn('Briefing : « '+f.key+' » diverge — ligne '+p.line+' donne « '+p.value+
+                     ' », ligne '+f.line+' donne « '+f.value+' » — la dernière gagne');
+    }
+    vue[f.key] = { line:f.line, value:f.value };
+    vals[f.key] = f.value;
+  });
+  return { vals:vals, rows:rows };
+}
+
+/* ------------------------------------------------------------
+   4 · CARTOUCHE — completude seulement, plus de lecture a part
+------------------------------------------------------------ */
 /* la section dont le titre porte "cartouche", bornee au titre suivant de meme rang */
 function cartoucheSection(lines){
   let from = -1, lvl = 0;
@@ -1239,8 +1331,7 @@ function cartoucheSection(lines){
   return from < 0 ? null : { from:from, to:lines.length };
 }
 
-/* le premier tableau de la section : la "zone reconnue". Ce qui suit
-   (second tableau, prose des sources) ne concerne pas la checklist. */
+/* le premier tableau de la section : la "zone reconnue" */
 function premierTableau(lines, from, to){
   for(let i = from; i < to; i++){
     if(!/^\s*\|/.test(lines[i])) continue;
@@ -1252,59 +1343,95 @@ function premierTableau(lines, from, to){
   return null;
 }
 
-function readCartouche(lines){
+function readCartouche(lines, read){
   const sec = cartoucheSection(lines);
   if(!sec) return null;                                  /* pas de cartouche : rien a valider */
   const tab = premierTableau(lines, sec.from, sec.to);
-  if(!tab) return { vals:{}, bad:[], unknown:[], missing:CARTOUCHE.map(c=>c[2]), sec:sec, span:null };
+  if(!tab) return { bad:[], unknown:[], rejected:[], missing:REQUIRED.map(e=>e.display),
+                    sec:sec, span:null, unresolved:REQUIRED.map(e=>e.key) };
 
-  const vals = {}, bad = [], unknown = [], vus = {};
-  for(let i = tab.from; i < tab.to; i++){
-    const cells = lines[i].trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
-    const nom = cleanCell(cells[0] || '') || ('ligne '+(i+1));
-    if(cells.length !== 2){ bad.push(nom); continue; }   /* colonne en trop ou en moins */
-    const lbl = normLabel(cells[0]);
-    let cle = null;
-    for(let j = 0; j < CARTOUCHE.length; j++) if(CARTOUCHE[j][0] === lbl) cle = CARTOUCHE[j][1];
-    if(!cle){ unknown.push(nom); continue; }
-    vus[lbl] = 1;
-    const v = refine(cle, cleanCell(cells[1]));
-    if(v) vals[cle] = v;
-  }
-  const missing = CARTOUCHE.filter(c=>!vus[c[0]]).map(c=>c[2]);
-  return { vals:vals, bad:bad, unknown:unknown, missing:missing, sec:sec, span:tab };
+  const bad = [], unknown = [], rejected = [], unresolved = [], vus = {};
+  read.rows.forEach(r=>{
+    const i = r.line - 1;
+    if(i < tab.from || i >= tab.to) return;
+    const nom = cleanCell(r.label) || ('ligne '+r.line);
+    if(r.shape){ bad.push(nom); return; }
+    if(r.unknown){ unknown.push(nom); return; }
+    if(!r.key) return;                                   /* ignore volontairement */
+    vus[r.key] = 1;
+    if(!r.ok){ rejected.push(nom+' — '+r.reason); unresolved.push(r.key); }
+  });
+  const manques = REQUIRED.filter(e=>!vus[e.key]);
+  manques.forEach(e=> unresolved.push(e.key));
+  return { bad:bad, unknown:unknown, rejected:rejected, missing:manques.map(e=>e.display),
+           sec:sec, span:tab, unresolved:unresolved };
 }
 
-let cartouche = null;   /* dernier cartouche lu, pour le bandeau */
+/* ------------------------------------------------------------
+   6 · PROSE — reduite au strict residuel
+   MIN DIV, BINGO, bloc et LW en sont sortis : ils viennent desormais
+   de tableaux declares. Leurs regex etaient gourmandes ([^\n]*), donc
+   elles remontaient jusqu'a la DERNIERE clause "= N kg" de la ligne —
+   "réserve finale = 1 100 kg" — au lieu de leur propre valeur.
+   Ne restent que des motifs ancres, sans quantificateur ouvert.
+   N'ecrit jamais par-dessus une cle deja lue en tableau.
+------------------------------------------------------------ */
+function scanProse(txt, out){
+  let m;
+  /* "258° / 42 NM depuis LEBL" — cap et distance du degagement */
+  m = txt.match(/(\d{1,3})\s*°\s*\/\s*(\d{1,4})\s*NM/);
+  if(m){ if(!out.degcap) out.degcap = m[1]; if(!out.degdist) out.degdist = m[2]; }
+  /* pistes attendues, telles qu'elles figurent dans les remarks de l'OFP */
+  m = txt.match(/DEP\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
+  if(m && !out.piste) out.piste = m[1];
+  m = txt.match(/ARR\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
+  if(m && !out.arrpiste) out.arrpiste = m[1];
+}
+
+let cartouche = null;      /* dernier cartouche lu, pour le bandeau */
+let trace = null;          /* dernier relevé de lecture, pour le mode debug */
+let refus = [];            /* valeurs refusées hors du tableau du cartouche */
 
 function extractValues(txt){
-  const out = {};
   const lines = txt.split('\n');
-  const cart = readCartouche(lines);
-  /* toute la section cartouche est hors de portee du scan generique : une ligne
-     tombee hors du tableau ne doit pas se faire ramasser en douce par ailleurs */
-  const zone = cart ? cart.sec : null;
-  let inCode = false;
-  lines.forEach((l,i)=>{
-    if(/^```/.test(l)){ inCode = !inCode; return; }
-    if(inCode || !/^\s*\|/.test(l)) return;
-    if(SEPARATEUR.test(l)) return;                      /* ligne de separation */
-    if(zone && i >= zone.from && i < zone.to) return;   /* zone cartouche : lecture stricte */
-    const cells = l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
-    if(cells.length < 2) return;
-    const k = labelKey(cells[0]);
-    if(!k || out[k]) return;                            /* la premiere occurrence fait foi */
-    const v = pickValue(cells, k);
-    if(v) out[k] = v;
-  });
-  /* formulaire francais : depart et arrivee sur deux lignes distinctes */
-  if(!out.route && out._dep && out._arr) out.route = out._dep+' → '+out._arr;
-  scanProse(txt, out);
-  /* le cartouche fait foi sur ses quatorze */
-  if(cart) Object.keys(cart.vals).forEach(k=>{ out[k] = cart.vals[k]; });
-  cartouche = cart;
+  const read = readValues(lines);
+  const out = Object.assign({}, read.vals);
+  /* DEP → ARR se reconstruit toujours depuis les deux lignes atomiques :
+     aucun libellé « Route » n'est lu, le mot est trop ambigu (voir REGISTRE) */
+  if(out._dep && out._arr) out.route = out._dep+' → '+out._arr;
+  scanProse(txt, out);                                   /* cles encore absentes uniquement */
+  cartouche = readCartouche(lines, read);
+  /* Un rejet hors du tableau du cartouche disparaissait en silence : la case
+     restait vide sans rien dire, exactement le defaut que la lecture stricte
+     doit supprimer. Une cellule VIDE ou en AUTO n'est pas un rejet — elle
+     n'a rien tenté ; une cellule refusee, si. */
+  const span = cartouche && cartouche.span;
+  refus = read.rows.filter(r=>
+    r.key && !r.ok && r.reason !== 'non fourni' && out[r.key] === undefined &&
+    !(span && (r.line-1) >= span.from && (r.line-1) < span.to)
+  ).map(r=>({ key:r.key, label:cleanCell(r.label) || ('ligne '+r.line), line:r.line, reason:r.reason }));
+  trace = read.rows;
   return out;
 }
+
+/* ------------------------------------------------------------
+   5 · MODE DEBUG — window.debugBriefing()
+   Pour chaque champ : libelle cherche, ligne retenue, cellule brute,
+   valeur apres normalisation. Et les rejets, avec leur motif.
+------------------------------------------------------------ */
+function debugBriefing(){
+  if(!trace){ console.log('Aucun briefing lu dans cette session.'); return; }
+  const ok = trace.filter(r=>r.ok).map(r=>({
+    champ:r.key, libellé:r.label, ligne:r.line, brut:r.raw, valeur:r.value }));
+  const ko = trace.filter(r=>!r.ok && (r.key || r.unknown)).map(r=>({
+    champ:r.key || '—', libellé:r.label, ligne:r.line, brut:r.raw || '', motif:r.reason }));
+  console.log('%c'+ok.length+' valeur(s) retenue(s)', 'font-weight:bold');
+  console.table(ok);
+  console.log('%c'+ko.length+' ligne(s) écartée(s)', 'font-weight:bold');
+  console.table(ko);
+  return { retenues:ok, ecartees:ko };
+}
+window.debugBriefing = debugBriefing;
 
 /* bandeau d'anomalie : une case vide et signalee vaut mieux qu'une valeur fausse */
 function paintAlert(){
@@ -1313,47 +1440,100 @@ function paintAlert(){
   if(c){
     if(c.bad.length) parts.push(
       c.bad.length+' '+pluriel(c.bad.length,'ligne ignorée','lignes ignorées')+
-      ' (format ≠ 2 colonnes) : '+c.bad.join(', '));
+      ' (format de tableau non reconnu) : '+c.bad.join(', '));
     if(c.unknown.length) parts.push(
       pluriel(c.unknown.length,'libellé non reconnu','libellés non reconnus')+' : '+c.unknown.join(', '));
+    if(c.rejected.length) parts.push(
+      pluriel(c.rejected.length,'valeur refusée','valeurs refusées')+' : '+c.rejected.join(' · '));
     if(c.missing.length) parts.push(
       pluriel(c.missing.length,'champ absent','champs absents')+' : '+c.missing.join(', '));
   }
+  const horsCart = refus.map(r=> r.label+' (ligne '+r.line+') — '+r.reason);
+  const titre = parts.length ? 'Cartouche mal formé.' : 'Valeur refusée à la lecture.';
+  if(horsCart.length) parts.push(
+    pluriel(horsCart.length,'hors cartouche','hors cartouche')+' : '+horsCart.join(' · '));
   if(!parts.length){ el.alert.hidden = true; el.alert.textContent = ''; return; }
   el.alert.innerHTML =
-    '<strong>Cartouche mal formé.</strong> '+esc(parts.join(' · '))+
+    '<strong>'+titre+'</strong> '+esc(parts.join(' · '))+
     '<span class="alert-note">Ces cases restent vides et non remplies : sur une feuille de vol, '+
     'une valeur fausse silencieuse est le pire cas.</span>';
   el.alert.hidden = false;
 }
 
-/* au demarrage, la feuille restaurée du stockage se revalide.
-   Le badge suit : sa mention "feuille sans cartouche" depend de ce resultat. */
+/* Au demarrage, la feuille restauree du stockage est RELUE, pas seulement
+   revalidee : les valeurs sont re-derivees du document et reappliquees.
+   Sans cela, une feuille chargee par une version anterieure du lecteur garde
+   pour toujours les cases que cette version-la savait remplir — BLOC, BINGO,
+   MIN DIV et LW sont restes vides plusieurs rechargements durant, sans qu'un
+   rafraichissement puisse y changer quoi que ce soit. Le document est la
+   source, le stockage n'en est qu'un cache.
+   Les saisies manuelles restent protegees : fillFrom ne touche que l'auto. */
 function validateSheet(){
-  cartouche = state.sheet ? readCartouche(state.sheet.split('\n')) : null;
+  if(state.sheet){
+    const got = extractValues(state.sheet);     /* renseigne cartouche, refus et trace */
+    fillFrom(got);
+    save();
+  }else{
+    cartouche = null; refus = []; trace = null;
+  }
   paintAlert();
   paintBadge();
+  paintUnresolved();
 }
 
-/* remplit les cases vides et les marque comme venant du briefing */
-function fillFrom(got){
-  if(!got) return 0;
-  const connues = FIELDS.map(f=>f[0]);
-  let n = 0;
-  Object.keys(got).forEach(k=>{
-    if(connues.indexOf(k) < 0) return;
-    if((state.values[k]||'').trim()) return;            /* saisie du pilote : intouchable */
-    state.values[k] = got[k];
-    state.auto[k] = 1;
+/* champ attendu mais non resolu : etat visuel distinct d'une case simplement vide */
+function paintUnresolved(){
+  const ko = ((cartouche && cartouche.unresolved) ? cartouche.unresolved : [])
+             .concat(refus.map(r=>r.key));
+  FIELDS.forEach(([k])=>{
     const inp = document.getElementById('f-'+k);
-    if(inp){
-      inp.value = got[k];
-      inp.parentElement.classList.add('auto');
-      inp.title = 'Valeur reprise du briefing — à confirmer sur l\'OFP';
-    }
-    n++;
+    if(!inp) return;
+    const nr = ko.indexOf(k) >= 0 && !(state.values[k]||'').trim();
+    inp.parentElement.classList.toggle('unresolved', nr);
+    if(nr) inp.title = 'Attendu au cartouche, non résolu à la lecture — voir le bandeau';
+    else if(!state.auto[k]) inp.removeAttribute('title');
   });
-  if(n) refreshValues();
+}
+
+/* ------------------------------------------------------------
+   5 · REMPLISSAGE
+   L'ancienne regle "ne pas ecraser une case non vide" protegeait aussi
+   les reprises d'un briefing precedent : un 1100 faux survivait a tous
+   les rechargements, y compris a la feuille corrigee. Desormais :
+     saisie du pilote (non vide ET pas marquee auto) -> intouchable
+     reprise d'un briefing                            -> ecrasee
+     reprise devenue absente ou refusee               -> EFFACEE
+------------------------------------------------------------ */
+function fillFrom(got){
+  let n = 0;
+  FIELDS.forEach(([k])=>{
+    const inp   = document.getElementById('f-'+k);
+    const neuf  = (got && got[k] != null) ? String(got[k]) : '';
+    const saisi = (state.values[k]||'').trim() && !state.auto[k];
+    if(saisi) return;                                   /* saisie du pilote : intouchable */
+
+    if(neuf){
+      state.values[k] = neuf;
+      state.auto[k] = 1;
+      if(inp){
+        inp.value = neuf;
+        inp.parentElement.classList.add('auto');
+        inp.parentElement.classList.remove('unresolved');
+        inp.title = 'Valeur reprise du briefing — à confirmer sur l\'OFP';
+      }
+      n++;
+    }else if(state.auto[k]){                            /* reprise qui n'a plus de source */
+      delete state.values[k];
+      delete state.auto[k];
+      if(inp){
+        inp.value = '';
+        inp.parentElement.classList.remove('auto');
+        inp.removeAttribute('title');
+      }
+    }
+  });
+  refreshValues();
+  paintUnresolved();
   return n;
 }
 
