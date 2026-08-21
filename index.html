@@ -1091,9 +1091,30 @@ function countRefs(idx){
   return n;
 }
 
+/* ------------------------------------------------------------
+   DOSSIER OU FEUILLE
+   Compter les renvois § ne suffit plus. Depuis la REV 19, une feuille reprend
+   les titres §0.1 a §0.11 du dossier : elle en resout douze, passait donc pour
+   un dossier, et AUCUNE de ses valeurs n'etait extraite — la page se chargeait
+   sans rien remplir, en silence.
+   Ce qui separe reellement les deux, c'est que la feuille PORTE des valeurs :
+   les cartouches du dossier sont des gabarits, cellule vide ou methode en
+   prose, et rien n'y passe la validation. On compte donc les cellules du
+   cartouche reellement resolues.
+   readValues() ne touche a aucun global : la mesure est sans effet de bord.
+------------------------------------------------------------ */
+const CELLULES_FEUILLE = 8;
+function compteCellules(txt){
+  const vals = readValues(txt.split('\n')).vals;
+  let n = 0;
+  REQUIRED.forEach(e=>{ if(vals[e.key] !== undefined) n++; });
+  return n;
+}
+
 function applyDoc(txt){
   const idx = buildIndex(txt);
-  const dossier = countRefs(idx) >= 10;
+  const cells = compteCellules(txt);
+  const dossier = cells < CELLULES_FEUILLE && countRefs(idx) >= 10;
   const m = txt.match(/REV\s*(\d+)/i);
   const rev = m ? ('REV '+m[1]) : 'BRIEFING';
   if(dossier){ state.doc = txt;   state.rev = rev;      docIdx = idx;   docDirty = true; }
@@ -1234,7 +1255,23 @@ const REGISTRE = [
   { key:'taxitime', labels:['taxi time','taxi time (min)','taxi sortie / entree'], kind:'text', max:20, display:'Taxi' },
   { key:'fl',       labels:['altitude','altitude (feet)','altitude (pieds)'], kind:'int', display:'Croisière FL',
     xf:n => n > 1000 ? Math.round(n/100) : n },                    /* 35000 ft -> FL350 */
-  { key:'rte',      labels:['selected route'], kind:'text', max:400, display:'Selected Route' }
+  { key:'rte',      labels:['selected route'], kind:'text', max:400, display:'Selected Route' },
+
+  /* ---- §0.1 · identification et equipement ----
+     Le §A.5 de la REV 19 ne declare pas encore ces quatre libelles, mais la
+     regle 10 veut que le parseur passe EN PREMIER : « un libellé ne s'ajoute a
+     un cartouche qu'une fois inscrit au registre du parseur, dans cet ordre,
+     jamais l'inverse ». Ils sont inscrits ici pour que le §0.1 d'une feuille
+     remplisse enfin ses cases ; a la REV 20 de les porter au vocabulaire.
+     Aucun n'entre dans un calcul : une erreur y est cosmetique.
+     ⚠ 'immatriculation' reste IGNORE et n'est PAS un libelle de `immat` : ce
+     mot-la vit dans les « Repères non lus », et la regle 11 interdit qu'un
+     libelle declare figure dans un bloc annonce comme non lu. Seuls les
+     libelles du formulaire — Inscription / Registration — sont lus. */
+  { key:'immat',    labels:['inscription','registration'], kind:'code', display:'Inscription' },
+  { key:'finnum',   labels:['numero fin','fin number'], kind:'code', display:'Numéro Fin' },
+  { key:'selcal',   labels:['selcal'], kind:'code', display:'SELCAL' },
+  { key:'modes',    labels:['code mode-s','mode-s code','mode-s'], kind:'code', display:'Code Mode-S' }
 ];
 
 /* Libelles vus mais volontairement ignores : ils ne remontent ni en valeur,
@@ -1247,10 +1284,13 @@ const REGISTRE = [
    — les champs du formulaire qui n'ont pas de case et dont le libelle
      pourrait se resoudre par accident. */
 const IGNORE = ['poste','champ','marqueur','config','annonce','repere','libelle',
-                'itineraire','immatriculation','inscription','altitude initiale',
+                'itineraire','immatriculation','altitude initiale',
                 'autobrake','autobrake depart','autobrake arrivee',
                 'route','date','manque','piste','runway','compte alternatif',
-                'numero fin','fin number','selcal','mode-s code','code mode-s'];
+                /* §A.5 : Compagnie porte le code OACI, « jamais le nom
+                   commercial » — le libelle existe donc dans les vieilles
+                   feuilles, mais il n'alimente rien. */
+                'nom commercial'];
 
 /* ------------------------------------------------------------
    IGNORE CONTEXTUEL — REV 19, correctif bloquant
