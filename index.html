@@ -101,11 +101,18 @@ header{
   font-family:var(--display);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
   margin:0;padding:13px 14px;border-bottom:1px solid var(--line);color:var(--muted);font-weight:600;
 }
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;padding:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;padding:12px;align-items:stretch}
+/* Les libelles du formulaire n'ont pas tous la meme longueur : « Passagers »
+   tient sur une ligne, « Indicatif d'appel ATC » sur deux. Le champ suivait le
+   bas du libelle, donc deux cases voisines ne demarraient pas a la meme
+   hauteur. La case est desormais poussee au bas de sa rangee : les libelles
+   s'alignent par le haut, les champs par le bas, quelle que soit la casse. */
+.fld{display:flex;flex-direction:column;min-width:0}
 .fld label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
 .fld input{
   width:100%;background:#0A1319;border:1px solid var(--line);color:var(--cyan);
   font-family:var(--mono);font-size:14px;padding:8px 9px;border-radius:7px;min-height:38px;
+  margin-top:auto;
 }
 .fld input:focus{outline:none;border-color:var(--cyan)}
 /* groupes de saisie du panneau */
@@ -118,8 +125,9 @@ header{
 .fld.auto input{border-style:dashed;border-color:#4a6b7a}
 /* marqueur court : les libelles du formulaire sont longs, " ⇠ briefing" en
    toutes lettres faisait passer la moitie du panneau sur deux lignes. Le titre
-   de l'input porte la phrase complete. */
-.fld.auto label::after{content:" ⇠";color:#5f7f8d;letter-spacing:0}
+   de l'input porte la phrase complete. Espace INSECABLE : sinon la fleche part
+   seule sur la ligne suivante et ajoute une ligne vide au libelle. */
+.fld.auto label::after{content:"\00a0⇠";color:#5f7f8d;letter-spacing:0}
 /* attendue au cartouche mais non resolue : distinct d'une case simplement vide */
 .fld.unresolved input{border-color:#6a3a12;background:#1a1005}
 .fld.unresolved label{color:var(--amber)}
