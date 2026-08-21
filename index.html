@@ -116,7 +116,10 @@ header{
 .fld.wide{grid-column:span 2}
 /* valeur reprise du briefing, pas encore confirmee par le pilote */
 .fld.auto input{border-style:dashed;border-color:#4a6b7a}
-.fld.auto label::after{content:" ⇠ briefing";color:#5f7f8d;letter-spacing:0}
+/* marqueur court : les libelles du formulaire sont longs, " ⇠ briefing" en
+   toutes lettres faisait passer la moitie du panneau sur deux lignes. Le titre
+   de l'input porte la phrase complete. */
+.fld.auto label::after{content:" ⇠";color:#5f7f8d;letter-spacing:0}
 /* attendue au cartouche mais non resolue : distinct d'une case simplement vide */
 .fld.unresolved input{border-color:#6a3a12;background:#1a1005}
 .fld.unresolved label{color:var(--amber)}
@@ -309,75 +312,144 @@ header{
 
 <script>
 /* ============================================================
-   CONTENU — tire du BRIEFING PRE-VOL INFINITE FLIGHT, REV 18
+   CONTENU — tire du BRIEFING PRE-VOL INFINITE FLIGHT, REV 19
    t : ligne de checklist · d : detail · r : renvoi · w : point de vigilance
    {{cle}} : valeur du vol, saisie dans le panneau Valeurs
 ============================================================ */
-/* [cle, libelle, groupe] — le groupe ordonne le panneau par moment de saisie.
-   Les cles et libelles d'origine sont inchanges ; s'y ajoutent les valeurs
-   que la phase 1 fait taper dans SimBrief et qui n'avaient pas de case. */
+/* [cle, libelle, groupe] — REV 19 : le panneau suit d'abord l'ORDRE DE LA PAGE
+   SimBrief (§0.2 Vol → §0.3 Avion → §0.1 Plus d'options → §0.4 Sélections →
+   §0.5 Facultatives → §0.6 Carburant → §0.7 Texte → §0.8 Itinéraire →
+   §0.9 Alternatifs). Ce qui se tape dans le formulaire passe donc en premier,
+   dans l'ordre ou on le tape ; les cartouches du §A.4 viennent derriere.
+   Les libelles sont ceux du formulaire francais, pas des abreviations. */
 const FIELDS = [
-  ['callsign','Callsign','Identité du vol'],
-  ['airline','Compagnie','Identité du vol'],
-  ['fltnum','N° de vol','Identité du vol'],
-  ['route','DEP → ARR','Identité du vol'],
-  ['eobt','EOBT UTC','Identité du vol'],
-  ['type','Type / immat','Identité du vol'],
-  ['pilotid','Pilot ID','Identité du vol'],
-  ['airac','Cycle AIRAC','Identité du vol'],
+  /* ---------- ce qui se tape dans SimBrief, dans l'ordre de la page ---------- */
+  ['airline','Compagnie aérienne','1 · Informations sur le vol'],
+  ['fltnum','Numéro du vol','1 · Informations sur le vol'],
+  ['route','Partir → Arriver','1 · Informations sur le vol'],
+  ['degag','Alterner','1 · Informations sur le vol'],
+  ['eobt','Heure de départ (EOBT)','1 · Informations sur le vol'],
 
-  ['oew','Masse à vide IF kg','Masses & chargement'],
-  ['pax','Passagers','Masses & chargement'],
-  ['fret','Fret kg','Masses & chargement'],
-  ['payload','Payload kg','Masses & chargement'],
-  ['zfw','ZFW kg','Masses & chargement'],
-  ['blocktime','Bloc prévu h:min','Masses & chargement'],
-  ['taxitime','Taxi min dép/arr','Masses & chargement'],
+  ['type','Type d\'aéronef','2 · Informations sur l\'avion'],
+  ['callsign','Indicatif d\'appel ATC','2 · Informations sur l\'avion'],
 
-  ['piste','Piste dép.','Départ'],['capdep','Cap départ','Départ'],['tow','TOW kg','Départ'],
-  ['v1','V1','Départ'],['vr','VR','Départ'],['v2','V2','Départ'],
-  ['flex','Flex °C','Départ'],['volets','Volets dép.','Départ'],
-  ['thrred','Réduction ft','Départ'],['accel','Accél. ft','Départ'],
-  ['trans','Transition ft','Départ'],['autobrake','Autobrake','Départ'],
+  /* §0.1 — les neuf de « Plus d'options ». Les quatre chaines d'equipement
+     (SDFGHRWY, LB1, PBN, Article 18) sont invariantes : elles sont ecrites en
+     clair dans la ligne de checklist, pas ici. */
+  ['fuelfactor','Facteur carburant','3 · Plus d\'options'],
+  ['immat','Inscription','3 · Plus d\'options'],
+  ['finnum','Numéro Fin','3 · Plus d\'options'],
+  ['selcal','SELCAL','3 · Plus d\'options'],
+  ['modes','Code Mode-S','3 · Plus d\'options'],
 
-  ['fl','Croisière FL','Croisière'],
-  ['rte','Route ATC','Croisière'],
+  ['airac','Cycle AIRAC','4 · Sélections'],
+  ['taxitime','Taxi Sortie / Entrée','4 · Sélections'],
 
-  ['bloc','Bloc kg','Carburant'],['trip','Trip kg','Carburant'],
-  ['bingo','BINGO kg','Carburant'],['mindiv','MIN DIV kg','Carburant'],
-  ['extra','EXTRA kg','Carburant'],['fuelfactor','Fuel Factor','Carburant'],
+  ['blocktime','Bloc horaire prévu','5 · Entrées facultatives'],
+  ['fl','Altitude (Pieds) — FL','5 · Entrées facultatives'],
+  ['pax','Passagers','5 · Entrées facultatives'],
+  ['fret','Fret kg','5 · Entrées facultatives'],
+  ['payload','Charge utile kg','5 · Entrées facultatives'],
+  ['zfw','Poids zéro carburant kg','5 · Entrées facultatives'],
 
-  ['arrpiste','Piste arr.','Arrivée'],['ils','ILS','Arrivée'],['da','DA ft','Arrivée'],
-  ['lw','LW t','Arrivée'],['vref','Vref kt','Arrivée'],['vapp','Vapp kt','Arrivée'],
-  ['inbound','Inbound NM','Arrivée'],['inbwpt','Point inbound','Arrivée'],
+  ['extra','EXTRA kg','6 · Planification du carburant'],
 
-  ['degag','Dégagement','Dégagement'],['degcap','Cap dégag.','Dégagement'],
-  ['degdist','Dist. dégag. NM','Dégagement']
+  ['pilotid','Identifiant du pilote','7 · Entrées de texte'],
+
+  ['rte','Selected Route','8 · Itinéraire'],
+
+  ['degcap','Cap dégagement','9 · Aéroports alternatifs'],
+  ['degdist','Distance dégagement NM','9 · Aéroports alternatifs'],
+
+  /* ---------- cartouches du §A.4 : lus par la page, pas tapes dans le formulaire ---------- */
+  /* Les deux pistes restent en AUTO cote SimBrief (§0.5) : elles ne se tapent
+     pas, elles se comparent — leur place est au cartouche ②. */
+  ['piste','Piste départ','Cartouche ② · pistes'],
+  ['capdep','Cap départ','Cartouche ② · pistes'],
+  ['arrpiste','Piste arrivée','Cartouche ② · pistes'],
+
+  ['v1','V1','Cartouche ③ · vitesses et trajectoire'],
+  ['vr','VR','Cartouche ③ · vitesses et trajectoire'],
+  ['v2','V2','Cartouche ③ · vitesses et trajectoire'],
+  ['flex','Flex','Cartouche ③ · vitesses et trajectoire'],
+  ['volets','Volets','Cartouche ③ · vitesses et trajectoire'],
+  ['thrred','Réduction ft','Cartouche ③ · vitesses et trajectoire'],
+  ['accel','Accélération ft','Cartouche ③ · vitesses et trajectoire'],
+  ['trans','Transition ft','Cartouche ③ · vitesses et trajectoire'],
+  ['ils','ILS','Cartouche ③ · vitesses et trajectoire'],
+  ['da','DA ft','Cartouche ③ · vitesses et trajectoire'],
+  ['vref','Vref kt','Cartouche ③ · vitesses et trajectoire'],
+  ['vapp','Vapp kt','Cartouche ③ · vitesses et trajectoire'],
+  ['inbound','Inbound NM','Cartouche ③ · vitesses et trajectoire'],
+  ['inbwpt','Point inbound','Cartouche ③ · vitesses et trajectoire'],
+
+  ['bloc','BLOC kg','Cartouche ④ · carburant'],
+  ['bingo','BINGO kg','Cartouche ④ · carburant'],
+  ['mindiv','MIN DIV kg','Cartouche ④ · carburant'],
+
+  ['oew','Masse à vide IF kg','Cartouche ⑤ · masses'],
+  ['trip','Trip kg','Cartouche ⑤ · masses'],
+  ['tow','TOW t','Cartouche ⑤ · masses'],
+  ['lw','LW t','Cartouche ⑤ · masses'],
+
+  /* Repères non lus (§A.4) : hors registre, saisis a la main, jamais extraits. */
+  ['autobrkdep','Autobrake départ','Repères non lus'],
+  ['autobrkarr','Autobrake arrivée','Repères non lus'],
+  ['altinit','Altitude initiale ft','Repères non lus']
 ];
 
 const PHASES = [
-  { n:"Feuille SimBrief", s:"Saisie du formulaire, avant génération", items:[
+  { n:"Feuille SimBrief", s:"Le formulaire, dans l'ordre de la page", items:[
     {t:"Aircraft Health consulté avant de générer l'OFP", d:"Condition, risque de panne, puissance de freinage. Un appareil usé change la distance d'atterrissage, donc la piste, donc le dégagement.", r:"7", w:1},
-    {t:"Flight Info saisi", d:"Airline, Flight Number, Depart · Arrive, EOBT en UTC. {{airline}} {{fltnum}} · {{route}} · {{eobt}}.", r:"0"},
-    {t:"Dégagement nommé dans Alternate", d:"Jamais AUTO : c'est le terrain à briefer, il doit tenir la météo de l'ETA. {{degag}} · {{degcap}} · {{degdist}} NM.", r:"0", w:1},
-    {t:"Aircraft Info saisi", d:"Type dans la variante exacte volée dans IF, Airframe générique, ATC Callsign identique à celui d'IF, Fuel Factor P00, immatriculation. {{type}} · Callsign {{callsign}} · Fuel Factor {{fuelfactor}}.", r:"0", w:1},
-    {t:"Champs secondaires traités", d:"Fin Number, SELCAL, Mode-S remplis. Equipment, transpondeur, PBN et item 18 laissés aux valeurs grisées : ils n'entrent dans aucun calcul.", r:"0"},
-    {t:"Selections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi 20/8 · IFR · Scheduled · 1 alternate. Taxi retenu {{taxitime}}.", r:"0"},
-    {t:"Les six interrupteurs sur ON", d:"Detailed Navlog, ETOPS Planning, Plan Stepclimbs, Runway Analysis, Include NOTAMs, FIR NOTAMs. En éteindre un rouvre un trou que rien ne comble.", r:"0", w:1},
-    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import. Cycle {{airac}}.", r:"0"},
-    {t:"Optional Entries chiffrés", d:"Sched Block Time, Altitude (FL retenu), Passengers, Freight, Payload. Aucune case en AUTO. {{blocktime}} · FL {{fl}} · {{pax}} pax · fret {{fret}} · payload {{payload}}.", r:"0"},
-    {t:"ZFW forcé", d:"Masse à vide d'IF {{oew}} pour le type + payload. Laisser AUTO, c'est planifier un avion qui n'existe pas. ZFW {{zfw}}.", r:"0", w:1},
-    {t:"Pistes laissées en AUTO", d:"AUTO choisit au vent réel, comme IF. La piste attendue se note pour comparaison, elle ne se tape pas. Attendues : {{piste}} au départ, {{arrpiste}} à l'arrivée.", r:"0"},
-    {t:"Fuel Planning réglé", d:"MEL, ATC, WXX et Tankering à 0. EXTRA non nul seulement avec un motif écrit. EXTRA {{extra}}.", r:"0"},
-    {t:"Text Entries remplis", d:"Pilot ID, Captain Name, et dans les remarks : piste attendue, seuil BINGO, dégagement, motif de l'EXTRA. Pilot ID {{pilotid}} · BINGO {{bingo}} · {{degag}}.", r:"0"},
-    {t:"Route collée dans Selected Route", d:"Format ATC, sans les terrains. Depuis le build 18266, un changement de SID/STAR décidé après coup se fait au MCDU (§2.1) sans regénérer l'OFP. {{rte}}.", r:"0"},
-    {t:"Alternate Airports réglé", d:"Critères 400 / 600 / 3000 / 7000, dégagement en DCT. Takeoff et Enroute seulement si le vol l'exige.", r:"0"},
-    {t:"ETOPS traité", d:"n/a sur vol continental. Sinon Threshold 60 min, Scenario Auto, puis Calculate.", r:"0"},
-    {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé.", r:"0", w:1}
+
+    /* §0.2 — Informations sur le vol */
+    {t:"1 · Informations sur le vol", d:"Compagnie aérienne en OACI trois lettres, Numéro du vol, Partir · Arriver, Heure de départ en UTC. {{airline}} {{fltnum}} · {{route}} · {{eobt}}.", r:"0.2"},
+    {t:"Alterner : le dégagement nommé", d:"Jamais AUTO — c'est le terrain à briefer, il doit tenir la météo de l'ETA, pas seulement les critères de distance. {{degag}} · {{degcap}}° · {{degdist}} NM.", r:"0.2", w:1},
+
+    /* §0.3 — Informations sur l'avion */
+    {t:"2 · Informations sur l'avion", d:"Type d'aéronef dans la variante exacte volée dans IF, Variante ou cellule au générique du type, Indicatif d'appel ATC identique à celui tapé dans IF. Les trois profils restent en AUTO. {{type}} · {{callsign}}.", r:"0.3", w:1},
+
+    /* §0.1 — les neuf de Plus d'options, priorité REV 19 */
+    {t:"3 · « Plus d'options » déplié, les neuf champs remplis", d:"Facteur carburant {{fuelfactor}} · Inscription {{immat}} · Numéro Fin {{finnum}} · SELCAL {{selcal}} · Code Mode-S {{modes}}. Le bouton bascule en « Moins d'options » une fois déplié.", r:"0.1", w:1},
+    {t:"Les quatre chaînes d'équipement tapées en clair", d:"Équipement de l'OACI SDFGHRWY · Transpondeur LB1 · Capacité PBN A1B1C1D1L1O1S1 · Article 18 DAT/V RMK/SIMBRIEF. Le texte gris n'est pas un exemple : c'est ce que SimBrief appliquerait. On le tape à l'identique pour que la valeur soit écrite, donc vérifiable.", r:"0.1", w:1},
+    {t:"Aucune case laissée à sa valeur de démonstration", d:"N999SB, 999, ABCD et ZZZZZZ sont des amorces. Les garder produit un plan de vol au nom d'un appareil qui n'existe pas. Numéro Fin = trois derniers de l'immat ; SELCAL = quatre lettres entre A et S sans I, N ni O, deux paires croissantes.", r:"0.1", w:1},
+    {t:"Boutons « Constructeur » laissés tranquilles", d:"Ils composent la chaîne à partir des équipements cochés. Jamais par défaut : seulement si le vol exige une capacité que la chaîne standard ne déclare pas — RNP AR, CPDLC océanique, MNPS. Une chaîne modifiée se recopie au §9, sinon elle est perdue.", r:"0.1"},
+
+    /* §0.4 — Sélections */
+    {t:"4 · Sélections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi Sortie/Entrée 20/8 · IFR · Scheduled · Compte alternatif 1. Taxi retenu {{taxitime}}.", r:"0.4"},
+    {t:"Les six interrupteurs sur ON", d:"Journal de navigation détaillé, Planification ETOPS, Planifier les escaliers, Analyse de la piste, Inclure les NOTAM, NOTAM FIR. En éteindre un rouvre un trou que rien ne comble.", r:"0.4", w:1},
+    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import. Cycle {{airac}}.", r:"0.4"},
+
+    /* §0.5 — Entrées facultatives */
+    {t:"5 · Entrées facultatives chiffrées", d:"Bloc horaire prévu {{blocktime}} · Altitude (Pieds) {{fl}} en FL · Passagers {{pax}} · Fret {{fret}} · Charge utile {{payload}}. Aucune case en AUTO.", r:"0.5"},
+    {t:"Poids zéro carburant forcé", d:"Masse à vide IF du type {{oew}} + charge utile. Laisser AUTO, c'est planifier un avion qui n'existe pas — et les vitesses comme la flex sortiraient pour une autre masse. {{zfw}}.", r:"0.5", w:1},
+    {t:"Les deux pistes laissées en AUTO", d:"AUTO choisit au vent réel, exactement comme IF. La piste attendue ne se tape pas : elle se compare, et elle vit au cartouche ②. Attendues : {{piste}} au départ, {{arrpiste}} à l'arrivée.", r:"0.5"},
+
+    /* §0.6 — Carburant */
+    {t:"6 · Planification du carburant réglée", d:"Contingency, Reserve, Taxi, FOB et FOD en Auto. MEL, ATC, WXX et Tankering à 0. Sélecteur sur EXTRA, unités en KG. EXTRA {{extra}}, non nul seulement avec un motif écrit.", r:"0.6"},
+    {t:"Les quatre postes en AUTO ne remontent pas", d:"Contingence, réserve, taxi et FOD n'ont pas de libellé au registre : leur valeur attendue reste en colonne 3, pour l'œil. Le seul carburant lu par cette page est le cartouche ④.", r:"A.5", w:1},
+
+    /* §0.7 — Entrées de texte */
+    {t:"7 · Entrées de texte remplies", d:"Identifiant du pilote {{pilotid}} · Nom du capitaine · Premier officier et Nom de l'expéditeur en Random. Dans les remarques : piste attendue, seuil BINGO {{bingo}}, dégagement {{degag}}, motif de l'EXTRA.", r:"0.7"},
+
+    /* §0.8 — Itinéraire */
+    {t:"8 · Route collée dans Selected Route", d:"Format ATC, sans les terrains. Depuis le build 18266, un changement de SID ou de STAR décidé après coup se fait au MCDU (§2.1) sans regénérer l'OFP. {{rte}}.", r:"0.8"},
+
+    /* §0.9 — Alternatifs */
+    {t:"9 · Aéroports alternatifs réglés", d:"Critères 400 NM / 600 ft / 3000 m / 7000 ft — 9000 pour un long-courrier lourd. Dégagement n° 1 en DCT. Décoller et En route à NONE sauf si le vol l'exige.", r:"0.9"},
+    {t:"Les deux lignes ignorées du dégagement", d:"« Altitude (Pieds) » y est l'élévation du terrain de dégagement, pas le FL de croisière, et « Itinéraire (Route) » est la route du dégagement, pas celle du vol. Les deux sont déclarées ignorées : elles s'écrivent, elles ne remontent rien.", r:"A.5", w:1},
+    {t:"ETOPS traité", d:"n/a sur vol continental. Sinon Threshold 60 min, Scenario Auto, puis Calculate — les six Altn se remplissent seuls.", r:"0.10"},
+
+    {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé — piste, FL, dégagement, masse.", r:"0.11", w:1}
   ]},
 
-  { n:"OFP & cartouche", s:"Lecture du plan, seuils carburant", items:[
-    {t:"Cartouche rempli", d:"Piste {{piste}} cap {{capdep}}° · V1/VR/V2 {{v1}}/{{vr}}/{{v2}} · Flex {{flex}} · Volets {{volets}} · Bloc {{bloc}} · Trip {{trip}} · ILS {{ils}} · DA {{da}} · Vapp {{vapp}} · Dégagement {{degag}}.", r:"A.4"},
+  { n:"OFP & cartouches", s:"Les 34 cellules, puis les seuils carburant", items:[
+    {t:"① Identité", d:"{{callsign}} · {{airline}} · {{type}}. La compagnie porte le code OACI à trois lettres, jamais le nom commercial.", r:"A.4"},
+    {t:"② Pistes et dégagement", d:"Piste départ {{piste}} cap {{capdep}}° · Piste arrivée {{arrpiste}} · Dégagement {{degag}} cap {{degcap}}° à {{degdist}} NM.", r:"A.4"},
+    {t:"③ Vitesses et trajectoire", d:"V1/VR/V2 {{v1}}/{{vr}}/{{v2}} · Flex {{flex}} · Volets {{volets}} · Réduction {{thrred}} · Accélération {{accel}} · Transition {{trans}} · ILS {{ils}} · DA {{da}} · Vref {{vref}} · Vapp {{vapp}} · Inbound {{inbwpt}} à {{inbound}} NM.", r:"A.4"},
+    {t:"④ Carburant", d:"BLOC {{bloc}} · BINGO {{bingo}} · MIN DIV {{mindiv}} · EXTRA {{extra}} · FUEL FACTOR {{fuelfactor}}.", r:"A.4"},
+    {t:"⑤ Masses", d:"Masse à vide IF {{oew}} · Charge utile {{payload}} · Poids zéro carburant {{zfw}} · Trip {{trip}} · TOW {{tow}} · LW {{lw}} t.", r:"A.4"},
+    {t:"Les 34 cellules renseignées, aucune vide", d:"Une case vide sans motif affiché est un défaut de format de la feuille, pas de la page. Le bandeau d'anomalie nomme celles qui n'ont pas été résolues.", r:"A.5", w:1},
     {t:"Masses dans les limites", d:"TOW {{tow}} sous MTOW, LW {{lw}} t sous MLW. Hors limite = NO-GO, sans discussion.", r:"8", w:1},
     {t:"Bloc supérieur à la somme des postes", d:"Sinon NO-GO.", r:"8", w:1},
     {t:"Route contrôlée", d:"Aucun waypoint dupliqué, FL conforme à la règle semi-circulaire. SimBrief ne signale ni l'un ni l'autre.", r:"1", w:1},
@@ -408,7 +480,7 @@ const PHASES = [
     {t:"Trois altitudes notées", d:"Réduction {{thrred}} ft · Accélération {{accel}} ft · Transition {{trans}} ft. Absentes du MCDU : elles se tiennent à la main.", r:"4", w:1},
     {t:"Briefing panne énoncé", d:"Avant V1 : interruption, idle, freinage max, inverseurs, spoilers, immobilisation, annonce. Après V1 : assiette V2, symétrie, EOSID ou cap piste, altitude de sécurité, retour ou dégagement.", r:"4"},
     {t:"Cas cisaillement dit", d:"TOGA, assiette de sauvegarde, configuration conservée. Cisaillement signalé : flex interdite.", r:"4", w:1},
-    {t:"Cran d'autobrake décidé", d:"MAX au décollage est l'attente du mémo T.O ; un autre cran est un choix, pas un oubli — il se dit au briefing. Cran retenu : {{autobrake}}.", r:"4"},
+    {t:"Crans d'autobrake décidés", d:"Départ {{autobrkdep}} — MAX est l'attente du mémo T.O ; un autre cran est un choix, pas un oubli, il se dit au briefing. Arrivée {{autobrkarr}}, selon longueur de piste et état de surface.", r:"4"},
     {t:"Limites de vent du type connues", d:"Travers et arrière maximum, réduits sur piste mouillée ou contaminée. L'OFP ne les porte pas.", r:"4"},
     {t:"Point d'ANNOUNCE INBOUND préparé", d:"{{inbwpt}} à {{inbound}} NM du seuil, cumulé à l'envers depuis la ligne de la piste.", r:"6.6"},
     {t:"GO prononcé", d:"Ou NO-GO motivé sur l'un des quatre points bloquants.", r:"8"}
@@ -421,7 +493,7 @@ const PHASES = [
     {t:"Altimètres au QNH", d:"Contrôle : élévation affichée à ± 75 ft.", r:"7"},
     {t:"Transpondeur sur STBY", d:"Il passe sur ALT à l'alignement, pas avant.", r:"7"},
     {t:"Panneaux ceintures et no-smoking allumés", d:"Item du mémo T.O (SEAT BELTS).", r:"7"},
-    {t:"Volets {{volets}}, trim réglé, spoilers armés, autobrake {{autobrake}}", d:"IF ne fournit pas de centrage : le trim se prend dans la table du type, le champ THS reste à tirets. Le cran d'autobrake se sélectionne avant l'alignement : le mémo T.O ne passe pas au vert tant qu'il n'est pas mis.", r:"7", w:1},
+    {t:"Volets {{volets}}, trim réglé, spoilers armés, autobrake {{autobrkdep}}", d:"IF ne fournit pas de centrage : le trim se prend dans la table du type, le champ THS reste à tirets. Le cran d'autobrake se sélectionne avant l'alignement : le mémo T.O ne passe pas au vert tant qu'il n'est pas mis.", r:"7", w:1},
     {t:"Briefing décollage énoncé", d:"", r:"7"}
   ]},
 
@@ -490,7 +562,7 @@ const PHASES = [
     {t:"Toucher train principal, assiette maintenue", d:"Assiette au maximum 7,5° : la limite de tail strike est à 11,7° train comprimé. Ne pas reposer le train avant brutalement.", r:"6.3", w:1},
     {t:"Toucher dans la zone visée", d:"1000 ft après le seuil, ± 300. Au-delà de 2000 ft : remise de gaz obligatoire.", r:"6.5", w:1},
     {t:"Spoilers vérifiés, sortie manuelle si besoin", d:"", r:"6.5"},
-    {t:"Inverseurs, autobrake, puis freinage manuel en fin de course", d:"Puissance de freinage dégradée relevée à l'Aircraft Health : un cran d'autobrake de plus, distance disponible vérifiée deux fois — une piste courte avec des freins usés est un motif de dégagement, pas un défi.", r:"6.5", w:1},
+    {t:"Inverseurs, autobrake {{autobrkarr}}, puis freinage manuel en fin de course", d:"Puissance de freinage dégradée relevée à l'Aircraft Health : un cran d'autobrake de plus, distance disponible vérifiée deux fois — une piste courte avec des freins usés est un motif de dégagement, pas un défi.", r:"6.5", w:1},
     {t:"Piste dégagée annoncée après dégagement complet", d:"", r:"6.5"}
   ]},
 
@@ -890,10 +962,11 @@ function paintProgress(){
 /* champs strictement chiffres : clavier numerique sur tablette */
 const NUM = ['v1','vr','v2','flex','thrred','accel','bloc','trip','bingo','mindiv',
              'da','lw','vref','vapp','inbound','degcap','degdist','capdep','tow','oew',
-             'fltnum','pilotid','airac','pax','fret','payload','zfw','trans','extra'];
+             'fltnum','pilotid','airac','pax','fret','payload','zfw','trans','extra',
+             'altinit'];
 
 /* champs a valeur longue : deux colonnes */
-const WIDE = ['eobt','rte'];
+const WIDE = ['eobt','rte','route'];
 
 function buildValues(){
   const frag = document.createDocumentFragment();
@@ -960,7 +1033,10 @@ function buildIndex(txt){
     if(/^```/.test(l)){ inCode = !inCode; return; }
     if(inCode) return;                        /* un # dans un bloc de code n'est pas un titre */
     const m = l.match(/^(#{1,4})\s+(.*)$/);
-    if(m) heads.push({lvl:m[1].length, txt:m[2].replace(/[`*]/g,'').trim(), i:i});
+    /* REV 19 titre ses sous-sections « ### §0.5 · … » : le § fait partie du
+       titre, pas du numero. On l'enleve a l'indexation, sinon le renvoi 0.5
+       ne retrouve jamais sa section. */
+    if(m) heads.push({lvl:m[1].length, txt:m[2].replace(/[`*]/g,'').replace(/^§\s*/,'').trim(), i:i});
   });
   return { lines:lines, heads:heads };
 }
@@ -975,12 +1051,16 @@ function badgeRev(){
     const cs = (state.sheetCallsign||'').trim();
     out.push('<span class="rev-chip sheet" title="Feuille du vol">'+
              esc(state.sheetRev + (cs ? ' · '+cs : ''))+'</span>');
-    /* quatorze cases vides ne disent pas si le document n'en porte pas ou si la
-       lecture a echoue : on leve l'ambiguite sans crier. Uniquement quand la
-       section est absente — anomalie et cellules vides ont leur propre traitement. */
+    /* 34 cases vides ne disent pas si le document n'en porte pas ou si la
+       lecture a echoue : on leve l'ambiguite sans crier. Uniquement quand aucun
+       cartouche n'est reconnu — anomalie et cellules vides ont leur propre
+       traitement. */
     if(state.sheet && !cartouche){
-      out.push('<span class="rev-note" title="Aucune section A.4 · CARTOUCHE dans cette feuille">'+
+      out.push('<span class="rev-note" title="Aucun des cinq cartouches du §A.4 n\'a été reconnu dans cette feuille">'+
                'feuille sans cartouche</span>');
+    }else if(state.sheet && cartouche && cartouche.resolues < cartouche.total){
+      out.push('<span class="rev-note" title="Cellules des cinq cartouches résolues à la lecture">'+
+               cartouche.resolues+'/'+cartouche.total+' cellules</span>');
     }
   }
   if(!out.length) out.push('<span class="rev-chip vide">aucun briefing</span>');
@@ -1076,39 +1156,26 @@ document.addEventListener('drop', async e=>{
    key       cle de FIELDS
    labels    libelles acceptes, EGALITE STRICTE apres normLabel()
    kind      'int' | 'dec' | 'code' | 'text'
-   required  vrai pour les quatorze du cartouche
+   required  vrai pour les 34 cellules des cinq cartouches (REV 19 §A.4)
    max       longueur maximale de la cellule (defaut 60)
    display   libelle affiche dans le bandeau
    xf        transformation optionnelle du nombre valide
 ------------------------------------------------------------ */
 const REGISTRE = [
-  /* identite du vol */
-  { key:'callsign', labels:['callsign','atc callsign','indicatif d\'appel atc'], kind:'code', display:'Callsign' },
-  { key:'airline',  labels:['airline','compagnie aerienne','compagnie'], kind:'code', display:'Compagnie' },
-  { key:'fltnum',   labels:['flight number','numero du vol'], kind:'int',  display:'N° de vol' },
-  /* 'route' n'est PAS un libelle lisible : le mot designe deux choses dans les
-     fichiers (le trajet, et l'itineraire du degagement). DEP → ARR se
-     reconstruit systematiquement depuis _dep + _arr, qui sont sans ambiguite. */
-  { key:'_dep',     labels:['partir','depart'], kind:'text', max:40, display:'Départ' },
-  { key:'_arr',     labels:['arriver','arrive'], kind:'text', max:40, display:'Arrivée' },
-  { key:'eobt',     labels:['departure time','eobt','heure de depart'], kind:'text', display:'EOBT UTC' },
-  { key:'type',     labels:['appareil','aircraft','type d\'aeronef','type'], kind:'text', display:'Type / immat' },
-  { key:'pilotid',  labels:['pilot id','identifiant du pilote'], kind:'int', display:'Pilot ID' },
-  { key:'airac',    labels:['airac cycle','cycle airac'], kind:'int', display:'Cycle AIRAC' },
+  /* ---- cartouche ① · identite — 3 ---- */
+  { key:'callsign', labels:['callsign','atc callsign','indicatif d\'appel atc'], kind:'code', required:true, display:'Callsign' },
+  { key:'airline',  labels:['airline','compagnie aerienne','compagnie'], kind:'code', required:true, display:'Compagnie' },
+  { key:'type',     labels:['appareil','aircraft','type d\'aeronef','type'], kind:'text', required:true, display:'Type' },
 
-  /* masses et chargement */
-  { key:'oew',      labels:['masse a vide if'], kind:'int', display:'Masse à vide IF' },
-  { key:'pax',      labels:['passengers','passagers'], kind:'int', display:'Passagers' },
-  { key:'fret',     labels:['freight','fret'], kind:'int', display:'Fret' },
-  { key:'payload',  labels:['payload','charge utile'], kind:'int', display:'Charge utile' },
-  { key:'zfw',      labels:['zfw','poids zero carburant'], kind:'int', display:'ZFW' },
-  { key:'blocktime',labels:['sched block time','bloc horaire prevu'], kind:'text', max:20, display:'Bloc prévu' },
-  { key:'taxitime', labels:['taxi time','taxi time (min)','taxi sortie / entree'], kind:'text', max:20, display:'Taxi' },
+  /* ---- cartouche ② · pistes et degagement — 6 ---- */
+  { key:'piste',    labels:['depart rwy','depart runway','piste depart','piste dep.'], kind:'code', required:true, display:'Piste départ' },
+  { key:'capdep',   labels:['cap depart'], kind:'int', required:true, display:'Cap départ' },
+  { key:'arrpiste', labels:['arrival rwy','arrivee runway','piste arrivee','piste arr.'], kind:'code', required:true, display:'Piste arrivée' },
+  { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', required:true, display:'Dégagement' },
+  { key:'degcap',   labels:['cap degagement'], kind:'int', required:true, display:'Cap dégagement' },
+  { key:'degdist',  labels:['distance degagement'], kind:'int', required:true, display:'Distance dégagement' },
 
-  /* depart — cinq des quatorze */
-  { key:'piste',    labels:['depart rwy','depart runway','piste depart','piste dep.'], kind:'code', display:'Piste dép.' },
-  { key:'capdep',   labels:['cap depart'], kind:'int', display:'Cap départ' },
-  { key:'tow',      labels:['tow'], kind:'dec', display:'TOW' },
+  /* ---- cartouche ③ · vitesses et trajectoire — 14 ---- */
   { key:'v1',       labels:['v1'], kind:'int', required:true, display:'V1' },
   { key:'vr',       labels:['vr'], kind:'int', required:true, display:'VR' },
   { key:'v2',       labels:['v2'], kind:'int', required:true, display:'V2' },
@@ -1117,25 +1184,8 @@ const REGISTRE = [
   { key:'thrred',   labels:['reduction','thrust reduction'], kind:'int', required:true, display:'Réduction' },
   { key:'accel',    labels:['acceleration'], kind:'int', required:true, display:'Accélération' },
   { key:'trans',    labels:['transition','altitude de transition'], kind:'int', required:true, display:'Transition' },
-
-  /* croisiere */
-  { key:'fl',       labels:['altitude','altitude (feet)','altitude (pieds)'], kind:'int', display:'Croisière FL',
-    xf:n => n > 1000 ? Math.round(n/100) : n },                    /* 35000 ft -> FL350 */
-  { key:'rte',      labels:['selected route'], kind:'text', max:400, display:'Route ATC' },
-
-  /* carburant */
-  { key:'bloc',     labels:['bloc'], kind:'int', display:'Bloc' },
-  { key:'trip',     labels:['trip'], kind:'int', display:'Trip' },
-  { key:'bingo',    labels:['bingo'], kind:'int', display:'BINGO' },
-  { key:'mindiv',   labels:['min div'], kind:'int', display:'MIN DIV' },
-  { key:'extra',    labels:['extra'], kind:'int', display:'EXTRA' },
-  { key:'fuelfactor',labels:['fuel factor'], kind:'code', display:'Fuel Factor' },
-
-  /* arrivee — neuf des quatorze */
-  { key:'arrpiste', labels:['arrival rwy','arrivee runway','piste arrivee','piste arr.'], kind:'code', display:'Piste arr.' },
   { key:'ils',      labels:['ils'], kind:'code', required:true, display:'ILS' },
   { key:'da',       labels:['da','decision altitude'], kind:'int', required:true, display:'DA' },
-  { key:'lw',       labels:['lw','landing weight'], kind:'dec', display:'LW' },
   { key:'vref',     labels:['vref'], kind:'int', required:true, display:'Vref' },
   { key:'vapp',     labels:['vapp'], kind:'int', required:true, display:'Vapp' },
   { key:'inbound',  labels:['inbound','distance inbound'], kind:'int', required:true, display:'Inbound' },
@@ -1143,21 +1193,72 @@ const REGISTRE = [
      et non 'code' — sinon les deux feuilles reelles seraient rejetees. */
   { key:'inbwpt',   labels:['point inbound','announce inbound'], kind:'text', max:24, required:true, display:'Point inbound' },
 
-  /* degagement — cap et distance viennent du bloc identite, atomiques */
-  { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', display:'Dégagement' },
-  { key:'degcap',   labels:['cap degagement'], kind:'int', display:'Cap dégag.' },
-  { key:'degdist',  labels:['distance degagement'], kind:'int', display:'Dist. dégag.' }
+  /* ---- cartouche ④ · carburant — 5 ---- */
+  { key:'bloc',     labels:['bloc'], kind:'int', required:true, display:'BLOC' },
+  { key:'bingo',    labels:['bingo'], kind:'int', required:true, display:'BINGO' },
+  { key:'mindiv',   labels:['min div'], kind:'int', required:true, display:'MIN DIV' },
+  { key:'extra',    labels:['extra'], kind:'int', required:true, display:'EXTRA' },
+  { key:'fuelfactor',labels:['fuel factor','facteur carburant'], kind:'code', required:true, display:'FUEL FACTOR' },
+
+  /* ---- cartouche ⑤ · masses — 6 ---- */
+  { key:'oew',      labels:['masse a vide if'], kind:'int', required:true, display:'Masse à vide IF' },
+  { key:'payload',  labels:['payload','charge utile'], kind:'int', required:true, display:'Charge utile' },
+  /* REV 19 a renomme ZFW en « Poids zéro carburant » : les deux formes restent
+     acceptees, le §0.5 ecrit encore « Poids zéro carburant (ZFW, KG) ». */
+  { key:'zfw',      labels:['zfw','poids zero carburant'], kind:'int', required:true, display:'Poids zéro carburant' },
+  { key:'trip',     labels:['trip'], kind:'int', required:true, display:'Trip' },
+  { key:'tow',      labels:['tow'], kind:'dec', required:true, display:'TOW' },
+  { key:'lw',       labels:['lw','landing weight'], kind:'dec', required:true, display:'LW' },
+
+  /* ---- hors cartouche : formulaire, colonne « à taper » (§A.5) ---- */
+  { key:'fltnum',   labels:['flight number','numero du vol'], kind:'int',  display:'N° de vol' },
+  /* 'route' n'est PAS un libelle lisible : le mot designe deux choses dans les
+     fichiers (le trajet, et l'itineraire du degagement). Partir → Arriver se
+     reconstruit systematiquement depuis _dep + _arr, qui sont sans ambiguite. */
+  { key:'_dep',     labels:['partir','depart'], kind:'text', max:40, display:'Départ' },
+  { key:'_arr',     labels:['arriver','arrive'], kind:'text', max:40, display:'Arrivée' },
+  { key:'eobt',     labels:['departure time','eobt','heure de depart'], kind:'text', display:'EOBT UTC' },
+  { key:'pilotid',  labels:['pilot id','identifiant du pilote'], kind:'int', display:'Pilot ID' },
+  { key:'airac',    labels:['airac cycle','cycle airac'], kind:'int', display:'Cycle AIRAC' },
+  { key:'pax',      labels:['passengers','passagers'], kind:'int', display:'Passagers' },
+  { key:'fret',     labels:['freight','fret'], kind:'int', display:'Fret' },
+  { key:'blocktime',labels:['sched block time','bloc horaire prevu'], kind:'text', max:20, display:'Bloc prévu' },
+  { key:'taxitime', labels:['taxi time','taxi time (min)','taxi sortie / entree'], kind:'text', max:20, display:'Taxi' },
+  { key:'fl',       labels:['altitude','altitude (feet)','altitude (pieds)'], kind:'int', display:'Croisière FL',
+    xf:n => n > 1000 ? Math.round(n/100) : n },                    /* 35000 ft -> FL350 */
+  { key:'rte',      labels:['selected route'], kind:'text', max:400, display:'Selected Route' }
 ];
 
-/* libelles vus mais volontairement ignores : ils ne polluent pas "non reconnu" */
 /* Libelles vus mais volontairement ignores : ils ne remontent ni en valeur,
-   ni en "libellé non reconnu". Deux familles (REV 18 a fait passer TOW, Trip,
-   Masse à vide IF et Cap départ du cote ignore au cote registre — retires d'ici) :
-   — en-tetes et intitules de colonnes qui trainent en premiere cellule
-   — champs du bloc identite qui n'ont pas de case : immat, altitude initiale
-     — et "Itinéraire (Route)", qui est la route du degagement, pas celle du vol. */
-const IGNORE = ['poste','champ','marqueur','config','annonce',
-                'itineraire','immatriculation','altitude initiale'];
+   ni en "libellé non reconnu". Trois familles :
+   — en-tetes et intitules de colonnes qui trainent en premiere cellule ;
+   — les « repères non lus » du §A.4, en attente d'inscription au registre :
+     immatriculation, altitude initiale, autobrake, route, date, MANQUE.
+     Ils restent DEHORS du registre tant que la REV les y laisse : la regle 11
+     interdit qu'un libelle declare figure dans un bloc annonce comme non lu ;
+   — les champs du formulaire qui n'ont pas de case et dont le libelle
+     pourrait se resoudre par accident. */
+const IGNORE = ['poste','champ','marqueur','config','annonce','repere','libelle',
+                'itineraire','immatriculation','inscription','altitude initiale',
+                'autobrake','autobrake depart','autobrake arrivee',
+                'route','date','manque','piste','runway','compte alternatif',
+                'numero fin','fin number','selcal','mode-s code','code mode-s'];
+
+/* ------------------------------------------------------------
+   IGNORE CONTEXTUEL — REV 19, correctif bloquant
+   « Altitude (Pieds) » est porte DEUX fois par le formulaire : le FL de
+   croisiere aux Entrees facultatives, et l'elevation du terrain de degagement
+   aux Aeroports alternatifs. Le libelle est identique au caractere pres, donc
+   seule la SECTION peut les separer. Sans ca, « la derniere l'emporte » faisait
+   remonter l'elevation du degagement a la place du niveau de croisiere, en
+   silence — exactement le cas que la REV 19 signale.
+------------------------------------------------------------ */
+/* « degagement n° 1 » et non le mot degagement seul : un cartouche qui parle de
+   degagement ne doit pas, pour autant, perdre ses autres lignes. */
+const SECTION_ALTERNATE = /alternatif|alternate|degagement n/;
+const IGNORE_EN_SECTION = [
+  { labels:['altitude','altitude (pieds)','altitude (feet)'], section:SECTION_ALTERNATE }
+];
 
 /* index libelle -> entree. Une collision est une faute de declaration : on
    refuse de demarrer plutot que de resoudre au hasard. */
@@ -1204,11 +1305,19 @@ function regFor(raw){
   }
   return null;
 }
-function estIgnore(raw){
+/* section : titre de la section qui contient la ligne, deja normalise.
+   Un libelle peut n'etre ignore QUE la ou il change de sens (§A.5). */
+function estIgnore(raw, section){
   const n = normLabel(raw);
-  if(IGNORE.indexOf(n) >= 0) return true;
+  const formes = [n];
   const m = n.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
-  return !!(m && (IGNORE.indexOf(m[1]) >= 0 || IGNORE.indexOf(m[2]) >= 0));
+  if(m){ formes.push(m[1], m[2]); }
+  if(formes.some(f => IGNORE.indexOf(f) >= 0)) return true;
+  if(section){
+    return IGNORE_EN_SECTION.some(r =>
+      r.section.test(section) && formes.some(f => r.labels.indexOf(f) >= 0));
+  }
+  return false;
 }
 
 /* ------------------------------------------------------------
@@ -1219,7 +1328,10 @@ function estIgnore(raw){
    valeur est un rejet, pas une matiere premiere.
 ------------------------------------------------------------ */
 const UNITE = /(kg|ft|kt|nm|min|°c|°)$/i;
-const VIDE  = /^(auto|n\/a|na|none|laisser vide|vide|—|-)$/i;
+/* MANQUE est le marqueur de non-fourni du dossier (§Conventions), pas une
+   valeur : sans cette ligne il passait pour un code valide et « MANQUE »
+   s'affichait dans la case ILS comme s'il s'agissait d'une frequence. */
+const VIDE  = /^(auto|n\/a|na|none|laisser vide|vide|manque|—|-)$/i;
 
 function validate(e, raw){
   const v = (raw || '').trim();
@@ -1253,17 +1365,25 @@ function validate(e, raw){
 const SEPARATEUR = /^\s*\|[\s\-:|]+$/;
 function cellsOf(l){ return l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()); }
 
+/* Chaque tableau retient le titre de section qui le precede — titre markdown,
+   ou ligne en gras isolee du genre "**Dégagement n° 1**", qui est la seule
+   chose qui separe le bloc du degagement du reste des Aeroports alternatifs.
+   Sans ce contexte, "Altitude (Pieds)" ne peut pas etre departage (§A.5). */
 function tables(lines){
   const out = [];
-  let inCode = false;
+  let inCode = false, section = '';
   for(let i = 0; i < lines.length; i++){
     if(/^```/.test(lines[i])){ inCode = !inCode; continue; }
     if(inCode) continue;
+    const h = lines[i].match(/^#{1,6}\s+(.*)$/);
+    if(h){ section = normLabel(h[1].replace(/^§\s*/,'')); continue; }
+    const g = lines[i].match(/^\s*\*\*(.+?)\*\*\s*:?\s*$/);
+    if(g){ section += ' ' + normLabel(g[1]); continue; }
     if(!/^\s*\|/.test(lines[i])) continue;
     if(!SEPARATEUR.test(lines[i+1] || '')) continue;
     let end = i + 2;
     while(end < lines.length && /^\s*\|/.test(lines[end]) && !SEPARATEUR.test(lines[end])) end++;
-    out.push({ headCells:cellsOf(lines[i]), from:i + 2, to:end });
+    out.push({ headCells:cellsOf(lines[i]), from:i + 2, to:end, section:section });
     i = end - 1;
   }
   return out;
@@ -1277,8 +1397,8 @@ function valueColumn(headCells){
 }
 
 function readValues(lines){
-  const rows = [], found = [];
-  tables(lines).forEach(t=>{
+  const rows = [], found = [], tabs = tables(lines);
+  tabs.forEach(t=>{
     const col = valueColumn(t.headCells);
     for(let i = t.from; i < t.to; i++){
       const cells = cellsOf(lines[i]);
@@ -1291,8 +1411,10 @@ function readValues(lines){
       /* Un libelle explicitement ignore l'emporte sur toute resolution. Sans cela,
          "Itinéraire (Route)" du tableau de degagement se resout en 'route' par sa
          moitie anglaise et, avec la regle "la derniere gagne", ecrase le vrai
-         LFML → EDDM par un DCT. Deux sens du mot Route dans un meme fichier. */
-      if(estIgnore(label)){
+         LFML → EDDM par un DCT. Meme mecanique pour "Altitude (Pieds)", qui vaut
+         FL de croisiere aux Entrees facultatives et elevation de terrain chez les
+         Aeroports alternatifs — d'ou l'ignore contextuel (REV 19). */
+      if(estIgnore(label, t.section)){
         rows.push({ line:i+1, label:label, ok:false, reason:'ignoré volontairement' });
         continue;
       }
@@ -1324,61 +1446,72 @@ function readValues(lines){
     vue[f.key] = { line:f.line, value:f.value };
     vals[f.key] = f.value;
   });
-  return { vals:vals, rows:rows };
+  return { vals:vals, rows:rows, tabs:tabs };
 }
 
 /* ------------------------------------------------------------
-   4 · CARTOUCHE — completude seulement, plus de lecture a part
+   4 · CARTOUCHES — completude des 34 cellules (REV 19 §A.4)
+   La REV 18 n'avait qu'un cartouche, donc un seul tableau : on validait
+   "le premier tableau de la section Cartouche". La REV 19 en a CINQ — ①
+   identite, ② pistes, ③ vitesses, ④ carburant, ⑤ masses — et une feuille
+   les titre comme elle veut. Chercher un tableau nomme ne tient plus.
+   Desormais la completude se mesure sur TOUT le document : une cellule
+   requise est resolue, refusee, ou absente, ou qu'elle soit ecrite.
 ------------------------------------------------------------ */
-/* la section dont le titre porte "cartouche", bornee au titre suivant de meme rang */
-function cartoucheSection(lines){
-  let from = -1, lvl = 0;
-  for(let i = 0; i < lines.length; i++){
-    const m = lines[i].match(/^(#{1,4})\s+(.*)$/);
-    if(!m) continue;
-    if(from < 0){
-      if(/cartouche/.test(normLabel(m[2]))){ from = i; lvl = m[1].length; }
-      continue;
+/* Un tableau est "zone de cartouche" s'il est a DEUX colonnes — le §A.4 impose
+   `Champ | Valeur` — et s'il porte au moins deux libelles requis. Les deux
+   conditions comptent : les tableaux du §0 sont a trois colonnes et portent
+   eux aussi des libelles requis (Type et Indicatif d'appel dans Informations
+   sur l'avion), mais leurs autres lignes — Variante, les trois Profils — sont
+   des reglages sans libelle au registre. Les compter en "non reconnus" levait
+   un bandeau d'anomalie sur une feuille pourtant conforme. */
+function zonesCartouche(lines, read){
+  return read.tabs.filter(t=>{
+    if(t.headCells.length !== 2) return false;
+    let n = 0;
+    for(let i = t.from; i < t.to; i++){
+      const label = cellsOf(lines[i])[0] || '';
+      if(estIgnore(label, t.section)) continue;
+      const e = regFor(label);
+      if(e && e.required) n++;
     }
-    if(m[1].length <= lvl) return { from:from, to:i };
-  }
-  return from < 0 ? null : { from:from, to:lines.length };
-}
-
-/* le premier tableau de la section : la "zone reconnue" */
-function premierTableau(lines, from, to){
-  for(let i = from; i < to; i++){
-    if(!/^\s*\|/.test(lines[i])) continue;
-    if(!SEPARATEUR.test(lines[i+1] || '')) continue;
-    let end = i + 2;
-    while(end < to && /^\s*\|/.test(lines[end]) && !SEPARATEUR.test(lines[end])) end++;
-    return { from:i + 2, to:end };
-  }
-  return null;
+    return n >= 2;
+  });
 }
 
 function readCartouche(lines, read){
-  const sec = cartoucheSection(lines);
-  if(!sec) return null;                                  /* pas de cartouche : rien a valider */
-  const tab = premierTableau(lines, sec.from, sec.to);
-  if(!tab) return { bad:[], unknown:[], rejected:[], missing:REQUIRED.map(e=>e.display),
-                    sec:sec, span:null, unresolved:REQUIRED.map(e=>e.key) };
+  const zones = zonesCartouche(lines, read);
+  const dansZone = i => zones.some(z => i >= z.from && i < z.to);
 
-  const bad = [], unknown = [], rejected = [], unresolved = [], vus = {};
+  const bad = [], unknown = [], rejected = [], unresolved = [], vus = {}, refuse = {};
   read.rows.forEach(r=>{
-    const i = r.line - 1;
-    if(i < tab.from || i >= tab.to) return;
     const nom = cleanCell(r.label) || ('ligne '+r.line);
-    if(r.shape){ bad.push(nom); return; }
-    if(r.unknown){ unknown.push(nom); return; }
+    /* forme du tableau et libelles inconnus : seulement dans les cartouches,
+       sinon le §0 entier remonterait au bandeau a chaque chargement */
+    if(r.shape){ if(dansZone(r.line-1)) bad.push(nom); return; }
+    if(r.unknown){ if(dansZone(r.line-1)) unknown.push(nom); return; }
     if(!r.key) return;                                   /* ignore volontairement */
-    vus[r.key] = 1;
-    if(!r.ok){ rejected.push(nom+' — '+r.reason); unresolved.push(r.key); }
+    if(r.ok){ vus[r.key] = 1; return; }
+    /* AUTO ou cellule vide n'est pas un refus : la ligne n'a rien tenté.
+       Une cellule ecrite mais illisible, si — et elle se nomme une seule fois. */
+    if(r.reason === 'non fourni') return;
+    const e = REG_BY_LABEL.get(normLabel(r.label)) || regFor(r.label);
+    if(!(e && e.required)) return;                       /* hors 34 : voir refus */
+    if(refuse[r.key]) return;
+    refuse[r.key] = 1;
+    rejected.push(nom+' — '+r.reason);
   });
-  const manques = REQUIRED.filter(e=>!vus[e.key]);
+
+  const manques = REQUIRED.filter(e=>!vus[e.key] && !refuse[e.key]);
   manques.forEach(e=> unresolved.push(e.key));
+  Object.keys(refuse).forEach(k=> unresolved.push(k));
+
+  /* aucun cartouche reconnu ET aucune des 34 lue : le fichier n'en porte pas */
+  if(!zones.length && !Object.keys(vus).length) return null;
+
   return { bad:bad, unknown:unknown, rejected:rejected, missing:manques.map(e=>e.display),
-           sec:sec, span:tab, unresolved:unresolved };
+           zones:zones, unresolved:unresolved, total:REQUIRED.length,
+           resolues:REQUIRED.filter(e=>vus[e.key]).length };
 }
 
 /* ------------------------------------------------------------
@@ -1402,28 +1535,29 @@ function scanProse(txt, out){
   if(m && !out.arrpiste) out.arrpiste = m[1];
 }
 
-let cartouche = null;      /* dernier cartouche lu, pour le bandeau */
+let cartouche = null;      /* dernier relevé de completude, pour le bandeau */
 let trace = null;          /* dernier relevé de lecture, pour le mode debug */
-let refus = [];            /* valeurs refusées hors du tableau du cartouche */
+let refus = [];            /* valeurs refusées hors des 34 du cartouche */
 
 function extractValues(txt){
   const lines = txt.split('\n');
   const read = readValues(lines);
   const out = Object.assign({}, read.vals);
-  /* DEP → ARR se reconstruit toujours depuis les deux lignes atomiques :
+  /* Partir → Arriver se reconstruit toujours depuis les deux lignes atomiques :
      aucun libellé « Route » n'est lu, le mot est trop ambigu (voir REGISTRE) */
   if(out._dep && out._arr) out.route = out._dep+' → '+out._arr;
   scanProse(txt, out);                                   /* cles encore absentes uniquement */
   cartouche = readCartouche(lines, read);
-  /* Un rejet hors du tableau du cartouche disparaissait en silence : la case
-     restait vide sans rien dire, exactement le defaut que la lecture stricte
-     doit supprimer. Une cellule VIDE ou en AUTO n'est pas un rejet — elle
-     n'a rien tenté ; une cellule refusee, si. */
-  const span = cartouche && cartouche.span;
-  refus = read.rows.filter(r=>
-    r.key && !r.ok && r.reason !== 'non fourni' && out[r.key] === undefined &&
-    !(span && (r.line-1) >= span.from && (r.line-1) < span.to)
-  ).map(r=>({ key:r.key, label:cleanCell(r.label) || ('ligne '+r.line), line:r.line, reason:r.reason }));
+  /* Un rejet disparaissait en silence : la case restait vide sans rien dire,
+     exactement le defaut que la lecture stricte doit supprimer. Une cellule
+     VIDE ou en AUTO n'est pas un rejet — elle n'a rien tenté ; une cellule
+     refusee, si. Les 34 sont deja rapportees par readCartouche : ne restent
+     ici que les champs de formulaire, pour ne rien compter deux fois. */
+  refus = read.rows.filter(r=>{
+    if(!(r.key && !r.ok && r.reason !== 'non fourni')) return false;
+    if(out[r.key] !== undefined) return false;
+    return !(regFor(r.label) || {}).required;
+  }).map(r=>({ key:r.key, label:cleanCell(r.label) || ('ligne '+r.line), line:r.line, reason:r.reason }));
   trace = read.rows;
   return out;
 }
@@ -1463,12 +1597,18 @@ function paintAlert(){
       pluriel(c.missing.length,'champ absent','champs absents')+' : '+c.missing.join(', '));
   }
   const horsCart = refus.map(r=> r.label+' (ligne '+r.line+') — '+r.reason);
-  const titre = parts.length ? 'Cartouche mal formé.' : 'Valeur refusée à la lecture.';
+  /* Une cellule simplement absente n'est pas un cartouche mal forme : le
+     dossier admet le marqueur MANQUE, motive en prose. Ne crier au defaut de
+     format que quand la forme est reellement en cause. */
+  const malForme = !!(c && (c.bad.length || c.unknown.length || c.rejected.length));
+  const titre = malForme ? 'Cartouche mal formé.'
+              : (c && c.missing.length) ? 'Cartouche incomplet — '+c.resolues+'/'+c.total+' cellules.'
+              : 'Valeur refusée à la lecture.';
   if(horsCart.length) parts.push(
     pluriel(horsCart.length,'hors cartouche','hors cartouche')+' : '+horsCart.join(' · '));
   if(!parts.length){ el.alert.hidden = true; el.alert.textContent = ''; return; }
   el.alert.innerHTML =
-    '<strong>'+titre+'</strong> '+esc(parts.join(' · '))+
+    '<strong>'+esc(titre)+'</strong> '+esc(parts.join(' · '))+
     '<span class="alert-note">Ces cases restent vides et non remplies : sur une feuille de vol, '+
     'une valeur fausse silencieuse est le pire cas.</span>';
   el.alert.hidden = false;

@@ -1,7 +1,23 @@
-BRIEFING PRÉ-VOL — INFINITE FLIGHT
+# BRIEFING PRÉ-VOL — INFINITE FLIGHT
 
-**REV 18**
+**REV 19**
 Document de simulation. Aucune valeur opérationnelle réelle.
+
+---
+
+## CE QUI CHANGE DEPUIS LA REV 18
+
+| # | Objet | Nature |
+|---|---|---|
+| 1 | **§0.1 · Identification et équipement** — les neuf champs de « Plus d'options » remontent en tête du §0, chacun avec une valeur à taper. Plus aucun « laisser vide » dans le dossier. | ajout, priorité |
+| 2 | Les quatre boutons **Constructeur** (Équipement OACI, Transpondeur, PBN, Article 18) documentés | ajout |
+| 3 | `Altitude (Pieds)` du tableau de dégagement **déclaré ignoré** — il entrait en conflit avec le FL de croisière | correctif bloquant |
+| 4 | Cartouches du §A.4 **éclatés en une valeur par cellule** ; six libellés déclarés sortent de la zone « non lue » où ils étaient enterrés | correctif bloquant |
+| 5 | `ZFW` renommé `Poids zéro carburant`, libellé du registre | correctif bloquant |
+| 6 | Contrôle §A.5 reformulé : il ne promet plus une reprise impossible pour les libellés hors registre | correctif |
+| 7 | Comptage refait — **34 cellules** au temps 1, méthode d'estimation pour chacune | correctif |
+| 8 | Libellés du formulaire mis à jour : « Planifier les escaliers », « Nom de l'expéditeur » | mise à jour |
+| 9 | `Compte alternatif` : doublon de formulaire déclaré assumé | clarification |
 
 ---
 
@@ -53,7 +69,7 @@ Ce qui est observé en sim prime sur ce que je déduis, toujours.
 Milan annonce le vol. Une phrase, une capture d'un suivi de trafic `[RDR]`, ou les deux.
 Je réponds par la FEUILLE SIMBRIEF (§0) : chaque champ du formulaire avec sa valeur, dans l'ordre de la page. Il tape, il génère.
 Sortie dans le fil par défaut ; en fichier `.md` quand la feuille doit être chargée par la checklist en ligne — et alors le §A.5 s'applique intégralement.
-La feuille se termine par les deux cartouches du §A.4, **remplis d'estimations** : la checklist les réclame dès le temps 1 et n'accepte pas de cellule vide.
+La feuille se termine par les cinq cartouches du §A.4, **remplis d'estimations** : la checklist les réclame dès le temps 1 et n'accepte pas de cellule vide.
 
 ⚠ **DEUX CHOSES QUE MILAN SEUL PEUT DONNER** : le type exact volé dans IF, et sa masse à vide dans IF. Elles ne se déduisent pas, elles ne s'estiment pas, et je ne les relève pas moi-même.
 
@@ -91,9 +107,10 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 5. Un écran ne se diagnostique pas sans son état. Au sol ou en vol ? Route construite ? Croisière saisie ? ADIRS aligné ? Champs vides, 999:59 et 0.0 NM sont normaux sans route ni profil ; PFD et ND noirs sont normaux sans alignement.
 6. Aucun report d'un vol à l'autre. Tout se régénère.
 7. Contradictions signalées, pas arbitrées. Les deux à l'écran, l'écart nommé, Milan tranche.
-8. Ne jamais rendre une feuille avec des cases à remplir — sans exception. Les dix-neuf cellules des deux cartouches sortent estimées au temps 1, marquées `[CALC]` ou `[NAV]`, et se font écraser au temps 2.
+8. **Ne jamais rendre une feuille avec des cases à remplir — sans exception, et « laisser vide » n'en est pas une.** Un champ que SimBrief remplit seul sort avec la valeur que SimBrief applique, écrite en clair, pour être comparée. Les 34 cellules des cartouches sortent estimées au temps 1, marquées `[CALC]` ou `[NAV]`, et se font écraser au temps 2.
 9. **Le type volé et sa masse à vide dans IF viennent de Milan.** Je ne les déduis pas d'un type voisin, je ne les estime pas, je ne les invente pas. S'ils manquent, je le signale par l'alerte du §A.2 en tête de réponse — le silence sur un manque est la faute, pas le manque lui-même.
-10. Un libellé ne s'ajoute au cartouche qu'une fois inscrit au registre du parseur. Dans cet ordre, jamais l'inverse : un libellé écrit mais non déclaré ne fait pas remonter sa valeur, et rien ne le signale (§A.5).
+10. Un libellé ne s'ajoute à un cartouche qu'une fois inscrit au registre du parseur. Dans cet ordre, jamais l'inverse : un libellé écrit mais non déclaré ne fait pas remonter sa valeur, et rien ne le signale (§A.5).
+11. **Un libellé déclaré au registre ne se range jamais dans un bloc annoncé comme non lu.** Soit il est lu et il est dans un cartouche, soit il n'est pas au registre. Il n'y a pas de troisième cas.
 
 ⚠ Un changement de piste, de masse ou de niveau refait les vitesses, la flex et le profil. Je le dis en sortie, je ne corrige pas en silence.
 
@@ -101,15 +118,34 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 
 ## A.4 · FORMAT DE SORTIE
 
-**TEMPS 1** : la feuille SimBrief, dans l'ordre du formulaire, en trois colonnes — champ, ce qui se tape, valeur attendue. Rien d'autre : pas de météo, pas de commentaire de vol. Elle se termine par les deux cartouches ci-dessous, **dix-neuf cellules remplies d'estimations**, chacune avec sa source rangée en prose sous le tableau.
+**TEMPS 1** : la feuille SimBrief, dans l'ordre du formulaire, en trois colonnes — champ, ce qui se tape, valeur attendue. Rien d'autre : pas de météo, pas de commentaire de vol. Elle se termine par les cinq cartouches ci-dessous, **34 cellules remplies d'estimations**, chacune avec sa source rangée en prose sous le tableau.
 
 **TEMPS 2** : le briefing, six blocs, un écran chacun. La PARTIE B ne sort pas, sauf demande.
 
 ### BLOC 0 · CARTOUCHES
 
-⚠ **Libellés figés, format figé.** Voir §A.5. Deux colonnes, `Champ | Valeur`, valeur nue, sans unité.
+⚠ **Libellés figés, format figé.** Voir §A.5. Deux colonnes, `Champ | Valeur`, valeur nue, sans unité, **une seule valeur par cellule**.
 
-**Cartouche vitesses et trajectoire — les quatorze**
+**① Identité — 3 cellules**
+
+| Champ | Valeur |
+|---|---|
+| Callsign | |
+| Compagnie | |
+| Type | |
+
+**② Pistes et dégagement — 6 cellules**
+
+| Champ | Valeur |
+|---|---|
+| Piste départ | |
+| Cap départ | |
+| Piste arrivée | |
+| Dégagement | |
+| Cap dégagement | |
+| Distance dégagement | |
+
+**③ Vitesses et trajectoire — 14 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -128,7 +164,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Inbound | |
 | Point inbound | |
 
-**Cartouche carburant — les cinq**
+**④ Carburant — 5 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -138,38 +174,46 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | EXTRA | |
 | FUEL FACTOR | |
 
-**Chaîne des masses**
+**⑤ Masses — 6 cellules**
 
-| Poste | Valeur |
+| Champ | Valeur |
 |---|---|
 | Masse à vide IF | |
 | Charge utile | |
-| ZFW | |
+| Poids zéro carburant | |
 | Trip | |
 | TOW | |
 | LW | |
 
-Le reste du cartouche, hors zone lue :
+**Repères non lus** — hors registre, pour l'œil seulement, une valeur par ligne quand même :
 
-| Champ | Valeur |
+| Repère | Valeur |
 |---|---|
-| Callsign · route · date | |
-| Type · immatriculation | |
-| Piste départ · cap | |
+| Route | |
+| Date | |
+| Immatriculation | |
 | Altitude initiale | |
-| Piste arrivée | |
-| Dégagement · cap · distance | |
-| Autobrake | |
+| Autobrake départ | |
+| Autobrake arrivée | |
 | MANQUE | |
 
-⚠ `Autobrake` est ici et non dans la zone lue : le libellé n'est pas encore au registre du parseur. Il y monte quand la page saura le lire, pas avant (§A.3 règle 10).
+⚠ Ce bloc ne contient **aucun libellé du registre** (§A.3 règle 11). `Autobrake` y reste tant que le parseur ne le connaît pas ; il monte au cartouche ② le jour où la page sait le lire, pas avant.
 
-⇒ Origine de chaque ligne **au temps 2** : V1, VR, V2, Flex et Volets du Runway Analysis `[OFP]` ; Réduction, Accélération et Transition posées à la main (§4) ; ILS, DA, Inbound et Point inbound des cartes `[NAV]` et de la STAR retenue (§6.6) ; Vref et Vapp calculées sur le LW `[CALC]` (§6.2) ; BLOC, EXTRA et FUEL FACTOR de l'OFP `[OFP]` ; BINGO et MIN DIV calculés (§3) ; Autobrake décidé au briefing (§4).
+⇒ Origine de chaque ligne **au temps 2** : V1, VR, V2, Flex et Volets du Runway Analysis `[OFP]` ; Réduction, Accélération et Transition posées à la main (§4) ; ILS, DA, Inbound et Point inbound des cartes `[NAV]` et de la STAR retenue (§6.6) ; Vref et Vapp calculées sur le LW `[CALC]` (§6.2) ; BLOC, EXTRA et FUEL FACTOR de l'OFP `[OFP]` ; BINGO et MIN DIV calculés (§3) ; les six masses de la page de garde `[OFP]`, sauf la masse à vide IF qui vient de Milan `[SIM]` ; les six lignes du cartouche ② de l'OFP et des cartes ; Autobrake décidé au briefing (§4).
 
-**AU TEMPS 1 — comment j'estime**
+**AU TEMPS 1 — comment j'estime les 34**
 
 | Champ | Méthode d'estimation avant l'OFP |
 |---|---|
+| Callsign | indicatif réel de la ligne `[RDR]`, à défaut OACI + numéro |
+| Compagnie | code OACI trois lettres de l'exploitant `[RDR]` |
+| Type | donné par Milan `[SIM]`, jamais déduit |
+| Piste départ | piste attendue au vent du METAR départ `[NAV]` |
+| Cap départ | cap magnétique de cette piste `[NAV]` |
+| Piste arrivée | piste attendue au vent prévu à l'ETA `[NAV]` |
+| Dégagement | terrain retenu au §0 `[NAV]` |
+| Cap dégagement | relèvement depuis l'arrivée `[CALC]` |
+| Distance dégagement | orthodromie depuis l'arrivée `[CALC]` |
 | V1 · VR · V2 | table du type à la TOW attendue du §0, CONF de départ retenue `[CALC]` |
 | Flex | piste et masse du §0, plafond de flex du type `[CALC]` |
 | Volets | configuration standard du type sur la longueur de piste attendue `[CALC]` |
@@ -178,16 +222,23 @@ Le reste du cartouche, hors zone lue :
 | Transition | TA publiée du terrain de départ `[NAV]` |
 | ILS | fréquence de la piste d'arrivée attendue `[NAV]` |
 | DA | élévation terrain + 200 ft en CAT I, sauf minimum charté plus haut `[NAV]` |
-| Vref | LW attendu du §0 par la table du type au §6.2 `[CALC]` |
+| Vref | LW attendu par la table du type au §6.2 `[CALC]` |
 | Vapp | Vref + 5, sans correction vent tant que le TAF n'est pas lu `[CALC]` |
 | Inbound | distance d'interception standard, à défaut 10 NM du seuil `[CALC]` |
 | Point inbound | FAF de l'approche attendue, nommé si la carte le donne `[NAV]` |
 | BLOC | taxi + trip + contingence + dégagement + réserve finale `[CALC]` |
 | BINGO · MIN DIV | §3, sur les postes estimés `[CALC]` |
 | EXTRA · FUEL FACTOR | 0 et P00, sauf motif écrit `[CALC]` |
-| Autobrake | MAX au départ ; cran d'arrivée selon longueur de piste et état de surface `[CALC]` |
+| Masse à vide IF | donnée par Milan, ou registre du §9 `[SIM]` |
+| Charge utile | pax × 100 kg + fret, valeurs du §0 `[CALC]` |
+| Poids zéro carburant | masse à vide IF + charge utile `[CALC]` |
+| Trip | consommation horaire du type × ETE estimé `[CALC]` |
+| TOW | ZFW + bloc − taxi `[CALC]` |
+| LW | TOW − trip `[CALC]` |
+| Autobrake départ | MAX, sauf motif écrit `[CALC]` |
+| Autobrake arrivée | cran selon longueur de piste et état de surface `[CALC]` |
 
-⚠ Aucune de ces dix-neuf n'est une valeur de dispatch. Elles existent pour que la checklist s'affiche complète et pour donner un ordre de grandeur à comparer.
+⚠ Aucune de ces 34 n'est une valeur de dispatch. Elles existent pour que la checklist s'affiche complète et pour donner un ordre de grandeur à comparer.
 ⇒ Au temps 2, elles se réécrivent sur l'OFP et le MCDU, et tout écart supérieur à un cran se nomme en sortie (§A.3 règle 7).
 
 ### BLOC 1 · MCDU APRÈS IMPORT
@@ -225,7 +276,6 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 | toute autre forme | rien, tableau ignoré |
 
 ⚠ La troisième colonne n'est jamais lue. Une valeur qui n'existe que dans « Valeur attendue » n'atteint pas la checklist.
-⚠ Conséquence directe : tout champ laissé en AUTO dans la colonne « À taper » — pistes, FOB, FOD, contingence, réserve, taxi — sort vide côté checklist. S'il est nécessaire à la page, il doit être **repris dans un bloc à deux colonnes**, valeur nue.
 
 **Les six règles d'écriture d'une valeur**
 
@@ -233,40 +283,52 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 2. **Une cellule, une valeur.** Une cellule qui contient deux nombres est rejetée en entier. `64460` et non `64 460 kg — MLW 77 800, marge 13 340`. Les marges vont en prose, sous le tableau.
 3. **Un libellé, une ligne, une fois.** Un même libellé dans deux tableaux crée un conflit silencieux.
 4. **Libellés au caractère près.** Ceux du §A.4. Pas d'unité accolée, pas de reformulation, pas de ligne intercalée.
+   ⚠ **Point ouvert.** Les libellés du §0 portent une parenthèse de traduction — `Passagers (Passengers)`, `Poids zéro carburant (ZFW, KG)`. Le registre, lui, déclare `Passagers` et `Poids zéro carburant` nus, mais `Altitude (Pieds)` avec sa parenthèse. Ces deux formes ne peuvent pas être justes en même temps. À trancher au prochain `window.debugBriefing()` : soit le parseur tronque à la parenthèse et le registre se met au format nu partout, soit il exige la forme complète et le registre recopie le §0 caractère pour caractère. Tant que ce n'est pas tranché, les valeurs des cartouches font foi — elles, portent le libellé nu.
 5. **Aucune valeur chiffrée en prose à côté d'un libellé déclaré.** Écrire `MIN DIV = 1 100 + 1 050 = 2 150 kg · réserve finale = 1 100 kg` a fait lire 1100. La méthode s'écrit sans reprendre le libellé suivi d'un nombre : « le seuil de déroutement additionne le dégagement et la réserve finale, puis ajoute 5 % ».
 6. **La prose porte la méthode et les sources, le tableau porte la valeur.** Jamais l'inverse, jamais les deux.
 
 **Contrôle avant envoi** — quatre lignes, à passer sur toute feuille destinée au fichier :
 
-- [ ] Les dix-neuf cellules des deux cartouches sont remplies, valeurs nues.
+- [ ] Les 34 cellules des cinq cartouches sont remplies, valeurs nues.
 - [ ] Aucune cellule ne contient d'unité, d'espace de milliers, ni de second nombre.
 - [ ] Aucun libellé déclaré n'apparaît en prose suivi d'un chiffre.
-- [ ] Tout champ utile laissé en AUTO au §0 est repris en deux colonnes ailleurs.
+- [ ] **Aucun libellé du registre ne figure hors cartouche**, et aucun champ du §0 portant un libellé du registre n'est laissé sans valeur en colonne « À taper ».
+
+⚠ La quatrième ligne a changé de sens en REV 19. La REV 18 promettait de reprendre en deux colonnes « tout champ utile laissé en AUTO » — impossible à tenir : contingence, réserve, taxi et FOD n'ont pas de libellé au registre, aucune reprise ne les fera lire. Leur valeur attendue reste en colonne 3 du §0, pour l'œil, et le bloc carburant réellement lu est le cartouche ④.
 
 ⚠ Une valeur fausse lue en silence est pire qu'une case vide. Une case vide se voit ; une valeur fausse se vole.
 
 **Vocabulaire déclaré** — un libellé absent de cette liste n'atteint pas la checklist, même écrit dans un tableau parfait.
 
-| Libellé à écrire | Ce qu'il alimente |
+| Libellé à écrire | Ce qu'il alimente | Où il vit |
+|---|---|---|
+| Callsign · Compagnie · Type | identité — Compagnie porte le code OACI à trois lettres, jamais le nom commercial | cartouche ① |
+| Piste départ · Cap départ · Piste arrivée | pistes | cartouche ② |
+| Dégagement · Cap dégagement · Distance dégagement | déroutement | cartouche ② |
+| V1 · VR · V2 · Flex · Volets | décollage | cartouche ③ |
+| Réduction · Accélération · Transition | trois altitudes à la main | cartouche ③ |
+| ILS · DA · Vref · Vapp · Inbound · Point inbound | arrivée | cartouche ③ |
+| BLOC · BINGO · MIN DIV · EXTRA · FUEL FACTOR | carburant | cartouche ④ |
+| Masse à vide IF · Charge utile · Poids zéro carburant · Trip · TOW · LW | masses | cartouche ⑤ |
+| Selected Route | route ATC | §0 Itinéraire |
+| Bloc horaire prévu · Cycle AIRAC · Passagers · Fret · Identifiant du pilote · Altitude (Pieds) | formulaire, colonne « à taper » | §0 |
+
+**Libellés déclarés ignorés** — écrits dans la feuille, volontairement non résolus :
+
+| Libellé | Pourquoi |
 |---|---|
-| Callsign · Compagnie · Type | identité — Compagnie porte le code OACI à trois lettres, jamais le nom commercial |
-| Piste départ · Cap départ · Piste arrivée | pistes |
-| Dégagement · Cap dégagement · Distance dégagement | déroutement |
-| V1 · VR · V2 · Flex · Volets | décollage |
-| Réduction · Accélération · Transition | trois altitudes à la main |
-| ILS · DA · Vref · Vapp · Inbound · Point inbound | arrivée |
-| BLOC · BINGO · MIN DIV · EXTRA · FUEL FACTOR | carburant |
-| Masse à vide IF · Trip · TOW · LW | masses |
-| Selected Route | route ATC |
-| Bloc horaire prévu · Cycle AIRAC · Passagers · Fret · Charge utile · Poids zéro carburant · Identifiant du pilote · Altitude (Pieds) | formulaire, colonne « à taper » |
+| Itinéraire (Route) | c'est la route du dégagement, pas celle du vol |
+| Altitude (Pieds) — ligne du dégagement | c'est l'élévation du terrain de dégagement, pas le FL de croisière |
+
+⚠ **Correctif bloquant de la REV 19.** `Altitude (Pieds)` était porté deux fois : au FL de croisière dans les Entrées facultatives, et à l'élévation du dégagement dans les Aéroports alternatifs. La règle « la dernière l'emporte » faisait donc remonter l'élévation du terrain à la place du niveau de croisière — silencieusement. La ligne du dégagement est désormais **ignorée**, et un libellé ignoré l'emporte sur toute autre résolution.
 
 **En attente d'inscription au registre** — écrits dans le dossier, pas encore lus par la page :
 
 | Libellé | Ce qu'il alimenterait |
 |---|---|
-| Autobrake | cran retenu au départ et à l'arrivée |
-
-⚠ **Un mot peut désigner deux choses.** « Itinéraire (Route) » du tableau de dégagement n'est pas la route du vol : il est déclaré ignoré, et un libellé ignoré l'emporte sur toute autre résolution. Écrire deux fois le même libellé pour deux sens différents est la faute que ce vocabulaire empêche.
+| Autobrake départ · Autobrake arrivée | crans retenus |
+| Immatriculation | identité appareil |
+| Altitude initiale | première altitude après décollage |
 
 ⚠ Un même libellé porté deux fois avec la même valeur est une redondance assumée entre formulaire et cartouche. Porté deux fois avec deux valeurs différentes, c'est une erreur : la dernière l'emporte, et rien ne dit laquelle était juste.
 
@@ -285,15 +347,51 @@ Référence. On y va chercher, on ne la lit pas d'un bout à l'autre.
 
 Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, affichage français `[FORM]`. Le libellé anglais suit entre parenthèses.
 
-**Ordre des sections de la page** : Informations sur le vol → Informations sur l'avion → Sélections → Entrées facultatives → Planification du carburant → Entrées de texte → Itinéraire → Aéroports alternatifs → Scénario ETOPS → Météo historique → Paramètres de débogage.
+**Ordre des sections de la page** : Informations sur le vol → Informations sur l'avion (dont Plus d'options) → Sélections → Entrées facultatives → Planification du carburant → Entrées de texte → Itinéraire → Aéroports alternatifs → Scénario ETOPS → Météo historique → Paramètres de débogage.
 
-⚠ **RÈGLE DE REMPLISSAGE.** Aucune ligne ne sort sans valeur, aucune ne sort « AUTO » toute seule.
+⚠ **RÈGLE DE REMPLISSAGE.** Aucune ligne ne sort sans valeur. Ni « AUTO » seul, ni « laisser vide ».
 - **À TAPER** — ce qui va dans la case, littéralement. C'est **la colonne lue par la checklist** (§A.5).
 - **VALEUR ATTENDUE** — mon chiffre, pour comparer ce que SimBrief a calculé à ce que j'annonçais. Elle ne se saisit pas et **n'est pas lue par la page**.
 
 ⇒ Tout écart notable entre les deux colonnes se relève au §9 : c'est ma méthode qui se corrige, pas SimBrief.
 
-### INFORMATIONS SUR LE VOL (Flight Info)
+---
+
+### §0.1 · IDENTIFICATION ET ÉQUIPEMENT — PRIORITÉ
+
+**Repliés derrière « Plus d'options », dans Informations sur l'avion.** Le bouton bascule en « Moins d'options » une fois déplié. Ces neuf champs sortent en tête parce qu'ils étaient les derniers du dossier livrés sans valeur.
+
+| Champ | À taper | Valeur attendue |
+|---|---|---|
+| Facteur carburant (Fuel Factor) | P00 | écart réel mesuré au §9 |
+| Inscription (Registration) | immatriculation réelle du vol | immat `[RDR]` |
+| Numéro Fin (Fin Number) | trois derniers caractères de l'immatriculation | cosmétique |
+| SELCAL | quatre lettres, deux paires, ordre croissant dans chaque paire | cosmétique |
+| Code Mode-S (Mode-S Code) | six caractères hexadécimaux | code réel de l'immat si connu, sinon cohérent avec le préfixe pays |
+| Équipement de l'OACI (ICAO Equipment) | SDFGHRWY | chaîne appliquée par SimBrief |
+| Transpondeur (Transponder) | LB1 | chaîne appliquée par SimBrief |
+| Capacité PBN (PBN Capability) | A1B1C1D1L1O1S1 | chaîne appliquée par SimBrief |
+| Informations supplémentaires sur le FPL — Article 18 | DAT/V RMK/SIMBRIEF | chaîne appliquée par SimBrief |
+
+⚠ **Les quatre dernières lignes changent de traitement en REV 19.** Le texte gris dans ces cases n'est pas un exemple : c'est la chaîne que SimBrief applique si la case reste vide. La REV 18 disait « laisser vide », ce qui rendait la valeur invisible et incomparable. Elle se **tape désormais explicitement**, à l'identique — même résultat sur le plan de vol, mais la valeur est écrite, donc vérifiable.
+
+⚠ **Les quatre premières lignes du bloc gris sont des exemples, pas des valeurs.** `N999SB`, `999`, `ABCD` et `ZZZZZZ` sont des amorces de démonstration : les laisser produit un plan de vol au nom d'un appareil qui n'existe pas. Elles se remplissent depuis l'immatriculation réelle.
+
+**Règles de dérivation** :
+- **Numéro Fin** — les trois derniers caractères de l'immatriculation, sans tiret.
+- **SELCAL** — quatre lettres prises entre A et S, **sans I, N ni O** ; deux paires, chaque paire en ordre alphabétique croissant, aucune lettre répétée. Se construit sur les lettres disponibles de l'immatriculation, complété si besoin.
+- **Code Mode-S** — l'adresse OACI 24 bits de l'appareil, six caractères hexadécimaux. Connue : elle se tape. Inconnue : une valeur cohérente avec le bloc du pays d'immatriculation, marquée `[CALC]` et jamais présentée comme réelle.
+
+**Les quatre boutons « Constructeur »** — présents à droite d'Équipement de l'OACI, Transpondeur, Capacité PBN et Article 18. Ils ouvrent un assistant à cases à cocher qui compose la chaîne à partir des équipements réellement embarqués.
+
+⇒ Quand s'en servir : jamais par défaut. Uniquement si un vol exige une capacité que la chaîne standard ne déclare pas — RNP AR, CPDLC en zone océanique, MNPS. Sinon la chaîne standard passe partout, et l'assistant ne fait qu'introduire du risque de saisie.
+⚠ Une chaîne modifiée par l'assistant se recopie dans le dossier au §9, sinon elle est perdue au vol suivant.
+
+⚠ Aucun de ces neuf champs n'entre dans un calcul de masse, de carburant ou de vitesse. Ils s'impriment sur le plan de vol OACI. Une erreur ici n'empêche rien de voler — mais une case laissée à sa valeur de démonstration est une case oubliée, pas une case neutre.
+
+---
+
+### §0.2 · INFORMATIONS SUR LE VOL (Flight Info)
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -308,7 +406,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ⇒ La flèche entre les deux inverse le sens du vol. L'icône ⟳ à côté de l'EOBT remet l'heure courante.
 ⇒ Le dégagement se nomme, jamais AUTO : c'est le terrain à briefer, et il doit tenir la météo de l'ETA, pas seulement les critères de distance.
 
-### INFORMATIONS SUR L'AVION (Aircraft Info)
+### §0.3 · INFORMATIONS SUR L'AVION (Aircraft Info) — partie visible
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -319,28 +417,12 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Profil de descente (Descent) | AUTO | profil retenu, à relire sur l'OFP |
 | Indicatif d'appel ATC (ATC Callsign) | celui qui sera tapé dans IF | — |
 
-**Sous « Plus d'options »** — repliés, à déplier :
-
-| Champ | À taper | Valeur attendue |
-|---|---|---|
-| Fuel Factor | P00 | écart réel mesuré au §9 |
-| Registration | immatriculation réelle | — |
-| Fin Number | trois derniers de l'immat | cosmétique |
-| SELCAL | 4 lettres entre A et S, sans I, N ni O | cosmétique |
-| Mode-S Code | 6 caractères hexadécimaux | cosmétique |
-| ICAO Equipment | laisser vide | `SDFGHRWY` s'applique seul |
-| Transponder | laisser vide | `LB1` s'applique seul |
-| PBN Capability | laisser vide | `A1B1C1D1L1O1S1` s'applique seul |
-| Extra FPL Info (Item 18) | laisser vide | `DAT/V RMK/SIMBRIEF` s'applique seul |
-
 ⚠ Le type doit exister dans IF, et dans la même variante. Un A330-300 planifié pour un -200 volé fausse masses, moteurs et vitesses.
 ⇒ « 0 Airframes Available » en rouge est normal tant qu'aucun type n'est choisi : la liste se peuple après sélection.
-⇒ Le bouton **Éditeur de cellule** ouvre l'éditeur d'airframe : on n'y touche pas.
-⇒ Les quatre derniers champs n'entrent dans **aucun calcul** : ils ne s'impriment que sur le plan de vol OACI.
-⇒ Fin Number, SELCAL et Mode-S sont cosmétiques mais se remplissent : une case vide est une case oubliée.
-⇒ P00 tant qu'on n'a pas trois vols pour mesurer l'écart réel (§9).
+⇒ Le sélecteur `Sort: Registration` ordonne la liste des cellules ; le bouton **Éditeur de cellule** ouvre l'éditeur d'airframe — on n'y touche pas.
+⇒ Les neuf champs du §0.1 se déplient sous cette section.
 
-### SÉLECTIONS (Selections) — réglages permanents
+### §0.4 · SÉLECTIONS (Selections) — réglages permanents
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -354,16 +436,17 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Compte alternatif (Alternates) | 1 | — |
 | Journal de navigation détaillé | ON | — |
 | Planification ETOPS | ON | — |
-| Planifier les montées d'escalier | ON | — |
+| Planifier les escaliers (Stepclimbs) | ON | — |
 | Analyse de la piste (Runway Analysis) | ON | — |
 | Inclure les NOTAM | ON | — |
 | NOTAM FIR | ON | — |
 
 ⇒ **AIRAC actuel** remet le cycle en cours si la liste a dérivé. **Save Defaults** fige toute la section d'un vol à l'autre.
+⇒ Le libellé de la troisième bascule s'affiche « Planifier les escaliers » selon la largeur de la fenêtre ; c'est le même réglage que « Planifier les montées d'escalier ».
 ⚠ Ces six interrupteurs sont ce qui autorise ce dossier à être aussi court. Éteindre l'un d'eux rouvre un trou que rien ne comble.
 ⚠ Quand le cycle SimBrief prend de l'avance sur la base d'IF, un waypoint récent peut être refusé à l'import (§2.2 ①).
 
-### ENTRÉES FACULTATIVES (Optional Entries)
+### §0.5 · ENTRÉES FACULTATIVES (Optional Entries)
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -377,12 +460,13 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Poids zéro carburant (ZFW, KG) | chiffre forcé | masse à vide IF du type (§9) + charge utile |
 
 ⇒ **Le ZFW est le champ qui compte le plus.** Il se force à la masse que l'avion aura RÉELLEMENT dans IF. C'est le seul moyen d'obtenir vitesses et flex calculées pour la masse volée.
-⚠ Masse à vide du type absente du §9 : je la demande à Milan par l'alerte du §A.2, et le ZFW sort en `[MANQUE]` tant qu'elle n'est pas donnée. Une estimation sur un type voisin s'est écartée de 4 900 kg.
+⚠ Masse à vide du type absente du §9 : je la demande à Milan par l'alerte du §A.2, et le champ sort en `[MANQUE]` tant qu'elle n'est pas donnée. Une estimation sur un type voisin s'est écartée de 4 900 kg.
 ⇒ Le champ Fret affiche `NONE` par défaut : taper 0 revient au même, mais la case est alors traitée.
 ⚠ Notice « freight + custom payload » : normale, rien à corriger.
-⇒ **Pistes en AUTO** : AUTO choisit selon le vent réel, exactement comme IF. Ma piste attendue sort en face pour être comparée, pas tapée — et se reprend en deux colonnes pour la checklist (§A.5).
+⇒ **Pistes en AUTO** : AUTO choisit selon le vent réel, exactement comme IF. Ma piste attendue sort en face pour être comparée, pas tapée — et se retrouve au cartouche ② pour la checklist.
+⚠ `Altitude (Pieds)` est ici le **FL de croisière**. Le champ homonyme du dégagement est déclaré ignoré (§A.5).
 
-### PLANIFICATION DU CARBURANT (Fuel Planning)
+### §0.6 · PLANIFICATION DU CARBURANT (Fuel Planning)
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -399,22 +483,23 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 ⇒ Le sélecteur à gauche du champ EXTRA reste sur `EXTRA`. Toutes les unités restent en KG.
 ⇒ EXTRA non nul seulement avec un motif écrit ; le motif remonte dans les remarques du répartiteur.
-⚠ Ces cinq lignes sont en AUTO : elles ne remontent pas à la checklist depuis ici. Le bloc, l'extra et le fuel factor se reprennent au cartouche carburant du §A.4.
+⚠ Contingence, réserve, taxi et FOD n'ont **pas de libellé au registre** : leur valeur attendue reste en colonne 3, pour l'œil. Le seul carburant lu par la checklist est le cartouche ④ (§A.5).
 
-### ENTRÉES DE TEXTE (Text Entries)
+### §0.7 · ENTRÉES DE TEXTE (Text Entries)
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
 | Identifiant du pilote (Pilot ID) | 1312837 | — |
 | Nom du capitaine (Captain Name) | MILAN ELIAYAN | — |
 | Nom du premier officier (First Officer) | Random | — |
-| Nom du distributeur (Dispatcher Name) | Random | — |
+| Nom de l'expéditeur (Dispatcher Name) | Random | — |
 | Remarques du répartiteur | une ligne par remarque | piste attendue · seuil BINGO · dégagement · motif de l'EXTRA |
 
 ⇒ Les remarques remontent sur l'OFP : c'est le seul endroit où mes seuils s'impriment à côté des chiffres SimBrief.
 ⇒ Format retenu pour les pistes, lisible par la page : `DEP RWY EXPECTED nn` et `ARR RWY EXPECTED nn`.
+⇒ Le quatrième champ s'affiche « Nom de l'expéditeur » ou « Nom du distributeur » selon la traduction servie : c'est le même champ Dispatcher Name.
 
-### ITINÉRAIRE (Route)
+### §0.8 · ITINÉRAIRE (Route)
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -424,7 +509,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ⚠ Je fournis la route au temps 1, avec au moins un repli. Si elle est refusée à la génération, SimBrief a raison sur sa propre base et je reprends sur ce qu'il a retenu.
 ⇒ Depuis le build 18266, un changement de SID ou de STAR décidé après coup ne demande plus de regénérer l'OFP : il se fait au MCDU (§2.1). La route SimBrief reste la référence carburant, mais elle n'est plus une contrainte de navigation.
 
-### AÉROPORTS ALTERNATIFS (Alternate Airports)
+### §0.9 · AÉROPORTS ALTERNATIFS (Alternate Airports)
 
 **Critères de recherche** — permanents :
 
@@ -438,6 +523,8 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Évitez les aéroports (Avoid ICAOs) | vide | — |
 | Avoid TS/FG | `Avoid TS/FG` | écarte les terrains annoncés en orage ou brouillard |
 
+⚠ `Compte alternatif` apparaît **deux fois** dans le formulaire : ici et en Sélections. C'est le même réglage miroir, pas un conflit — le libellé n'est pas au registre, rien ne le lit. Les deux lignes portent la même valeur, et c'est voulu.
+
 **Dégagement n° 1** :
 
 | Champ | À taper | Valeur attendue |
@@ -447,8 +534,8 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Altitude (Pieds) | AUTO | élévation du terrain |
 | Itinéraire (Route) | DCT | cap et distance depuis l'arrivée |
 
+⚠ Les deux dernières lignes portent des libellés **déclarés ignorés** (§A.5). Elles s'écrivent pour la lecture humaine et ne remontent rien. Le cap et la distance du dégagement vivent au cartouche ②, sous `Cap dégagement` et `Distance dégagement`.
 ⇒ Le bouton **Trouver** analyse la route du dégagement. « Veuillez analyser un itinéraire alternatif. » est le texte d'attente, pas une erreur.
-⇒ Le cap et la distance du dégagement s'écrivent en prose sous la forme `nnn° / nn NM` : c'est la forme que la page sait lire.
 
 **Les deux autres dégagements** :
 
@@ -466,7 +553,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 ⇒ Ce bloc ne choisit aucun dégagement : il ajoute des METAR et TAF au bloc météo de l'OFP.
 
-### SCÉNARIO ETOPS (ETOPS Scenario)
+### §0.10 · SCÉNARIO ETOPS (ETOPS Scenario)
 
 Actif seulement sur survol maritime ou désertique. Sinon : n/a, ne pas y toucher.
 
@@ -480,7 +567,7 @@ Actif seulement sur survol maritime ou désertique. Sinon : n/a, ne pas y touche
 
 ⇒ Puis **Calculate** : les six Altn se remplissent seuls.
 
-### MÉTÉO HISTORIQUE · PARAMÈTRES DE DÉBOGAGE
+### §0.11 · MÉTÉO HISTORIQUE · PARAMÈTRES DE DÉBOGAGE
 
 n/a, décidé et assumé.
 
@@ -613,7 +700,7 @@ BINGO   = MIN DIV + 5 %
 → sous le BINGO, la décision de dérouter se prend, elle ne se discute plus.
 → RÉSERVE FINALE = urgence carburant.
 
-⚠ Ces deux seuils sortent chiffrés au cartouche carburant du §A.4, jamais recalculés en prose à côté de leur libellé (§A.5 règle 5).
+⚠ Ces deux seuils sortent chiffrés au cartouche ④ du §A.4, jamais recalculés en prose à côté de leur libellé (§A.5 règle 5).
 
 **Annonces** : MINIMUM FUEL (atterrissage prévu sous la réserve finale en cas de nouveau retard) · MAYDAY FUEL (réserve finale entamée ou le sera).
 
@@ -777,7 +864,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 | ____ | ____ | ____ |
 
 ⇒ La masse d'atterrissage se lit sur le LW de l'OFP. Pas sur le ZFW, pas sur l'ETOW.
-⇒ Au temps 1, l'OFP n'existe pas : la table se lit sur le LW attendu calculé au §0 (ZFW forcé + bloc − trip).
+⇒ Au temps 1, l'OFP n'existe pas : la table se lit sur le LW attendu du cartouche ⑤.
 
 **VAPP** `[CALC]`
 ```
@@ -852,7 +939,7 @@ Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstr
 
 ⇒ Avec ATC, l'inbound se cale sur le check-in approche.
 ⇒ Repère de secours quand la STAR ne se cumule pas proprement : **IAF + un tronçon**.
-⚠ Les lignes `Inbound` et `Point inbound` du cartouche sortent d'ici.
+⚠ Les lignes `Inbound` et `Point inbound` du cartouche ③ sortent d'ici.
 
 ---
 
@@ -938,7 +1025,7 @@ Frein de parc · feux de position seuls · carburant restant relevé · AIDS FLI
 - bloc inférieur à la somme des postes
 
 **À VÉRIFIER, non bloquant** :
-OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · dix-neuf cellules des cartouches renseignées · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · Aircraft Health regardé · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
+OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **34 cellules des cartouches renseignées** · **neuf champs du §0.1 renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · Aircraft Health regardé · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
 
 ⇒ Le mémo T.O couvre à lui seul volets, spoilers, ceintures, cabine, autobrake et configuration décollage. Ces six lignes ne se revérifient pas à la main : elles sont vertes, ou elles ne le sont pas.
 
@@ -959,10 +1046,19 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 | A318 | ≈ 39 500 kg | `[CALC]`, une valeur donnée (SimBrief : 37 416) | ____ |
 | A320 | 42 100 kg | `[SIM]`, donné par Milan | 78 000 / 66 500 |
 | A321 | 43 600 kg | `[SIM]`, donné par Milan | 93 800 / 77 800 |
+| A330 (type exact non précisé) | 129 811 kg | `[SIM]`, donné par Milan | 242 000 / 185 000 |
 | ____ | ____ | ____ | ____ |
 
-⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
+⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0.5). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
 ⚠ Ne jamais déduire la masse à vide d'un type de celle d'un type voisin : l'écart constaté sur l'A321 était de 4 900 kg, soit 4,9 t d'erreur sur le ZFW, donc sur les vitesses et la flex.
+
+**IDENTIFICATION ET ÉQUIPEMENT — REGISTRE**
+
+| Immatriculation | Fin | SELCAL | Mode-S | Chaîne équipement modifiée ? |
+|---|---|---|---|---|
+| ____ | ____ | ____ | ____ | ____ |
+
+⇒ Une chaîne composée avec un bouton **Constructeur** se recopie ici, sinon elle est refaite de zéro au vol suivant.
 
 **ÉCARTS SIMBRIEF — la colonne « valeur attendue » du §0**
 Champ où ma valeur attendue s'est écartée ____ · écart ____ · méthode à corriger ____
@@ -970,7 +1066,7 @@ Champ où ma valeur attendue s'est écartée ____ · écart ____ · méthode à 
 
 **ÉCARTS EN VOL**
 Carburant prévu / réel ____ / ____
-⇒ trois vols alimentent le Fuel Factor du §0.
+⇒ trois vols alimentent le Fuel Factor du §0.1.
 ETE prévu / réel ____ / ____ · TOD prévu / réel ____ / ____
 Cause de l'écart principal ____
 
@@ -990,4 +1086,4 @@ Champ resté vide ou faux à l'écran ____ · cellule d'origine ____ · règle d
 
 ---
 
-**FIN · REV 18 · Simulation uniquement**
+**FIN · REV 19 · Simulation uniquement**
