@@ -59,9 +59,11 @@ const FIELDS = [
   /* ---------- cartouches du §A.4 : lus par la page, pas tapes dans le formulaire ---------- */
   /* Les deux pistes restent en AUTO cote SimBrief (§0.5) : elles ne se tapent
      pas, elles se comparent — leur place est au cartouche ②. */
-  ['piste','Piste départ','Cartouche ② · pistes'],
-  ['capdep','Cap départ','Cartouche ② · pistes'],
-  ['arrpiste','Piste arrivée','Cartouche ② · pistes'],
+  ['piste','Piste départ','Cartouche ② · pistes et portes'],
+  ['capdep','Cap départ','Cartouche ② · pistes et portes'],
+  ['portedep','Porte départ','Cartouche ② · pistes et portes'],
+  ['arrpiste','Piste arrivée','Cartouche ② · pistes et portes'],
+  ['portearr','Porte arrivée','Cartouche ② · pistes et portes'],
 
   ['v1','V1','Cartouche ③ · vitesses et trajectoire'],
   ['vr','VR','Cartouche ③ · vitesses et trajectoire'],

@@ -1,6 +1,6 @@
 # BRIEFING PRÉ-VOL — INFINITE FLIGHT
 
-**REV 23**
+**REV 22**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
@@ -115,7 +115,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 5. Un écran ne se diagnostique pas sans son état. Au sol ou en vol ? Route construite ? Croisière saisie ? ADIRS aligné ? Champs vides, 999:59 et 0.0 NM sont normaux sans route ni profil ; PFD et ND noirs sont normaux sans alignement.
 6. Aucun report d'un vol à l'autre. Tout se régénère.
 7. Contradictions signalées, pas arbitrées. Les deux à l'écran, l'écart nommé, Milan tranche.
-8. **Ne jamais rendre une feuille avec des cases à remplir — sans exception, et « laisser vide » n'en est pas une.** Un champ que SimBrief remplit seul sort avec la valeur que SimBrief applique, écrite en clair, pour être comparée. Les 36 cellules des cartouches sortent estimées au temps 1, marquées `[CALC]` ou `[NAV]`, et se font écraser au temps 2.
+8. **Ne jamais rendre une feuille avec des cases à remplir — sans exception, et « laisser vide » n'en est pas une.** Un champ que SimBrief remplit seul sort avec la valeur que SimBrief applique, écrite en clair, pour être comparée. Les 34 cellules des cartouches sortent estimées au temps 1, marquées `[CALC]` ou `[NAV]`, et se font écraser au temps 2.
 9. **Le type volé et sa masse à vide dans IF viennent de Milan.** Je ne les déduis pas d'un type voisin, je ne les estime pas, je ne les invente pas. S'ils manquent, je le signale par l'alerte du §A.2 en tête de réponse — le silence sur un manque est la faute, pas le manque lui-même.
 10. Un libellé ne s'ajoute à un cartouche qu'une fois inscrit au registre du parseur. Dans cet ordre, jamais l'inverse : un libellé écrit mais non déclaré ne fait pas remonter sa valeur, et rien ne le signale (§A.5).
 11. **Un libellé déclaré au registre ne se range jamais dans un bloc annoncé comme non lu.** Soit il est lu et il est dans un cartouche, soit il n'est pas au registre. Il n'y a pas de troisième cas.
@@ -127,7 +127,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 
 ## A.4 · FORMAT DE SORTIE
 
-**TEMPS 1** : la feuille SimBrief, dans l'ordre du formulaire, en trois colonnes — champ, ce qui se tape, valeur attendue. Rien d'autre : pas de météo, pas de commentaire de vol. Elle se termine par les cinq cartouches ci-dessous, **36 cellules remplies d'estimations**, chacune avec sa source rangée en prose sous le tableau.
+**TEMPS 1** : la feuille SimBrief, dans l'ordre du formulaire, en trois colonnes — champ, ce qui se tape, valeur attendue. Rien d'autre : pas de météo, pas de commentaire de vol. Elle se termine par les cinq cartouches ci-dessous, **34 cellules remplies d'estimations**, chacune avec sa source rangée en prose sous le tableau.
 
 **TEMPS 2** : le briefing, six blocs, un écran chacun. La PARTIE B ne sort pas, sauf demande.
 
@@ -143,15 +143,13 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Compagnie | |
 | Type | |
 
-**② Pistes, portes et dégagement — 8 cellules**
+**② Pistes et dégagement — 6 cellules**
 
 | Champ | Valeur |
 |---|---|
 | Piste départ | |
 | Cap départ | |
-| Porte départ | |
 | Piste arrivée | |
-| Porte arrivée | |
 | Dégagement | |
 | Cap dégagement | |
 | Distance dégagement | |
@@ -210,9 +208,9 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 
 ⚠ Ce bloc ne contient **aucun libellé du registre** (§A.3 règle 11). `Autobrake` y reste tant que le parseur ne le connaît pas ; il monte au cartouche ② le jour où la page sait le lire, pas avant.
 
-⇒ Origine de chaque ligne **au temps 2** : V1, VR, V2, Flex et Volets du Runway Analysis `[OFP]` ; Réduction, Accélération et Transition posées à la main (§4) ; ILS, DA, Inbound et Point inbound des cartes `[NAV]` et de la STAR retenue (§6.6) ; Vref et Vapp calculées sur le LW `[CALC]` (§6.2) ; BLOC, EXTRA et FUEL FACTOR de l'OFP `[OFP]` ; BINGO et MIN DIV calculés (§3) ; les six masses de la page de garde `[OFP]`, sauf la masse à vide IF qui vient de Milan `[SIM]` ; les six lignes de pistes et de dégagement du cartouche ② de l'OFP et des cartes ; **les deux portes du cartouche ② restent `[RDR]`, ou `NIL`** — l'OFP ne les porte pas, aucune ne devient `[OFP]` au temps 2 ; Autobrake décidé au briefing (§4).
+⇒ Origine de chaque ligne **au temps 2** : V1, VR, V2, Flex et Volets du Runway Analysis `[OFP]` ; Réduction, Accélération et Transition posées à la main (§4) ; ILS, DA, Inbound et Point inbound des cartes `[NAV]` et de la STAR retenue (§6.6) ; Vref et Vapp calculées sur le LW `[CALC]` (§6.2) ; BLOC, EXTRA et FUEL FACTOR de l'OFP `[OFP]` ; BINGO et MIN DIV calculés (§3) ; les six masses de la page de garde `[OFP]`, sauf la masse à vide IF qui vient de Milan `[SIM]` ; les six lignes du cartouche ② de l'OFP et des cartes ; Autobrake décidé au briefing (§4).
 
-**AU TEMPS 1 — comment j'estime les 36**
+**AU TEMPS 1 — comment j'estime les 34**
 
 | Champ | Méthode d'estimation avant l'OFP |
 |---|---|
@@ -221,9 +219,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Type | donné par Milan `[SIM]`, jamais déduit |
 | Piste départ | piste attendue au vent du METAR départ `[NAV]` |
 | Cap départ | cap magnétique de cette piste `[NAV]` |
-| Porte départ | porte réelle du vol lue sur le traceur de trafic `[RDR]` |
 | Piste arrivée | piste attendue au vent prévu à l'ETA `[NAV]` |
-| Porte arrivée | porte réelle du vol lue sur le traceur de trafic `[RDR]` |
 | Dégagement | terrain retenu au §0 `[NAV]` |
 | Cap dégagement | relèvement depuis l'arrivée `[CALC]` |
 | Distance dégagement | orthodromie depuis l'arrivée `[CALC]` |
@@ -251,10 +247,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Autobrake départ | MAX, sauf motif écrit `[CALC]` |
 | Autobrake arrivée | cran selon longueur de piste et état de surface `[CALC]` |
 
-⚠ **Une porte ne s'estime pas.** Aucune méthode de calcul n'existe : c'est une donnée observée, ou rien. Pas de déduction depuis le terminal, la compagnie, ni l'habitude d'une ligne. Non observée, la cellule sort en `NIL` et le motif va en prose (§A.5 règle 7).
-⚠ **Une porte réelle et une place de parking dans Infinite Flight sont deux choses différentes.** La porte est une référence de réalisme, pas une contrainte de spawn : elle n'est **pas** un point de vérification du §8, et un stand différent au parking n'est pas un écart à relever.
-
-⚠ Aucune de ces 36 n'est une valeur de dispatch. Elles existent pour que la checklist s'affiche complète et pour donner un ordre de grandeur à comparer.
+⚠ Aucune de ces 34 n'est une valeur de dispatch. Elles existent pour que la checklist s'affiche complète et pour donner un ordre de grandeur à comparer.
 ⇒ Au temps 2, elles se réécrivent sur l'OFP et le MCDU, et tout écart supérieur à un cran se nomme en sortie (§A.3 règle 7).
 
 ### BLOC 1 · MCDU APRÈS IMPORT
@@ -293,7 +286,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 
 ⚠ La troisième colonne n'est jamais lue. Une valeur qui n'existe que dans « Valeur attendue » n'atteint pas la checklist.
 
-**Les sept règles d'écriture d'une valeur**
+**Les six règles d'écriture d'une valeur**
 
 1. **Valeur nue.** `6250`, pas `6 250 kg`, pas `6250 kg (bloc)`. Ni unité, ni espace de milliers, ni commentaire.
 2. **Une cellule, une valeur.** Une cellule qui contient deux nombres est rejetée en entier. `64460` et non `64 460 kg — MLW 77 800, marge 13 340`. Les marges vont en prose, sous le tableau.
@@ -303,13 +296,10 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
    ⇒ Ce point est inscrit au §8 depuis la REV 20. Il ne se règle pas par déduction : une seule lecture de `window.debugBriefing()` le ferme définitivement.
 5. **Aucune valeur chiffrée en prose à côté d'un libellé déclaré.** Écrire `MIN DIV = 1 100 + 1 050 = 2 150 kg · réserve finale = 1 100 kg` a fait lire 1100. La méthode s'écrit sans reprendre le libellé suivi d'un nombre : « le seuil de déroutement additionne le dégagement et la réserve finale, puis ajoute 5 % ».
 6. **La prose porte la méthode et les sources, le tableau porte la valeur.** Jamais l'inverse, jamais les deux.
-7. **Une valeur qui ne peut pas être estimée s'écrit `NIL`, jamais `[MANQUE]`.** `NIL` est une valeur nue : elle passe la lecture, elle s'affiche, et elle dit exactement une chose — la donnée n'a pas été observée. `[MANQUE]` dans une cellule lue la rend illisible : il ne fait pas partie des six marqueurs retirés à la lecture, et la cinquième ligne du contrôle ci-dessous la rejette. Le motif du `NIL` va **en prose, sous le tableau**, avec sa mention `[MANQUE]` si elle est utile.
-   ⇒ **Règle générale, pas une exception aux portes.** Elle vaut pour toute cellule dont la valeur ne peut pas être estimée : le prochain champ non estimable rencontrera le même mur, et la réponse est déjà écrite.
-   ⇒ Elle referme le conflit avec la **règle 8 du §A.3** — « ne jamais rendre une feuille avec une case à remplir ». Une case en `NIL` n'est pas une case à remplir : elle est remplie, et ce qu'elle dit est vrai.
 
 **Contrôle avant envoi** — cinq lignes, à passer sur toute feuille destinée au fichier :
 
-- [ ] Les 36 cellules des cinq cartouches sont remplies, valeurs nues.
+- [ ] Les 34 cellules des cinq cartouches sont remplies, valeurs nues.
 - [ ] Aucune cellule ne contient d'unité, d'espace de milliers, ni de second nombre.
 - [ ] Aucun libellé déclaré n'apparaît en prose suivi d'un chiffre.
 - [ ] **Aucun libellé du registre ne figure hors cartouche**, et aucun champ du §0 portant un libellé du registre n'est laissé sans valeur en colonne « À taper ».
@@ -324,7 +314,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 | Libellé à écrire | Ce qu'il alimente | Où il vit |
 |---|---|---|
 | Callsign · Compagnie · Type | identité — Compagnie porte le code OACI à trois lettres, jamais le nom commercial | cartouche ① |
-| Piste départ · Cap départ · Porte départ · Piste arrivée · Porte arrivée | pistes et portes | cartouche ② |
+| Piste départ · Cap départ · Piste arrivée | pistes | cartouche ② |
 | Dégagement · Cap dégagement · Distance dégagement | déroutement | cartouche ② |
 | V1 · VR · V2 · Flex · Volets | décollage | cartouche ③ |
 | Réduction · Accélération · Transition | trois altitudes à la main | cartouche ③ |
@@ -1192,7 +1182,7 @@ Frein de parc · feux de position seuls · carburant restant relevé · AIDS FLI
 - **table Vref absente ou non confirmée pour le type volé** (§6.2) — sans elle, la Vapp du briefing n'a pas de base
 
 **À VÉRIFIER, non bloquant** :
-OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **36 cellules des cartouches renseignées** · **neuf champs du §0.2 bis renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · Aircraft Health regardé, relevé postérieur au 21/08 · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
+OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **34 cellules des cartouches renseignées** · **neuf champs du §0.2 bis renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · Aircraft Health regardé, relevé postérieur au 21/08 · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
 
 **POINTS OUVERTS — se ferment par une observation, jamais par déduction** :
 
@@ -1273,4 +1263,4 @@ Emplacement de la commande `ADIRS` ____ · positions réelles du sélecteur `NOR
 Ordre du §7.0 tenu sans blocage ____ · étape qu'Infinite Flight n'exige pas ____ · étape qui manquait ____
 ⇒ Chaque ligne remplie fait passer une ligne du §7.0 de `[WIP]` à `[SIM]`, ou la supprime. Les trois premières ferment un point ouvert du §8.
 
-**FIN · REV 23 · Simulation uniquement**
+**FIN · REV 22 · Simulation uniquement**

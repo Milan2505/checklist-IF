@@ -8,45 +8,45 @@ const PHASES = [
     {t:"Aircraft Health consulté avant de générer l'OFP", d:"Condition, risque de panne, puissance de freinage. Un appareil usé change la distance d'atterrissage, donc la piste, donc le dégagement. Tout relevé antérieur au 21/08/2026 est périmé : jusqu'au build 18308 l'usure des freins était comptée en vol ET à l'arrêt, les appareils affichaient une dégradation qu'ils n'avaient pas méritée.", r:"7", w:1},
     {t:"Trous du type volé regardés avant de choisir l'appareil", d:"VFE, table Vref et limite de tail strike : relevées sur A318/A319/A320, manquantes sur A321 et A330-900neo. Un vol sur ces deux types part avec une Vref calculée sur une pente non vérifiée et sans marge d'assiette connue — c'est un point d'arrêt, pas une réserve.", r:"6", w:1},
 
-    /* §0.2 — Informations sur le vol */
-    {t:"1 · Informations sur le vol", d:"Compagnie aérienne en OACI trois lettres, Numéro du vol, Partir · Arriver, Heure de départ en UTC. {{airline}} {{fltnum}} · {{route}} · {{eobt}}.", r:"0.2"},
-    {t:"Alterner : le dégagement nommé", d:"Jamais AUTO — c'est le terrain à briefer, il doit tenir la météo de l'ETA, pas seulement les critères de distance. {{degag}} · {{degcap}}° · {{degdist}} NM.", r:"0.2", w:1},
+    /* §0.1 — Informations sur le vol */
+    {t:"1 · Informations sur le vol", d:"Compagnie aérienne en OACI trois lettres, Numéro du vol, Partir · Arriver, Heure de départ en UTC. {{airline}} {{fltnum}} · {{route}} · {{eobt}}.", r:"0.1"},
+    {t:"Alterner : le dégagement nommé", d:"Jamais AUTO — c'est le terrain à briefer, il doit tenir la météo de l'ETA, pas seulement les critères de distance. {{degag}} · {{degcap}}° · {{degdist}} NM.", r:"0.1", w:1},
 
-    /* §0.3 — Informations sur l'avion */
-    {t:"2 · Informations sur l'avion", d:"Type d'aéronef dans la variante exacte volée dans IF, Variante ou cellule au générique du type, Indicatif d'appel ATC identique à celui tapé dans IF. Les trois profils restent en AUTO. {{type}} · {{callsign}}.", r:"0.3", w:1},
+    /* §0.2 — Informations sur l'avion */
+    {t:"2 · Informations sur l'avion", d:"Type d'aéronef dans la variante exacte volée dans IF, Variante ou cellule au générique du type, Indicatif d'appel ATC identique à celui tapé dans IF. Les trois profils restent en AUTO. {{type}} · {{callsign}}.", r:"0.2", w:1},
 
-    /* §0.1 — les neuf de Plus d'options, priorité REV 19 */
-    {t:"3 · « Plus d'options » déplié, les neuf champs remplis", d:"Facteur carburant {{fuelfactor}} · Inscription {{immat}} · Numéro Fin {{finnum}} · SELCAL {{selcal}} · Code Mode-S {{modes}}. Le bouton bascule en « Moins d'options » une fois déplié.", r:"0.1", w:1},
-    {t:"Les quatre chaînes d'équipement tapées en clair", d:"Équipement de l'OACI SDFGHRWY · Transpondeur LB1 · Capacité PBN A1B1C1D1L1O1S1 · Article 18 DAT/V RMK/SIMBRIEF. Le texte gris n'est pas un exemple : c'est ce que SimBrief appliquerait. On le tape à l'identique pour que la valeur soit écrite, donc vérifiable.", r:"0.1", w:1},
-    {t:"Aucune case laissée à sa valeur de démonstration", d:"N999SB, 999, ABCD et ZZZZZZ sont des amorces. Les garder produit un plan de vol au nom d'un appareil qui n'existe pas. Numéro Fin = trois derniers de l'immat ; SELCAL = quatre lettres entre A et S sans I, N ni O, deux paires croissantes.", r:"0.1", w:1},
-    {t:"Boutons « Constructeur » laissés tranquilles", d:"Ils composent la chaîne à partir des équipements cochés. Jamais par défaut : seulement si le vol exige une capacité que la chaîne standard ne déclare pas — RNP AR, CPDLC océanique, MNPS. Une chaîne modifiée se recopie au §9, sinon elle est perdue.", r:"0.1"},
+    /* §0.2 bis — les neuf de Plus d'options, repliés sous l'Indicatif d'appel ATC */
+    {t:"3 · « Plus d'options » déplié, les neuf champs remplis", d:"Facteur carburant {{fuelfactor}} · Inscription {{immat}} · Numéro Fin {{finnum}} · SELCAL {{selcal}} · Code Mode-S {{modes}}. Le bouton bascule en « Moins d'options » une fois déplié.", r:"0.2 bis", w:1},
+    {t:"Les quatre chaînes d'équipement tapées en clair", d:"Équipement de l'OACI SDFGHRWY · Transpondeur LB1 · Capacité PBN A1B1C1D1L1O1S1 · Article 18 DAT/V RMK/SIMBRIEF. Le texte gris n'est pas un exemple : c'est ce que SimBrief appliquerait. On le tape à l'identique pour que la valeur soit écrite, donc vérifiable.", r:"0.2 bis", w:1},
+    {t:"Aucune case laissée à sa valeur de démonstration", d:"N999SB, 999, ABCD et ZZZZZZ sont des amorces. Les garder produit un plan de vol au nom d'un appareil qui n'existe pas. Numéro Fin = trois derniers de l'immat ; SELCAL = quatre lettres entre A et S sans I, N ni O, deux paires croissantes.", r:"0.2 bis", w:1},
+    {t:"Boutons « Constructeur » laissés tranquilles", d:"Ils composent la chaîne à partir des équipements cochés. Jamais par défaut : seulement si le vol exige une capacité que la chaîne standard ne déclare pas — RNP AR, CPDLC océanique, MNPS. Une chaîne modifiée se recopie au §9, sinon elle est perdue.", r:"0.2 bis"},
 
-    /* §0.4 — Sélections */
-    {t:"4 · Sélections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi Sortie/Entrée 20/8 · IFR · Scheduled · Compte alternatif 1. Taxi retenu {{taxitime}}.", r:"0.4"},
-    {t:"Les six interrupteurs sur ON", d:"Journal de navigation détaillé, Planification ETOPS, Planifier les escaliers, Analyse de la piste, Inclure les NOTAM, NOTAM FIR. En éteindre un rouvre un trou que rien ne comble.", r:"0.4", w:1},
-    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import. Cycle {{airac}}.", r:"0.4"},
+    /* §0.3 — Sélections */
+    {t:"4 · Sélections vérifiées", d:"LIDO · Kilograms · Detailed · Taxi Sortie/Entrée 20/8 · IFR · Scheduled · Compte alternatif 1. Taxi retenu {{taxitime}}.", r:"0.3"},
+    {t:"Les six interrupteurs sur ON", d:"Journal de navigation détaillé, Planification ETOPS, Planifier les escaliers, Analyse de la piste, Inclure les NOTAM, NOTAM FIR. En éteindre un rouvre un trou que rien ne comble.", r:"0.3", w:1},
+    {t:"Fenêtre AIRAC vérifiée", d:"Un cycle en avance sur la base d'IF fait refuser un waypoint à l'import. Cycle {{airac}}.", r:"0.3"},
 
-    /* §0.5 — Entrées facultatives */
-    {t:"5 · Entrées facultatives chiffrées", d:"Bloc horaire prévu {{blocktime}} · Altitude (Pieds) {{fl}} en FL · Passagers {{pax}} · Fret {{fret}} · Charge utile {{payload}}. Aucune case en AUTO.", r:"0.5"},
-    {t:"Poids zéro carburant forcé", d:"Masse à vide IF du type {{oew}} + charge utile. Laisser AUTO, c'est planifier un avion qui n'existe pas — et les vitesses comme la flex sortiraient pour une autre masse. {{zfw}}.", r:"0.5", w:1},
-    {t:"Les deux pistes laissées en AUTO", d:"AUTO choisit au vent réel, exactement comme IF. La piste attendue ne se tape pas : elle se compare, et elle vit au cartouche ②. Attendues : {{piste}} au départ, {{arrpiste}} à l'arrivée.", r:"0.5"},
+    /* §0.4 — Entrées facultatives */
+    {t:"5 · Entrées facultatives chiffrées", d:"Bloc horaire prévu {{blocktime}} · Altitude (Pieds) {{fl}} en FL · Passagers {{pax}} · Fret {{fret}} · Charge utile {{payload}}. Aucune case en AUTO.", r:"0.4"},
+    {t:"Poids zéro carburant forcé", d:"Masse à vide IF du type {{oew}} + charge utile. Laisser AUTO, c'est planifier un avion qui n'existe pas — et les vitesses comme la flex sortiraient pour une autre masse. {{zfw}}.", r:"0.4", w:1},
+    {t:"Les deux pistes laissées en AUTO", d:"AUTO choisit au vent réel, exactement comme IF. La piste attendue ne se tape pas : elle se compare, et elle vit au cartouche ②. Attendues : {{piste}} au départ, {{arrpiste}} à l'arrivée.", r:"0.4"},
 
-    /* §0.6 — Carburant */
-    {t:"6 · Planification du carburant réglée", d:"Contingency, Reserve, Taxi, FOB et FOD en Auto. MEL, ATC, WXX et Tankering à 0. Sélecteur sur EXTRA, unités en KG. EXTRA {{extra}}, non nul seulement avec un motif écrit.", r:"0.6"},
+    /* §0.5 — Carburant */
+    {t:"6 · Planification du carburant réglée", d:"Contingency, Reserve, Taxi, FOB et FOD en Auto. MEL, ATC, WXX et Tankering à 0. Sélecteur sur EXTRA, unités en KG. EXTRA {{extra}}, non nul seulement avec un motif écrit.", r:"0.5"},
     {t:"Les quatre postes en AUTO ne remontent pas", d:"Contingence, réserve, taxi et FOD n'ont pas de libellé au registre : leur valeur attendue reste en colonne 3, pour l'œil. Le seul carburant lu par cette page est le cartouche ④.", r:"A.5", w:1},
 
-    /* §0.7 — Entrées de texte */
-    {t:"7 · Entrées de texte remplies", d:"Identifiant du pilote {{pilotid}} · Nom du capitaine · Premier officier et Nom de l'expéditeur en Random. Dans les remarques : piste attendue, seuil BINGO {{bingo}}, dégagement {{degag}}, motif de l'EXTRA.", r:"0.7"},
+    /* §0.6 — Entrées de texte */
+    {t:"7 · Entrées de texte remplies", d:"Identifiant du pilote {{pilotid}} · Nom du capitaine · Premier officier et Nom du distributeur en Random. Dans les remarques : piste attendue, seuil BINGO {{bingo}}, dégagement {{degag}}, motif de l'EXTRA.", r:"0.6"},
 
-    /* §0.8 — Itinéraire */
-    {t:"8 · Route collée dans Selected Route", d:"Format ATC, sans les terrains. Depuis le build 18266, un changement de SID ou de STAR décidé après coup se fait au MCDU (§2.1) sans regénérer l'OFP. {{rte}}.", r:"0.8"},
+    /* §0.7 — Itinéraire */
+    {t:"8 · Route collée dans Selected Route", d:"Format ATC, sans les terrains. Depuis le build 18266, un changement de SID ou de STAR décidé après coup se fait au MCDU (§2.1) sans regénérer l'OFP. {{rte}}.", r:"0.7"},
 
-    /* §0.9 — Alternatifs */
-    {t:"9 · Aéroports alternatifs réglés", d:"Critères 400 NM / 600 ft / 3000 m / 7000 ft — 9000 pour un long-courrier lourd. Dégagement n° 1 en DCT. Décoller et En route à NONE sauf si le vol l'exige.", r:"0.9"},
+    /* §0.8 — Alternatifs */
+    {t:"9 · Aéroports alternatifs réglés", d:"Critères 400 NM / 600 ft / 3000 m / 7000 ft — 9000 pour un long-courrier lourd. Dégagement n° 1 en DCT. Décoller et En route à NONE sauf si le vol l'exige.", r:"0.8"},
     {t:"Les deux lignes ignorées du dégagement", d:"« Altitude (Pieds) » y est l'élévation du terrain de dégagement, pas le FL de croisière, et « Itinéraire (Route) » est la route du dégagement, pas celle du vol. Les deux sont déclarées ignorées : elles s'écrivent, elles ne remontent rien.", r:"A.5", w:1},
-    {t:"ETOPS traité", d:"n/a sur vol continental. Sinon Threshold 60 min, Scenario Auto, puis Calculate — les six Altn se remplissent seuls.", r:"0.10"},
+    {t:"ETOPS traité", d:"n/a sur vol continental. Sinon Threshold 60 min, Scenario Auto, puis Calculate — les six Altn se remplissent seuls.", r:"0.9"},
 
-    {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé — piste, FL, dégagement, masse.", r:"0.11", w:1}
+    {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé — piste, FL, dégagement, masse.", r:"0.10", w:1}
   ]},
 
   { n:"OFP & cartouches", s:"Les 34 cellules, puis les seuils carburant", items:[

@@ -12,7 +12,7 @@
    key       cle de FIELDS
    labels    libelles acceptes, EGALITE STRICTE apres normLabel()
    kind      'int' | 'dec' | 'code' | 'text'
-   required  vrai pour les 34 cellules des cinq cartouches (REV 19 §A.4)
+   required  vrai pour les 36 cellules des cinq cartouches (REV 23 §A.4)
    max       longueur maximale de la cellule (defaut 60)
    display   libelle affiche dans le bandeau
    xf        transformation optionnelle du nombre valide
@@ -23,10 +23,15 @@ const REGISTRE = [
   { key:'airline',  labels:['airline','compagnie aerienne','compagnie'], kind:'code', required:true, display:'Compagnie' },
   { key:'type',     labels:['appareil','aircraft','type d\'aeronef','type'], kind:'text', required:true, display:'Type' },
 
-  /* ---- cartouche ② · pistes et degagement — 6 ---- */
+  /* ---- cartouche ② · pistes, portes et degagement — 8 ---- */
   { key:'piste',    labels:['depart rwy','depart runway','piste depart','piste dep.'], kind:'code', required:true, display:'Piste départ' },
   { key:'capdep',   labels:['cap depart'], kind:'int', required:true, display:'Cap départ' },
+  /* REV 23 · les deux portes. 'code' comme les pistes : A12, 24B, T2-15 passent,
+     une phrase ne passe pas. NIL est un code valide — c'est voulu : une porte non
+     observee sort en NIL, valeur nue et lisible, jamais en [MANQUE] (§A.5 regle 7). */
+  { key:'portedep', labels:['porte depart','departure gate','gate depart'], kind:'code', required:true, display:'Porte départ' },
   { key:'arrpiste', labels:['arrival rwy','arrivee runway','piste arrivee','piste arr.'], kind:'code', required:true, display:'Piste arrivée' },
+  { key:'portearr', labels:['porte arrivee','arrival gate','gate arrivee'], kind:'code', required:true, display:'Porte arrivée' },
   { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', required:true, display:'Dégagement' },
   { key:'degcap',   labels:['cap degagement'], kind:'int', required:true, display:'Cap dégagement' },
   { key:'degdist',  labels:['distance degagement'], kind:'int', required:true, display:'Distance dégagement' },
