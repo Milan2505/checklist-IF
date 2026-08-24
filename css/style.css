@@ -255,7 +255,14 @@ header{
 /* ---------- blocs aeroport + panneau d'identite (REV 23) ---------- */
 .ports{position:relative;display:flex;align-items:stretch;gap:8px;margin:0 0 12px}
 /* z-index seulement quand un panneau est ouvert : sinon le bloc passerait
-   au-dessus de l'entete collante au defilement. */
+   au-dessus de l'entete collante au defilement.
+   Ce 52 fait un second travail, moins visible. Pose sur un element
+   position:relative, il ouvre le contexte d'empilement dans lequel vit
+   .port-pop — et il place ce contexte au-dessus de .port-back, reste a 50.
+   Le panneau n'a pas de z-index a lui : c'est d'ici qu'il tient son rang.
+   Retire comme redondant, le panneau s'affiche toujours mais passe SOUS le
+   fond transparent : les clics vont au fond, donc chaque clic dans le panneau
+   le referme, et l'ecran ne montre rien qui l'explique. */
 .ports.open{z-index:52}
 .port{
   flex:1 1 0;min-width:0;position:relative;cursor:pointer;text-align:left;
@@ -282,6 +289,12 @@ header{
 .port-link{align-self:center;color:var(--muted);font-size:15px;flex:0 0 auto}
 
 /* superpose, jamais inline : la page ne se pousse pas vers le bas */
+/* Fond transparent qui recueille le clic exterieur. Il vit HORS de .ports : il
+   ne se compare donc pas a .port-pop, mais au contexte d'empilement ouvert par
+   .ports.open, a 52. Ce 50 doit rester dessous. Monte au-dela de 52, ce fond
+   passe devant le panneau : les trois valeurs restent lisibles, le bouton
+   Fermer cesse de repondre, et le seul symptome est un panneau qui avale les
+   clics sans reagir — aucun trait a l'ecran ne designe le coupable. */
 .port-back{position:fixed;inset:0;z-index:50}
 .port-pop{
   position:absolute;top:calc(100% + 6px);left:0;right:0;
