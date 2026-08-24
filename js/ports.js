@@ -12,6 +12,11 @@
 /* Trois valeurs par panneau. La porte change de cle selon le terrain ; Type et
    Compagnie sont les MEMES cles des deux cotes — un libelle, une ligne, une
    fois (§A.5 regle 3) : rien n'est duplique, c'est le meme champ affiche deux fois. */
+/* ⚠ La colonne de droite est un libelle d'AFFICHAGE, jamais un libelle de cellule.
+   « Compagnie (OACI) » ne doit pas etre recopie dans une feuille : le parseur le
+   resoudrait par troncature a la parenthese, c'est-a-dire par le chemin que le
+   point ouvert de la regle 4 du §A.5 n'a pas encore tranche. Dans un fichier, le
+   libelle reste « Compagnie ». Les cles, elles, sont la seule source de verite. */
 const PORT_ROWS = {
   dep: [['type','Type'], ['airline','Compagnie (OACI)'], ['portedep','Porte départ']],
   arr: [['type','Type'], ['airline','Compagnie (OACI)'], ['portearr','Porte arrivée']]

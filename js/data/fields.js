@@ -19,6 +19,11 @@
    Les libelles sont ceux du formulaire francais, pas des abreviations. */
 const FIELDS = [
   /* ---------- ce qui se tape dans SimBrief, dans l'ordre de la page ---------- */
+  /* ⚠ LIBELLE D'AFFICHAGE, PAS LIBELLE DE CELLULE. La parenthese vit dans le DOM
+     et nulle part ailleurs. Recopiee comme libelle de ligne dans une feuille, elle
+     rejoue le point ouvert de la regle 4 du §A.5 : le parseur la resoudrait par
+     troncature a la parenthese — donc par le chemin que le dossier n'a justement
+     pas tranche. Le libelle a ecrire dans un fichier reste « Compagnie aérienne ». */
   ['airline','Compagnie aérienne (code OACI)','1 · Informations sur le vol'],
   ['fltnum','Numéro du vol','1 · Informations sur le vol'],
   ['route','Partir → Arriver','1 · Informations sur le vol'],
