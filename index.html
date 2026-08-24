@@ -23,6 +23,7 @@
   --amber:#FFB01F;    /* limite, seuil, piege */
   --magenta:#E86BD4;  /* calcule */
   --cyan:#4FD8F5;     /* saisi par le pilote */
+  --violet:#9D8CFF;   /* [WIP] : annonce par le studio, jamais verifie a l'ecran */
   --display:"Barlow Condensed", "Oswald", Impact, sans-serif;
   --body:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -183,6 +184,15 @@ header{
 .it-txt{flex:1;min-width:0}
 .it-t{display:block}
 .item.warn .it-t::before{content:"⚠ ";color:var(--amber)}
+/* REV 20 · une ligne dormante ne se confond pas avec une ligne verifiee :
+   elle porte son marqueur en clair, comme le dossier le fait en prose. */
+.it-wip{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  color:var(--violet);border:1px solid #3a3160;background:#191434;
+  border-radius:4px;padding:1px 5px;margin-left:7px;white-space:nowrap;
+}
+.item.wip .box{border-color:#3a3160}
+.item.done .it-wip{opacity:.5}
 .item.done .it-t{color:var(--muted);text-decoration:line-through;text-decoration-color:#2c4a39}
 .it-d{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
 .item.done .it-d{opacity:.5}
@@ -295,6 +305,7 @@ header{
     <span><i style="background:var(--amber)"></i>limite ou piège</span>
     <span><i style="background:var(--magenta)"></i>renvoi au dossier</span>
     <span><i style="background:var(--cyan)"></i>valeur saisie</span>
+    <span><i style="background:var(--violet)"></i>WIP, annoncé jamais vérifié</span>
   </div>
 </main>
 
@@ -320,11 +331,13 @@ header{
 
 <script>
 /* ============================================================
-   CONTENU — tire du BRIEFING PRE-VOL INFINITE FLIGHT, REV 19
+   CONTENU — tire du BRIEFING PRE-VOL INFINITE FLIGHT, REV 20
    t : ligne de checklist · d : detail · r : renvoi · w : point de vigilance
+   wip : ligne dormante, tiree d'une capture du studio et jamais verifiee a
+   l'ecran (REV 20, §A.3 regle 12). Elle s'affiche, elle ne conclut rien.
    {{cle}} : valeur du vol, saisie dans le panneau Valeurs
 ============================================================ */
-/* [cle, libelle, groupe] — REV 19 : le panneau suit d'abord l'ORDRE DE LA PAGE
+/* [cle, libelle, groupe] — depuis la REV 19 : le panneau suit d'abord l'ORDRE DE LA PAGE
    SimBrief (§0.2 Vol → §0.3 Avion → §0.1 Plus d'options → §0.4 Sélections →
    §0.5 Facultatives → §0.6 Carburant → §0.7 Texte → §0.8 Itinéraire →
    §0.9 Alternatifs). Ce qui se tape dans le formulaire passe donc en premier,
@@ -408,7 +421,8 @@ const FIELDS = [
 
 const PHASES = [
   { n:"Feuille SimBrief", s:"Le formulaire, dans l'ordre de la page", items:[
-    {t:"Aircraft Health consulté avant de générer l'OFP", d:"Condition, risque de panne, puissance de freinage. Un appareil usé change la distance d'atterrissage, donc la piste, donc le dégagement.", r:"7", w:1},
+    {t:"Aircraft Health consulté avant de générer l'OFP", d:"Condition, risque de panne, puissance de freinage. Un appareil usé change la distance d'atterrissage, donc la piste, donc le dégagement. Tout relevé antérieur au 21/08/2026 est périmé : jusqu'au build 18308 l'usure des freins était comptée en vol ET à l'arrêt, les appareils affichaient une dégradation qu'ils n'avaient pas méritée.", r:"7", w:1},
+    {t:"Trous du type volé regardés avant de choisir l'appareil", d:"VFE, table Vref et limite de tail strike : relevées sur A318/A319/A320, manquantes sur A321 et A330-900neo. Un vol sur ces deux types part avec une Vref calculée sur une pente non vérifiée et sans marge d'assiette connue — c'est un point d'arrêt, pas une réserve.", r:"6", w:1},
 
     /* §0.2 — Informations sur le vol */
     {t:"1 · Informations sur le vol", d:"Compagnie aérienne en OACI trois lettres, Numéro du vol, Partir · Arriver, Heure de départ en UTC. {{airline}} {{fltnum}} · {{route}} · {{eobt}}.", r:"0.2"},
@@ -460,6 +474,7 @@ const PHASES = [
     {t:"Les 34 cellules renseignées, aucune vide", d:"Une case vide sans motif affiché est un défaut de format de la feuille, pas de la page. Le bandeau d'anomalie nomme celles qui n'ont pas été résolues.", r:"A.5", w:1},
     {t:"Masses dans les limites", d:"TOW {{tow}} sous MTOW, LW {{lw}} t sous MLW. Hors limite = NO-GO, sans discussion.", r:"8", w:1},
     {t:"Bloc supérieur à la somme des postes", d:"Sinon NO-GO.", r:"8", w:1},
+    {t:"Table Vref disponible et confirmée pour le type volé", d:"A318/A319/A320 : table complète. A321 : pente d'environ 1 kt par tonne, estimée et non confirmée. A330-900neo : aucune table, aucune pente. Sans elle, la Vapp du briefing n'a pas de base — cinquième point bloquant depuis la REV 20.", r:"6.2", w:1},
     {t:"Route contrôlée", d:"Aucun waypoint dupliqué, FL conforme à la règle semi-circulaire. SimBrief ne signale ni l'un ni l'autre.", r:"1", w:1},
     {t:"MIN DIV calculé", d:"Dégagement + réserve finale = {{mindiv}}.", r:"3"},
     {t:"BINGO calculé", d:"MIN DIV + 5 % = {{bingo}}. En dessous, la décision de dérouter se prend, elle ne se discute plus.", r:"3"},
@@ -481,6 +496,7 @@ const PHASES = [
     {t:"Contraintes de vitesse notées à part", d:"Elles n'existent pas dans le MCDU. À tenir au sélecteur du pilote automatique.", r:"2.1"},
     {t:"Page APPR relue", d:"Piste {{arrpiste}}, ILS {{ils}}, fréquence, TRANS LVL (affiché sans préfixe FL), VAPP, LDG CONF.", r:"2.1"},
     {t:"Écart Vapp arbitré", d:"Vapp du MCDU observée 11 kt sous SimBrief. Écart supérieur à 5 kt : c'est la valeur SimBrief qui se tient au sélecteur.", r:"2.3", w:1},
+    {t:"Lignes « à revérifier » du §2.3 non tenues pour acquises", d:"Huit lignes annoncées corrigées par un changelog — cinq au build 18266, trois au 18308 (ailerons à l'ECAM, cap FCU A320 sous NAV armé, saut de manette en mode SPD) — et aucune recontrôlée à l'écran. Un correctif de changelog ne retire pas une ligne du dossier : seule une observation le fait.", r:"2.3", w:1},
     {t:"Scratchpad vide, aucun message ambre", d:"Dernier contrôle avant repoussage.", r:"2.2"}
   ]},
 
@@ -491,11 +507,12 @@ const PHASES = [
     {t:"Crans d'autobrake décidés", d:"Départ {{autobrkdep}} — MAX est l'attente du mémo T.O ; un autre cran est un choix, pas un oubli, il se dit au briefing. Arrivée {{autobrkarr}}, selon longueur de piste et état de surface.", r:"4"},
     {t:"Limites de vent du type connues", d:"Travers et arrière maximum, réduits sur piste mouillée ou contaminée. L'OFP ne les porte pas.", r:"4"},
     {t:"Point d'ANNOUNCE INBOUND préparé", d:"{{inbwpt}} à {{inbound}} NM du seuil, cumulé à l'envers depuis la ligne de la piste.", r:"6.6"},
-    {t:"GO prononcé", d:"Ou NO-GO motivé sur l'un des quatre points bloquants.", r:"8"}
+    {t:"GO prononcé", d:"Ou NO-GO motivé sur l'un des cinq points bloquants : masse hors limites, vitesses pour une autre piste, dégagement inutilisable, bloc insuffisant, table Vref absente ou non confirmée pour le type.", r:"8"}
   ]},
 
   { n:"Avant mise en route", s:"Poste préparé, avion pas encore vivant", items:[
     {t:"Alimentation puis ADIRS aligné, en premier", d:"Batterie, puis externe ou APU, puis ADIRS — l'alignement tourne pendant le briefing et le chargement. Sans lui, PFD et ND restent noirs (drapeaux ATT/ALT/SPD/VS/HDG, GPS PRIMARY LOST) : normal, pas une panne. Décollage impossible sans PFD, ça ne se rattrape pas au roulage.", r:"7", w:1},
+    {t:"Séquence de mise en route, si le type en impose une", d:"Section dormante : quatre panneaux du menu Systems de l'A321neo relevés sur une capture du studio, jamais vérifiés à l'écran. Rien n'en sort tant que le type n'a pas été volé — n/a et traité sur tout autre appareil.", r:"7.0", wip:1},
     {t:"ATIS écouté", d:"Piste en service, QNH, information en cours.", r:"7"},
     {t:"Feux de position, puis beacon avant démarrage", d:"", r:"7"},
     {t:"Altimètres au QNH", d:"Contrôle : élévation affichée à ± 75 ft.", r:"7"},
@@ -510,7 +527,7 @@ const PHASES = [
     {t:"Carte sol suivie en continu", d:"", r:"7"},
     {t:"QNH confirmé, piste confirmée à l'ATIS", d:"", r:"7"},
     {t:"Piste en service = piste prévue", d:"Sinon les quatre vitesses et la flex sont à REFAIRE, pas à ajuster. Refaire la SID au MCDU (§2.1) ne les refait pas.", r:"7", w:1},
-    {t:"Alerte de conflit de piste traitée si elle apparaît", d:"Entrer sur une piste active avec du trafic entrant, ou s'approcher d'une piste occupée, déclenche un avertissement : il se traite, il ne se ferme pas.", r:"7", w:1},
+    {t:"Finale regardée à l'œil avant d'aligner", d:"Depuis le build 18308, les alertes de conflit de piste sont SUPPRIMÉES dès qu'on est calé sur une Tower ou une Ground active : l'ATC est censé assurer la séparation. Sous ATC, il n'y a donc plus aucun filet automatique à l'entrée de piste — le contrôle visuel redevient la seule protection. Hors contrôle, l'alerte subsiste : elle se traite, elle ne se ferme pas.", r:"7", w:1},
     {t:"Durée de roulage comparée au taxi fuel", d:"", r:"7"},
     {t:"Mémo T.O tout vert avant alignement", d:"AUTO BRK, SEAT BELTS, CABIN, SPLRS, FLAPS, T.O CONFIG — six lignes vertes, pas une liste à recocher à la main. Puis transpondeur ALT, landing lights, strobes, A/THR armé, vitesses affichées, approche finale regardée.", r:"7", w:1}
   ]},
@@ -554,8 +571,9 @@ const PHASES = [
   ]},
 
   { n:"Approche & configuration", s:"Le schedule volets, cran par cran", items:[
+    {t:"Schedule volets du type sorti", d:"Les vitesses ci-dessous sont celles de l'A318/A319/A320. L'A321 et l'A330-900neo ne partagent ni l'aile ni les crans : leurs VFE se relèvent au ruban, cran par cran, et ne se déduisent pas de la famille.", r:"6.1", w:1},
     {t:"Décélération vers green dot, avion lisse", d:"", r:"6.1"},
-    {t:"Conf 1 sélectionnée vers 205 kt", d:"VFE 230 kt. On sélectionne à la vitesse de sélection, jamais à la VFE.", r:"6.1", w:1},
+    {t:"Conf 1 sélectionnée vers 205 kt", d:"VFE 230 kt sur A318/A319/A320. On sélectionne à la vitesse de sélection, jamais à la VFE.", r:"6.1", w:1},
     {t:"Conf 2 à S speed, vers 190 kt", d:"VFE 200 kt.", r:"6.1"},
     {t:"Conf 3 et train ensemble, vers 175 kt", d:"VFE 185 kt. Un point sous le plan ou vers 2000 ft.", r:"6.1"},
     {t:"FULL une fois établi, vers 160 kt", d:"VFE 177 kt. Sortir FULL tôt fait traîner l'avion et brûle le carburant qu'on compte.", r:"6.1", w:1},
@@ -567,10 +585,10 @@ const PHASES = [
     {t:"50 ft — Vapp tenue, plan tenu, axe tenu", d:"", r:"6.3"},
     {t:"30 ft — arrondi commencé, assiette vers 5°", d:"Il n'y a pas de vitesse cible dans l'arrondi. Chercher un chiffre au badin produit un arrondi haut ou un toucher dur.", r:"6.3", w:1},
     {t:"20 ft — gaz réduits à idle", d:"", r:"6.3"},
-    {t:"Toucher train principal, assiette maintenue", d:"Assiette au maximum 7,5° : la limite de tail strike est à 11,7° train comprimé. Ne pas reposer le train avant brutalement.", r:"6.3", w:1},
+    {t:"Toucher train principal, assiette maintenue", d:"Assiette au maximum 7,5° : la limite de tail strike est à 11,7° train comprimé sur A320. Sur A321 et A330-900neo elle n'est pas relevée — fuselage plus long, marge réduite : la lire dans la fiche du type avant le premier atterrissage. Ne pas reposer le train avant brutalement.", r:"6.3", w:1},
     {t:"Toucher dans la zone visée", d:"1000 ft après le seuil, ± 300. Au-delà de 2000 ft : remise de gaz obligatoire.", r:"6.5", w:1},
     {t:"Spoilers vérifiés, sortie manuelle si besoin", d:"", r:"6.5"},
-    {t:"Inverseurs, autobrake {{autobrkarr}}, puis freinage manuel en fin de course", d:"Puissance de freinage dégradée relevée à l'Aircraft Health : un cran d'autobrake de plus, distance disponible vérifiée deux fois — une piste courte avec des freins usés est un motif de dégagement, pas un défi.", r:"6.5", w:1},
+    {t:"Inverseurs, autobrake {{autobrkarr}}, puis freinage manuel en fin de course", d:"Puissance de freinage dégradée relevée à l'Aircraft Health : un cran d'autobrake de plus, distance disponible vérifiée deux fois — une piste courte avec des freins usés est un motif de dégagement, pas un défi. Le relevé doit être postérieur au 21/08/2026, sinon il ne veut rien dire.", r:"6.5", w:1},
     {t:"Piste dégagée annoncée après dégagement complet", d:"", r:"6.5"}
   ]},
 
@@ -581,10 +599,12 @@ const PHASES = [
     {t:"AIDS FLIGHT REPORT relevé", d:"FOB, GW, temps moteur, temps de vol. Il remplace le relevé à la jauge.", r:"9"},
     {t:"AIDS LANDING REPORT relevé", d:"Vitesse au toucher, Vz, G max, écart d'axe. Seule mesure objective de la tenue d'approche.", r:"9"},
     {t:"Ligne ajoutée au tableau des relevés de toucher", d:"GW, TD IAS, Vz, G, axe — la plage de décélération d'arrondi est en observation.", r:"6.3"},
+    {t:"Systèmes du type notés si une séquence a été suivie", d:"Commande introuvable, bouton sans effet observable, page SD qui n'a pas réagi. Chaque ligne remplie fait passer une ligne du §7.0 de [WIP] à [SIM], ou la supprime. Test gratuit au parking : couper un GEN et regarder si la page ELEC bascule.", r:"9", wip:1},
     {t:"Écarts SimBrief relevés", d:"Les six lignes laissées en AUTO : pistes, contingence, réserve, taxi, FOB, FOD.", r:"9"},
     {t:"Carburant, ETE et TOD prévus contre réels", d:"Trois vols alimentent le Fuel Factor : si IF brûle systématiquement plus, P00 devient Pxx.", r:"9"},
     {t:"Comportement FMS inattendu noté", d:"Et la ligne du dossier à corriger.", r:"9"},
-    {t:"Rubrique en doublon avec l'OFP notée", d:"Elle saute à la révision suivante.", r:"9"}
+    {t:"Rubrique en doublon avec l'OFP notée", d:"Elle saute à la révision suivante.", r:"9"},
+    {t:"window.debugBriefing() lu une fois la feuille chargée", d:"Console du navigateur : la colonne « forme » dit quelle écriture du libellé a réellement résolu chaque ligne — complète, ou tronquée à la parenthèse. C'est la seule chose qui ferme le point ouvert du §A.5, et le seul défaut du dossier capable de faire lire une valeur fausse sans rien afficher. Il ne se règle pas par déduction.", r:"A.5", w:1}
   ]}
 ];
 
@@ -803,14 +823,15 @@ function render(){
     ph.items.forEach((it,ii)=>{
       const on = !!state.done[id(pi,ii)];
       const row = document.createElement('div');
-      row.className = 'item' + (on?' done':'') + (it.w?' warn':'');
+      row.className = 'item' + (on?' done':'') + (it.w?' warn':'') + (it.wip?' wip':'');
       row.dataset.p = pi; row.dataset.i = ii;
       row.setAttribute('role','checkbox');
       row.setAttribute('aria-checked', on?'true':'false');
       row.tabIndex = 0;
       row.innerHTML =
         '<span class="box" aria-hidden="true"></span>'+
-        '<span class="it-txt"><span class="it-t">'+inject(it.t)+'</span>'+
+        '<span class="it-txt"><span class="it-t">'+inject(it.t)+
+          (it.wip ? '<span class="it-wip">WIP</span>' : '')+'</span>'+
           (it.d ? '<span class="it-d">'+inject(it.d)+'</span>' : '')+
         '</span>'+
         (it.r ? '<button type="button" class="ref" data-ref="'+esc(it.r)+'"'+
@@ -1258,11 +1279,12 @@ const REGISTRE = [
   { key:'rte',      labels:['selected route'], kind:'text', max:400, display:'Selected Route' },
 
   /* ---- §0.1 · identification et equipement ----
-     Le §A.5 de la REV 19 ne declare pas encore ces quatre libelles, mais la
-     regle 10 veut que le parseur passe EN PREMIER : « un libellé ne s'ajoute a
-     un cartouche qu'une fois inscrit au registre du parseur, dans cet ordre,
-     jamais l'inverse ». Ils sont inscrits ici pour que le §0.1 d'une feuille
-     remplisse enfin ses cases ; a la REV 20 de les porter au vocabulaire.
+     Le §A.5 ne declare toujours pas ces quatre libelles a la REV 20, et c'est
+     l'ordre voulu : la regle 10 veut que le parseur passe EN PREMIER — « un
+     libellé ne s'ajoute a un cartouche qu'une fois inscrit au registre du
+     parseur, dans cet ordre, jamais l'inverse ». Ils sont inscrits ici pour que
+     le §0.1 d'une feuille remplisse ses cases ; c'est au vocabulaire du §A.5 de
+     les rattraper, pas a ce registre de les attendre.
      Aucun n'entre dans un calcul : une erreur y est cosmetique.
      ⚠ 'immatriculation' reste IGNORE et n'est PAS un libelle de `immat` : ce
      mot-la vit dans les « Repères non lus », et la regle 11 interdit qu'un
@@ -1335,8 +1357,13 @@ function normLabel(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
           .replace(/[`*]/g,'').replace(/\s+/g,' ').trim();
 }
+/* Marqueurs de SOURCE du dossier (§Conventions) : ils qualifient l'origine de la
+   valeur, pas la valeur elle-meme, donc ils se retirent avant validation.
+   [WIP] et [MANQUE] n'y figurent pas volontairement — le premier disqualifie la
+   cellule, le second dit « non fourni ». Tous deux sont traites dans validate(). */
+const MARQUEUR_SOURCE = /\[(OFP|FORM|NAV|SIM|RDR|CALC)\]/g;
 function cleanCell(s){
-  return s.replace(/[`*]/g,'').replace(/\[(SIM|FORM|NAV|CALC)\]/g,'')
+  return s.replace(/[`*]/g,'').replace(MARQUEUR_SOURCE,'')
           .replace(/\s+/g,' ').trim();
 }
 function digits(s){ return s.replace(/[\s\u00A0\u202F]/g,''); }
@@ -1352,6 +1379,27 @@ function regFor(raw){
     if(REG_BY_LABEL.has(m[2])) return REG_BY_LABEL.get(m[2]);
   }
   return null;
+}
+/* ------------------------------------------------------------
+   FORME DU LIBELLE — REV 20 §A.5, point ouvert
+   Le dossier pose la question sans pouvoir la trancher : « soit le parseur
+   tronque a la parenthese et le registre se met au format nu partout, soit il
+   exige la forme complete ». La reponse observable est ici — regFor() accepte
+   les DEUX : la chaine entiere d'abord, puis chaque moitie de
+   « Passagers (Passengers) ». Cette fonction dit laquelle a repondu, ligne par
+   ligne, pour que window.debugBriefing() ferme le point par OBSERVATION et non
+   par deduction (§9, « forme des libellés retenue »).
+   Aucun effet sur la resolution : elle ne fait que nommer ce qui s'est passe.
+------------------------------------------------------------ */
+function formeLibelle(raw){
+  const n = normLabel(raw);
+  if(REG_BY_LABEL.has(n)) return 'complète';
+  const m = n.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  if(m){
+    if(REG_BY_LABEL.has(m[1])) return 'tronquée à la parenthèse';
+    if(REG_BY_LABEL.has(m[2])) return 'parenthèse seule';
+  }
+  return '—';
 }
 /* section : titre de la section qui contient la ligne, deja normalise.
    Un libelle peut n'etre ignore QUE la ou il change de sens (§A.5). */
@@ -1379,10 +1427,18 @@ const UNITE = /(kg|ft|kt|nm|min|°c|°)$/i;
 /* MANQUE est le marqueur de non-fourni du dossier (§Conventions), pas une
    valeur : sans cette ligne il passait pour un code valide et « MANQUE »
    s'affichait dans la case ILS comme s'il s'agissait d'une frequence. */
-const VIDE  = /^(auto|n\/a|na|none|laisser vide|vide|manque|—|-)$/i;
+const VIDE  = /^(auto|n\/a|na|none|laisser vide|vide|manque|\[manque\]|—|-)$/i;
+/* REV 20 · nouveau marqueur [WIP], et §A.3 regle 12 : « ce qui est montre par le
+   studio n'est pas ce qui vole ». Le dossier est explicite — une valeur [WIP]
+   « n'entre dans aucun calcul, ne remplit aucune cellule de cartouche et ne
+   franchit pas le §8 ». Elle n'est donc PAS nettoyee comme un marqueur de
+   source : elle disqualifie la cellule entiere, et le refus se dit au bandeau.
+   Une case vide et signalee vaut mieux qu'un chiffre dormant qui se vole. */
+const WIP = /\[\s*WIP\s*\]/i;
 
 function validate(e, raw){
   const v = (raw || '').trim();
+  if(WIP.test(v)) return { ok:false, reason:'valeur [WIP] — annoncée par le studio, jamais vérifiée à l\'écran' };
   if(!v || VIDE.test(v)) return { ok:false, reason:'non fourni' };
   const max = e.max || 60;
   if(v.length > max) return { ok:false, reason:'trop long ('+v.length+' car., max '+max+')' };
@@ -1473,7 +1529,8 @@ function readValues(lines){
       }
       const raw = cleanCell(cells[col] || '');
       const r = validate(e, raw);
-      rows.push({ line:i+1, label:label, key:e.key, raw:raw, value:r.value, ok:r.ok, reason:r.reason });
+      rows.push({ line:i+1, label:label, key:e.key, raw:raw, value:r.value, ok:r.ok, reason:r.reason,
+                  forme:formeLibelle(label) });
       if(r.ok) found.push({ key:e.key, value:r.value, line:i+1 });
     }
   });
@@ -1618,14 +1675,23 @@ function extractValues(txt){
 function debugBriefing(){
   if(!trace){ console.log('Aucun briefing lu dans cette session.'); return; }
   const ok = trace.filter(r=>r.ok).map(r=>({
-    champ:r.key, libellé:r.label, ligne:r.line, brut:r.raw, valeur:r.value }));
+    champ:r.key, libellé:r.label, ligne:r.line, brut:r.raw, valeur:r.value, forme:r.forme }));
   const ko = trace.filter(r=>!r.ok && (r.key || r.unknown)).map(r=>({
     champ:r.key || '—', libellé:r.label, ligne:r.line, brut:r.raw || '', motif:r.reason }));
   console.log('%c'+ok.length+' valeur(s) retenue(s)', 'font-weight:bold');
   console.table(ok);
   console.log('%c'+ko.length+' ligne(s) écartée(s)', 'font-weight:bold');
   console.table(ko);
-  return { retenues:ok, ecartees:ko };
+  /* Le point ouvert du §A.5 se ferme ici, en une lecture : la colonne « forme »
+     dit quelle ecriture du libelle a effectivement resolu chaque ligne. */
+  const formes = {};
+  trace.forEach(r=>{ if(r.ok && r.forme) formes[r.forme] = (formes[r.forme]||0)+1; });
+  const resume = Object.keys(formes).map(f=> f+' × '+formes[f]).join(' · ') || 'aucune';
+  console.log('%cForme des libellés retenue (§A.5 point ouvert) : '+resume,
+              'font-weight:bold;color:#9D8CFF');
+  console.log('Le parseur accepte les deux écritures : « Passagers » comme '+
+              '« Passagers (Passengers) ». Reporter cette ligne au §9 ferme le point.');
+  return { retenues:ok, ecartees:ko, formes:formes };
 }
 window.debugBriefing = debugBriefing;
 

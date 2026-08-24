@@ -1,23 +1,21 @@
 # BRIEFING PRÉ-VOL — INFINITE FLIGHT
 
-**REV 19**
+**REV 20**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
 
-## CE QUI CHANGE DEPUIS LA REV 18
+## CE QUI CHANGE DEPUIS LA REV 19
 
 | # | Objet | Nature |
 |---|---|---|
-| 1 | **§0.1 · Identification et équipement** — les neuf champs de « Plus d'options » remontent en tête du §0, chacun avec une valeur à taper. Plus aucun « laisser vide » dans le dossier. | ajout, priorité |
-| 2 | Les quatre boutons **Constructeur** (Équipement OACI, Transpondeur, PBN, Article 18) documentés | ajout |
-| 3 | `Altitude (Pieds)` du tableau de dégagement **déclaré ignoré** — il entrait en conflit avec le FL de croisière | correctif bloquant |
-| 4 | Cartouches du §A.4 **éclatés en une valeur par cellule** ; six libellés déclarés sortent de la zone « non lue » où ils étaient enterrés | correctif bloquant |
-| 5 | `ZFW` renommé `Poids zéro carburant`, libellé du registre | correctif bloquant |
-| 6 | Contrôle §A.5 reformulé : il ne promet plus une reprise impossible pour les libellés hors registre | correctif |
-| 7 | Comptage refait — **34 cellules** au temps 1, méthode d'estimation pour chacune | correctif |
-| 8 | Libellés du formulaire mis à jour : « Planifier les escaliers », « Nom de l'expéditeur » | mise à jour |
-| 9 | `Compte alternatif` : doublon de formulaire déclaré assumé | clarification |
+| 1 | **§7.0 · Mise en route par le menu Systems (A321neo)** — quatre panneaux relevés sur capture WIP, séquence proposée, section dormante jusqu'au premier vol sur le type | ajout |
+| 2 | Nouveau marqueur **`[WIP]`** — montré par le studio, jamais vérifié à l'écran. Ne peut alimenter aucun calcul | ajout |
+| 3 | §7 roulage — les alertes de conflit de piste sont **supprimées sous Tower ou Ground active** (build 18308). La ligne de la REV 19 était fausse | correctif |
+| 4 | §7 Aircraft Health — l'usure des freins était comptée en vol et à l'arrêt jusqu'au 18308. **Tout relevé de puissance de freinage antérieur au 21/08 est à refaire** | correctif |
+| 5 | §2.3 — deux lignes ajoutées à « à revérifier » (indication d'ailerons à l'ECAM, cap FCU A320 quand NAV est armé), en-tête daté du build 18308 | mise à jour |
+| 6 | §6.1 · §6.2 · §6.3 — les trous A321 et A330-900neo remontent en tête de section et deviennent un **point d'arrêt dépendant du type volé** au §8 | correctif |
+| 7 | §A.5 — le point ouvert de la parenthèse de traduction est inscrit au §8 : il ne se règle pas tout seul et c'est le seul défaut capable de faire lire une valeur fausse en silence | correctif |
 
 ---
 
@@ -44,10 +42,12 @@ Document de simulation. Aucune valeur opérationnelle réelle.
 | `[NAV]` | cartes et base de données |
 | `[SIM]` | lu à l'écran par Milan |
 | `[RDR]` | lu sur un suivi de trafic réel (horaires, immat, type, porte) |
+| `[WIP]` | montré ou annoncé par le studio, jamais vérifié à l'écran |
 | `[CALC]` | calculé, méthode indiquée |
 | `[MANQUE]` | non fourni |
 
 ⚠ Une valeur sans source ne sort pas. Un chiffre orphelin est un chiffre inventé.
+⚠ **Une valeur `[WIP]` n'entre dans aucun calcul, ne remplit aucune cellule de cartouche et ne franchit pas le §8.** Elle décrit ce qui est annoncé, pas ce qui vole.
 
 ⚠ limite, seuil ou piège · ⇒ contrôle croisé · n/a sans objet, décidé et assumé
 
@@ -111,6 +111,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 9. **Le type volé et sa masse à vide dans IF viennent de Milan.** Je ne les déduis pas d'un type voisin, je ne les estime pas, je ne les invente pas. S'ils manquent, je le signale par l'alerte du §A.2 en tête de réponse — le silence sur un manque est la faute, pas le manque lui-même.
 10. Un libellé ne s'ajoute à un cartouche qu'une fois inscrit au registre du parseur. Dans cet ordre, jamais l'inverse : un libellé écrit mais non déclaré ne fait pas remonter sa valeur, et rien ne le signale (§A.5).
 11. **Un libellé déclaré au registre ne se range jamais dans un bloc annoncé comme non lu.** Soit il est lu et il est dans un cartouche, soit il n'est pas au registre. Il n'y a pas de troisième cas.
+12. **Ce qui est montré par le studio n'est pas ce qui vole.** Une capture WIP, un post ou un changelog se marque `[WIP]` et reste dans une section dormante jusqu'à la vérification à l'écran. Un correctif de changelog ne retire pas une ligne du dossier : seule une observation le fait.
 
 ⚠ Un changement de piste, de masse ou de niveau refait les vitesses, la flex et le profil. Je le dis en sortie, je ne corrige pas en silence.
 
@@ -258,7 +259,7 @@ Minima contre météo prévue · schedule volets du type avec la vitesse de sél
 ### BLOC 5 · VIGILANCE & VERDICT
 Deux ou trois points propres à CE vol. Puis une ligne : GO, ou NO-GO motivé.
 
-⚠ **Ce qui bloque un départ, et rien d'autre :** masse hors MTOW ou MLW · vitesses calculées pour une autre piste que celle attribuée · dégagement inutilisable · bloc inférieur à la somme des postes.
+⚠ **Ce qui bloque un départ, et rien d'autre :** masse hors MTOW ou MLW · vitesses calculées pour une autre piste que celle attribuée · dégagement inutilisable · bloc inférieur à la somme des postes · **table Vref absente pour le type volé** (§6.2).
 Tout le reste se note au bloc 5 et se vole.
 
 ---
@@ -283,7 +284,8 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 2. **Une cellule, une valeur.** Une cellule qui contient deux nombres est rejetée en entier. `64460` et non `64 460 kg — MLW 77 800, marge 13 340`. Les marges vont en prose, sous le tableau.
 3. **Un libellé, une ligne, une fois.** Un même libellé dans deux tableaux crée un conflit silencieux.
 4. **Libellés au caractère près.** Ceux du §A.4. Pas d'unité accolée, pas de reformulation, pas de ligne intercalée.
-   ⚠ **Point ouvert.** Les libellés du §0 portent une parenthèse de traduction — `Passagers (Passengers)`, `Poids zéro carburant (ZFW, KG)`. Le registre, lui, déclare `Passagers` et `Poids zéro carburant` nus, mais `Altitude (Pieds)` avec sa parenthèse. Ces deux formes ne peuvent pas être justes en même temps. À trancher au prochain `window.debugBriefing()` : soit le parseur tronque à la parenthèse et le registre se met au format nu partout, soit il exige la forme complète et le registre recopie le §0 caractère pour caractère. Tant que ce n'est pas tranché, les valeurs des cartouches font foi — elles, portent le libellé nu.
+   ⚠ **POINT OUVERT — le seul défaut du dossier capable de faire lire une valeur fausse sans rien afficher.** Les libellés du §0 portent une parenthèse de traduction — `Passagers (Passengers)`, `Poids zéro carburant (ZFW, KG)`. Le registre, lui, déclare `Passagers` et `Poids zéro carburant` nus, mais `Altitude (Pieds)` avec sa parenthèse. Ces deux formes ne peuvent pas être justes en même temps. À trancher au prochain `window.debugBriefing()` : soit le parseur tronque à la parenthèse et le registre se met au format nu partout, soit il exige la forme complète et le registre recopie le §0 caractère pour caractère. Tant que ce n'est pas tranché, les valeurs des cartouches font foi — elles, portent le libellé nu.
+   ⇒ Ce point est inscrit au §8 depuis la REV 20. Il ne se règle pas par déduction : une seule lecture de `window.debugBriefing()` le ferme définitivement.
 5. **Aucune valeur chiffrée en prose à côté d'un libellé déclaré.** Écrire `MIN DIV = 1 100 + 1 050 = 2 150 kg · réserve finale = 1 100 kg` a fait lire 1100. La méthode s'écrit sans reprendre le libellé suivi d'un nombre : « le seuil de déroutement additionne le dégagement et la réserve finale, puis ajoute 5 % ».
 6. **La prose porte la méthode et les sources, le tableau porte la valeur.** Jamais l'inverse, jamais les deux.
 
@@ -320,7 +322,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 | Itinéraire (Route) | c'est la route du dégagement, pas celle du vol |
 | Altitude (Pieds) — ligne du dégagement | c'est l'élévation du terrain de dégagement, pas le FL de croisière |
 
-⚠ **Correctif bloquant de la REV 19.** `Altitude (Pieds)` était porté deux fois : au FL de croisière dans les Entrées facultatives, et à l'élévation du dégagement dans les Aéroports alternatifs. La règle « la dernière l'emporte » faisait donc remonter l'élévation du terrain à la place du niveau de croisière — silencieusement. La ligne du dégagement est désormais **ignorée**, et un libellé ignoré l'emporte sur toute autre résolution.
+⚠ **Correctif bloquant de la REV 19, toujours en vigueur.** `Altitude (Pieds)` était porté deux fois : au FL de croisière dans les Entrées facultatives, et à l'élévation du dégagement dans les Aéroports alternatifs. La règle « la dernière l'emporte » faisait donc remonter l'élévation du terrain à la place du niveau de croisière — silencieusement. La ligne du dégagement est **ignorée**, et un libellé ignoré l'emporte sur toute autre résolution.
 
 **En attente d'inscription au registre** — écrits dans le dossier, pas encore lus par la page :
 
@@ -373,7 +375,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Capacité PBN (PBN Capability) | A1B1C1D1L1O1S1 | chaîne appliquée par SimBrief |
 | Informations supplémentaires sur le FPL — Article 18 | DAT/V RMK/SIMBRIEF | chaîne appliquée par SimBrief |
 
-⚠ **Les quatre dernières lignes changent de traitement en REV 19.** Le texte gris dans ces cases n'est pas un exemple : c'est la chaîne que SimBrief applique si la case reste vide. La REV 18 disait « laisser vide », ce qui rendait la valeur invisible et incomparable. Elle se **tape désormais explicitement**, à l'identique — même résultat sur le plan de vol, mais la valeur est écrite, donc vérifiable.
+⚠ **Les quatre dernières lignes.** Le texte gris dans ces cases n'est pas un exemple : c'est la chaîne que SimBrief applique si la case reste vide. Elle se **tape explicitement**, à l'identique — même résultat sur le plan de vol, mais la valeur est écrite, donc vérifiable.
 
 ⚠ **Les quatre premières lignes du bloc gris sont des exemples, pas des valeurs.** `N999SB`, `999`, `ABCD` et `ZZZZZZ` sont des amorces de démonstration : les laisser produit un plan de vol au nom d'un appareil qui n'existe pas. Elles se remplissent depuis l'immatriculation réelle.
 
@@ -598,6 +600,7 @@ La carte anti-répétition. Rien de ce qui suit ne se redemande, ne se recopie, 
 - les limites de vent de travers du type
 - la masse à vide réelle du type dans IF — elle vient de Milan (§9)
 - l'état d'usure de l'appareil en Live et sa puissance de freinage (§7)
+- la séquence de mise en route quand l'appareil en impose une (§7.0)
 - tout ce qui est propre au simulateur : fréquences IF, absence de Clearance Delivery, unicom
 
 ⚠ Deux contrôles à faire sur la route malgré tout : aucun waypoint dupliqué, et FL conforme à la règle semi-circulaire.
@@ -606,7 +609,7 @@ La carte anti-répétition. Rien de ce qui suit ne se redemande, ne se recopie, 
 
 ## 2 · FMS / MCDU
 
-État au build 18266 (26.3 beta), relevé le 19/08/2026.
+État relevé à l'écran le 19/08/2026 sur le **build 18266** (26.3 beta). Le **build 18308** (21/08/2026) a publié des correctifs qui touchent cette section : ils sont rangés en « à revérifier », pas appliqués.
 
 ⚠ La 26.4 est annoncée comme apportant un FMS fonctionnel. Au premier vol sur 26.4, cette section est à reprendre entièrement.
 ⚠ Le cycle 26.3 bouge vite : entre deux builds, une ligne du §2.3 peut devenir fausse sans prévenir. Toute ligne de cette section se vérifie à l'écran avant d'être invoquée en vol.
@@ -660,7 +663,7 @@ Puis, avant repoussage : scratchpad vide, aucun message ambre, mémo T.O tout ve
 
 - **MASSES IMPORTÉES** — non fidèles. Le bloc carburant passe juste, le ZFW non. Observé sur l'A318 : GW 59,3 t avec 8,2 t à bord, soit un ZFW de 51,1 t contre 49,0 t à l'OFP, sans message.
   ⇒ On décolle plus lourd que la masse ayant servi au calcul des vitesses. Vérifier la marge au MTOW sur la masse RÉELLE.
-- **SEC F-PLN** — PAGE NOT YET AVAILABLE. Non cité par le build 18266 : supposé toujours absent, à reconfirmer à l'écran.
+- **SEC F-PLN** — PAGE NOT YET AVAILABLE. Non cité par les builds 18266 ni 18308 : supposé toujours absent, à reconfirmer à l'écran.
 - **OPT / REC MAX (PROG)** — à tirets même en croisière.
 - **VNAV EN MONTÉE** — inexistant. TOD vide et 999:59 tant qu'on monte.
 - **THR RED / ACCEL ALT / ALT DE TRANSITION** — absents du MCDU. Ces trois altitudes se tiennent à la main.
@@ -672,14 +675,22 @@ Puis, avant repoussage : scratchpad vide, aucun message ambre, mémo T.O tout ve
 - **TRANS LVL** — affiché sans préfixe FL. Recouper avec la carte.
 - **CRZ SPEED** — observée à .76 contre .77/.78 planifiés. Écart normal.
 - **CRZ sur PROG** — refusée au sol. Retentable en montée.
-- **TEMPÉRATURES D'HUILE MOTEUR** — négatives au spawn quelle que soit la température extérieure (−18 et −15 °C relevés à SAT +34 °C sur A330-900neo). Affichage seul, sans conséquence connue. Les températures de freins, elles, sont désormais cohérentes.
+- **TEMPÉRATURES D'HUILE MOTEUR** — négatives au spawn quelle que soit la température extérieure (−18 et −15 °C relevés à SAT +34 °C sur A330-900neo). Affichage seul, sans conséquence connue.
 
-**À REVÉRIFIER — corrigé au build 18266, pas encore recontrôlé à l'écran**
-- arrondi du FOB à l'ECAM
-- ILS, course et glide en ROSE VOR et ROSE LS
-- fiabilité de l'accord RADIO NAV et libellé de la station ou piste la plus proche
-- mémo d'alignement ADIRS
-⇒ Ces quatre lignes ne se retirent du dossier qu'après vérification en vol, pas sur la foi du changelog.
+**À REVÉRIFIER — annoncé corrigé par un changelog, pas encore recontrôlé à l'écran**
+
+| Ligne | Build qui l'annonce corrigée |
+|---|---|
+| arrondi du FOB à l'ECAM | 18266 |
+| ILS, course et glide en ROSE VOR et ROSE LS | 18266 |
+| fiabilité de l'accord RADIO NAV et libellé de la station ou piste la plus proche | 18266 |
+| mémo d'alignement ADIRS | 18266 |
+| températures de freins à l'initialisation | 18266 |
+| **indication d'ailerons à l'ECAM Airbus** | 18308 |
+| **cap FCU A320 quand NAV est armé** | 18308 |
+| **saut de manette à l'engagement du mode SPD** | 18308 |
+
+⇒ Ces lignes ne se retirent du dossier qu'après vérification en vol, jamais sur la foi du changelog (§A.3 règle 12).
 
 **DISPONIBLE ET UTILE**
 RAD NAV accorde seul l'ILS d'ARRIVÉE dès l'import.
@@ -793,6 +804,17 @@ Taux 1500–2000 fpm · 250 kt sous 10 000 ft · aérofreins jusqu'à 50 %
 
 Ce que le MCDU remplit seul (piste, ILS, fréquence, élévation, TRANS LVL, LDG CONF) ne se recopie pas ici.
 
+⚠ **CE QUI MANQUE ENCORE, PAR TYPE — à lire avant de choisir l'appareil du vol**
+
+| Type | VFE §6.1 | Vref §6.2 | Tail strike §6.3 |
+|---|---|---|---|
+| A318 / A319 / A320 | relevées | table complète | 11,7° |
+| A321 | `[MANQUE]` | pente estimée, non confirmée | `[MANQUE]` |
+| A330-900neo | `[MANQUE]` | `[MANQUE]` | `[MANQUE]` |
+
+⇒ Ces sept trous datent de trois révisions. Ils se comblent en une session : les VFE se lisent au badin cran par cran, la limite d'assiette se lit dans la fiche du type, la pente Vref sort de deux vols à des masses différentes.
+⚠ Un vol sur A321 ou A330-900neo part donc avec une Vref calculée sur une pente non vérifiée et sans marge d'assiette connue. C'est un point d'arrêt du §8, pas une réserve de bloc 5.
+
 **MINIMA — cartes**
 DA / MDA ____ ft · DH ____ ft · RVR mini ____ m
 FAF ____ ft à ____ NM · course ___°
@@ -846,7 +868,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 | 64,5 t (MLW) | 138 kt |
 | 70 t | 143 kt |
 
-**A321** — pente d'environ 1 kt par tonne, à confirmer au premier vol contre la Vapp du MCDU.
+**A321** — pente d'environ 1 kt par tonne, **non confirmée**. À recouper avec la Vapp du MCDU au premier vol sur le type, avant de s'en servir pour un briefing d'arrivée.
 
 | LW | Vref conf FULL |
 |---|---|
@@ -893,7 +915,7 @@ Il n'y a **pas de vitesse cible dans l'arrondi**. Chercher un chiffre au badin s
 
 - Ce qui se pilote là est **l'assiette**, pas la vitesse.
 - La décélération de l'arrondi est une observation, pas une consigne : TD IAS 128 kt relevé au LANDING REPORT à GW 60,2 t sur A320.
-- ⚠ **Limite de tail strike : 11,7° sur A320 train comprimé, moins sur A321 — fuselage plus long, marge réduite.** Ne pas dépasser 7,5° en arrondi sur A320 ; relever la limite du type avant le premier atterrissage sur A321 ou sur A330-900neo.
+- ⚠ **Limite de tail strike : 11,7° sur A320 train comprimé, moins sur A321 — fuselage plus long, marge réduite.** Ne pas dépasser 7,5° en arrondi sur A320 ; relever la limite du type avant le premier atterrissage sur A321 ou sur A330-900neo (§6, tableau des trous).
 - Assiette figée après le toucher : ne pas reposer le train avant brutalement.
 
 **Toucher visé** : 1000 ft après le seuil, ± 300. ⇒ à recouper avec le 1K MARK du LANDING REPORT.
@@ -914,6 +936,7 @@ configuration finale · Vapp +10 / −5 · dans l'axe et sur le plan · < 1000 f
 Après le toucher : spoilers vérifiés, inverseurs, autobrake, freinage manuel en fin de course. Dégagement complet avant d'annoncer piste dégagée.
 
 ⚠ **Puissance de freinage dégradée relevée à l'Aircraft Health (§7) : le cran d'autobrake se monte d'un cran et la distance disponible se regarde deux fois.** Une piste courte avec des freins usés est un motif de dégagement, pas un défi.
+⚠ **Les relevés d'usure antérieurs au 21/08/2026 sont périmés** — voir §7, Aircraft Health.
 
 ⚠ **REMISE DE GAZ OBLIGATOIRE** : non stabilisé · toucher au-delà de 2000 ft · piste non dégagée · Vapp > Vref + 15 kt en courte · doute sur le vent ou l'axe.
 
@@ -945,6 +968,42 @@ Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstr
 
 ## 7 · PROPRE AU SIMULATEUR
 
+### 7.0 · MISE EN ROUTE PAR LE MENU SYSTEMS — A321neo `[WIP]`
+
+⚠ **SECTION DORMANTE.** Relevée sur une capture Discord de Dan (tag WIP, 15:05), quatre panneaux du menu latéral de l'A321neo. L'appareil n'est pas dans le sélecteur de Milan : **rien ici n'a été vérifié à l'écran**, aucune ligne n'entre dans un calcul, aucune ne franchit le §8. Au premier vol sur le type, la section se relit ligne à ligne et se corrige — ou se supprime.
+
+**Ce qui est visible sur la capture** — quatre panneaux, même colonne latérale `DEV` / `GROUND SERVICES` / `SYSTEMS` / `AP OFF` :
+
+| Panneau | Commandes lues |
+|---|---|
+| ELECTRICAL | EXT PWR · BAT 1 · BAT 2 · GEN 1 · GEN 2 · APU GEN · APU MASTER · APU START |
+| BLEED | APU BLEED · ENG 1 BLEED · ENG 2 BLEED · PACK 1 · PACK 2 · X BLEED SHUT |
+| FUEL | L TK PUMP 1 · L TK PUMP 2 · X FEED · R TK PUMP 1 · R TK PUMP 2 |
+| ENGINE | ENG MASTER 1 · ENG MASTER 2 · NORM |
+
+⚠ **Les quatre vignettes sont tronquées en bas** : au moins une rangée manque à chaque panneau. Ce tableau n'est pas la liste complète des commandes, et la présence de `DEV` indique un build de développement — la disposition livrée peut différer.
+
+**Séquence proposée** `[WIP]` — logique Airbus standard appliquée aux commandes visibles, à confirmer bouton par bouton :
+
+1. **BAT 1** et **BAT 2** sur ON.
+2. Alimentation : **EXT PWR** si la passerelle est branchée (`GROUND SERVICES`), sinon **APU MASTER** puis **APU START**, et **APU GEN** une fois l'APU disponible.
+3. **ADIRS** — absent de ces quatre panneaux. La commande est ailleurs, et c'est elle qui conditionne les PFD (voir juste en dessous). À localiser au premier vol.
+4. **FUEL** : les quatre pompes sur ON, **X FEED** fermé — chaque aile alimente son moteur.
+5. **BLEED** : **APU BLEED** sur ON, **PACK 1** et **PACK 2** coupés le temps du démarrage pour laisser le débit d'air aux moteurs.
+6. **ENGINE** : sélecteur sur **NORM**, puis **ENG MASTER 2**, puis **ENG MASTER 1**.
+7. Après démarrage : **GEN 1** et **GEN 2** en ligne, **APU BLEED** coupé, **PACK 1** et **PACK 2** rétablis, **APU MASTER** coupé.
+
+**Ce qui reste inconnu, à trancher au premier vol** :
+- Le sélecteur moteur ne montre que `NORM`. CRANK et IGN START sont peut-être dans la rangée coupée — ou absents.
+- `X BLEED SHUT` est un bouton unique là où l'Airbus a trois positions. Comportement réel inconnu.
+- Ces boutons commandent-ils la chaîne systèmes, ou seulement un état d'affichage ?
+
+⇒ **Test discriminant, gratuit, deux minutes au parking** : couper un GEN et regarder si la page ELEC du SD bascule ; couper une pompe et regarder si la page FUEL réagit. Une chaîne réellement simulée se voit en cinq secondes. L'indice existe déjà sur la flotte : sur A330-900neo, NORM BRK passe en ambre tant que le moteur 1 est arrêté — la chaîne moteur → hydraulique → freinage est réelle.
+
+⚠ **Ce que ça change pour le briefing si c'est confirmé** : la mise en route cesse d'être un état de départ et devient une séquence à tenir, dans un ordre qui a des conséquences. Cela ajoute un poste avant le mémo T.O, et du temps à réserver avant l'EOBT — à budgéter au §A.2 comme le roulage l'est déjà.
+
+---
+
 ### ALIGNEMENT ADIRS — BLOQUANT, EN PREMIER
 
 Sans alignement, **PFD et ND restent noirs** : drapeaux rouges ATT, ALT, SPD, VS et HDG, les deux ND en HDG MAP NOT AVAIL avec GPS PRIMARY LOST. L'E/WD et le SD, eux, fonctionnent — ils ne dépendent pas des centrales inertielles.
@@ -958,6 +1017,7 @@ Sans alignement, **PFD et ND restent noirs** : drapeaux rouges ATT, ALT, SPD, VS
 Panneau **Aircraft Health** : condition, risque de panne, heures restantes estimées, puissance de freinage.
 
 ⇒ À regarder AVANT de générer l'OFP : un appareil usé change la distance d'atterrissage, donc le choix de piste, donc le dégagement.
+⚠ **Tout relevé d'usure antérieur au 21/08/2026 est périmé.** Jusqu'au build 18308, l'usure des freins était comptée en vol et à l'arrêt : les appareils affichaient une dégradation qu'ils n'avaient pas méritée. Les seuils du §6.5 se reconstruisent sur des relevés postérieurs à ce build.
 ⚠ Puissance de freinage dégradée : voir §6.5. Risque de panne élevé sur une longue étape : le noter au bloc 5, ou changer d'appareil.
 ⚠ Les pannes en Live sont désormais possibles en vol. Le briefing panne du §4 cesse d'être théorique.
 
@@ -1000,7 +1060,8 @@ Un item satisfait passe au vert ; ce qui reste à faire s'affiche en cyan derri�
 
 Durée comparée au taxi fuel de l'OFP · carte sol suivie en continu · QNH confirmé · piste confirmée à l'ATIS
 ⚠ Piste en service ≠ piste prévue : vitesses et flex à recalculer, pas à ajuster. La SID, elle, se refait au MCDU (§2.1).
-⚠ **Alertes de conflit de piste** : entrer sur une piste active avec du trafic entrant, ou s'approcher d'une piste occupée, déclenche désormais un avertissement. Il se traite, il ne se ferme pas.
+⚠ **Alertes de conflit de piste — leur portée a changé au build 18308.** Elles sont **supprimées dès qu'on est calé sur une Tower ou une Ground active** : l'ATC est censé assurer la séparation, l'alerte ne se déclenche plus. Elle ne subsiste donc que hors contrôle.
+⇒ Conséquence : sous ATC, aucun filet automatique à l'entrée de piste. La vérification visuelle de la finale avant d'aligner redevient la seule protection. Hors ATC, l'alerte se traite, elle ne se ferme pas.
 Avant décollage : mémo T.O tout vert, transpondeur ALT, landing lights, strobes, A/THR armé, vitesses affichées, approche finale regardée.
 
 ### FRÉQUENCES ET ATC
@@ -1018,14 +1079,28 @@ Frein de parc · feux de position seuls · carburant restant relevé · AIDS FLI
 
 ## 8 · GO / NO-GO
 
-**BLOQUANT** — quatre points, pas un de plus :
+**BLOQUANT** — cinq points, pas un de plus :
 - masse hors MTOW ou MLW
 - vitesses calculées pour une autre piste que celle attribuée
 - dégagement inutilisable à l'ETA
 - bloc inférieur à la somme des postes
+- **table Vref absente ou non confirmée pour le type volé** (§6.2) — sans elle, la Vapp du briefing n'a pas de base
 
 **À VÉRIFIER, non bloquant** :
-OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **34 cellules des cartouches renseignées** · **neuf champs du §0.1 renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · Aircraft Health regardé · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
+OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **34 cellules des cartouches renseignées** · **neuf champs du §0.1 renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · Aircraft Health regardé, relevé postérieur au 21/08 · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
+
+**POINTS OUVERTS — se ferment par une observation, jamais par déduction** :
+
+| Point | Comment il se ferme | Depuis |
+|---|---|---|
+| Parenthèse de traduction des libellés (§A.5 règle 4) | un `window.debugBriefing()` sur la prochaine feuille chargée | REV 19 |
+| VFE A321 et A330-900neo (§6.1) | une descente, cran par cran, au ruban | REV 15 |
+| Vref A321 confirmée, A330-900neo à créer (§6.2) | deux vols à des masses différentes | REV 17 |
+| Limite de tail strike A321 et A330-900neo (§6.3) | fiche du type | REV 17 |
+| Huit lignes « à revérifier » du §2.3 | une observation à l'écran chacune | REV 18 / REV 20 |
+| Section §7.0, A321neo | le premier vol sur le type | REV 20 |
+
+⚠ Le premier de cette liste est le seul capable de faire **lire une valeur fausse sans rien afficher**. Les autres se voient ; celui-là se vole.
 
 ⇒ Le mémo T.O couvre à lui seul volets, spoilers, ceintures, cabine, autobrake et configuration décollage. Ces six lignes ne se revérifient pas à la main : elles sont vertes, ou elles ne le sont pas.
 
@@ -1047,10 +1122,12 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 | A320 | 42 100 kg | `[SIM]`, donné par Milan | 78 000 / 66 500 |
 | A321 | 43 600 kg | `[SIM]`, donné par Milan | 93 800 / 77 800 |
 | A330 (type exact non précisé) | 129 811 kg | `[SIM]`, donné par Milan | 242 000 / 185 000 |
+| A330 (seconde variante) | 129 811 kg | `[SIM]`, donné par Milan | 251 000 / 185 000 |
 | ____ | ____ | ____ | ____ |
 
 ⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0.5). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
 ⚠ Ne jamais déduire la masse à vide d'un type de celle d'un type voisin : l'écart constaté sur l'A321 était de 4 900 kg, soit 4,9 t d'erreur sur le ZFW, donc sur les vitesses et la flex.
+⚠ Deux variantes d'A330 partagent la même masse à vide pour des MTOW différents : le MTOW ne suffit donc pas à identifier la variante volée, et la ligne se choisit sur ce que Milan annonce.
 
 **IDENTIFICATION ET ÉQUIPEMENT — REGISTRE**
 
@@ -1077,8 +1154,13 @@ TD IAS / GS ____ / ____ · Vz au toucher ____ fpm · G max ____ · écart d'axe 
 Comportement inattendu observé ____ · valeur affichée jugée fausse ____ · ligne du §2.3 à corriger ____
 Ligne de la liste « à revérifier » confirmée corrigée ____ ⇒ elle sort du dossier à la révision suivante.
 
+**SYSTÈMES — SI LE TYPE VOLÉ EN IMPOSE UNE SÉQUENCE (§7.0)**
+Commande introuvable ____ · bouton sans effet observable ____ · page SD qui n'a pas réagi ____
+⇒ Chaque ligne remplie fait passer une ligne du §7.0 de `[WIP]` à `[SIM]`, ou la supprime.
+
 **LECTURE DE LA FEUILLE PAR LA CHECKLIST**
 Champ resté vide ou faux à l'écran ____ · cellule d'origine ____ · règle du §A.5 en cause ____
+Résultat du `window.debugBriefing()` : forme des libellés retenue ____ ⇒ ferme le point ouvert du §A.5.
 ⇒ toute case mal lue est un défaut de format de ma part avant d'être un défaut de la page.
 
 **Rubrique du dossier qui a fait doublon avec l'OFP, le MCDU ou le mémo T.O ce vol** : ____
@@ -1086,4 +1168,4 @@ Champ resté vide ou faux à l'écran ____ · cellule d'origine ____ · règle d
 
 ---
 
-**FIN · REV 19 · Simulation uniquement**
+**FIN · REV 20 · Simulation uniquement**
