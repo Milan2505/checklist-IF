@@ -30,5 +30,18 @@ const el = {
   btnOpen:  document.getElementById('btnOpen'),
   btnLoad:  document.getElementById('btnLoad'),
   btnReset: document.getElementById('btnReset'),
-  file:     document.getElementById('file')
+  file:     document.getElementById('file'),
+  /* blocs aeroport et panneau d'identite (ports.js) */
+  ports:    document.getElementById('ports'),
+  portDep:  document.getElementById('portDep'),
+  portArr:  document.getElementById('portArr'),
+  depIcao:  document.getElementById('depIcao'),
+  arrIcao:  document.getElementById('arrIcao'),
+  depRwy:   document.getElementById('depRwy'),
+  arrRwy:   document.getElementById('arrRwy'),
+  portPop:  document.getElementById('portPop'),
+  portTitle:document.getElementById('portTitle'),
+  portList: document.getElementById('portList'),
+  portClose:document.getElementById('portClose'),
+  portBack: document.getElementById('portBack')
 };

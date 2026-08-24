@@ -98,7 +98,7 @@ function readValues(lines){
 }
 
 /* ------------------------------------------------------------
-   4 · CARTOUCHES — completude des 34 cellules (REV 19 §A.4)
+   4 · CARTOUCHES — completude des 36 cellules (REV 23 §A.4)
    La REV 18 n'avait qu'un cartouche, donc un seul tableau : on validait
    "le premier tableau de la section Cartouche". La REV 19 en a CINQ — ①
    identite, ② pistes, ③ vitesses, ④ carburant, ⑤ masses — et une feuille

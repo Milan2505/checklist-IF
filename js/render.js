@@ -32,6 +32,7 @@ function refreshValues(){
     node.textContent = v || '___';
     node.classList.toggle('empty', !v);
   });
+  paintPorts();                    /* les blocs aéroport suivent les mêmes valeurs */
 }
 
 const secs = [];   /* une section par phase, dans l'ordre */

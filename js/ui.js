@@ -25,6 +25,7 @@ el.btnReset.addEventListener('click', ()=>{
     if(i){ i.value = ''; i.removeAttribute('title'); i.parentElement.classList.remove('auto'); }
   });
   render();
+  paintPorts();
   save();
   window.scrollTo({top:0, behavior:'smooth'});
   toast('Checklist remise à zéro');

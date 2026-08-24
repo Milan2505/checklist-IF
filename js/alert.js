@@ -56,12 +56,20 @@ function validateSheet(){
   paintAlert();
   paintBadge();
   paintUnresolved();
+  paintPorts();
+}
+
+/* Cles attendues au cartouche et non resolues a la lecture. Une seule definition :
+   le panneau Valeurs et le panneau d'identite doivent marquer EXACTEMENT les
+   memes champs, sinon un defaut visible d'un cote devient invisible de l'autre. */
+function unresolvedKeys(){
+  return ((cartouche && cartouche.unresolved) ? cartouche.unresolved : [])
+         .concat(refus.map(r=>r.key));
 }
 
 /* champ attendu mais non resolu : etat visuel distinct d'une case simplement vide */
 function paintUnresolved(){
-  const ko = ((cartouche && cartouche.unresolved) ? cartouche.unresolved : [])
-             .concat(refus.map(r=>r.key));
+  const ko = unresolvedKeys();
   FIELDS.forEach(([k])=>{
     const inp = document.getElementById('f-'+k);
     if(!inp) return;

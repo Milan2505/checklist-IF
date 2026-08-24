@@ -19,7 +19,7 @@
    Les libelles sont ceux du formulaire francais, pas des abreviations. */
 const FIELDS = [
   /* ---------- ce qui se tape dans SimBrief, dans l'ordre de la page ---------- */
-  ['airline','Compagnie aérienne','1 · Informations sur le vol'],
+  ['airline','Compagnie aérienne (code OACI)','1 · Informations sur le vol'],
   ['fltnum','Numéro du vol','1 · Informations sur le vol'],
   ['route','Partir → Arriver','1 · Informations sur le vol'],
   ['degag','Alterner','1 · Informations sur le vol'],

@@ -41,6 +41,31 @@
     <input type="file" id="file" accept=".md,.markdown,.txt" hidden>
   </div>
 
+  <!-- Blocs aéroport. Ce qu'ils portent reste lisible sans clic ; le panneau
+       ajoute l'identité, il ne déplace rien. -->
+  <div class="ports" id="ports">
+    <button type="button" class="port" id="portDep" aria-haspopup="dialog" aria-expanded="false" aria-controls="portPop">
+      <span class="port-role">Départ</span>
+      <span class="port-icao" id="depIcao">___</span>
+      <span class="port-rwy">piste <b id="depRwy">___</b></span>
+      <span class="port-more" aria-hidden="true">identité</span>
+    </button>
+    <span class="port-link" aria-hidden="true">→</span>
+    <button type="button" class="port" id="portArr" aria-haspopup="dialog" aria-expanded="false" aria-controls="portPop">
+      <span class="port-role">Arrivée</span>
+      <span class="port-icao" id="arrIcao">___</span>
+      <span class="port-rwy">piste <b id="arrRwy">___</b></span>
+      <span class="port-more" aria-hidden="true">identité</span>
+    </button>
+
+    <div class="port-pop" id="portPop" role="dialog" aria-labelledby="portTitle" hidden>
+      <span class="pp-title" id="portTitle">Identité</span>
+      <dl class="pp-list" id="portList"></dl>
+      <button type="button" class="pp-close" id="portClose">Fermer</button>
+    </div>
+  </div>
+  <div class="port-back" id="portBack" hidden></div>
+
   <div class="alert" id="alert" role="alert" hidden></div>
 
   <section class="sheet" id="valuesSheet" hidden>
@@ -102,6 +127,7 @@
 <script src="js/parser/tables.js"></script>
 <script src="js/parser/extract.js"></script>
 <script src="js/alert.js"></script>
+<script src="js/ports.js"></script>
 <script src="js/refs.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>

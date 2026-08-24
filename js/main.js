@@ -36,6 +36,7 @@ async function autoLoad(){
   buildValues();
   syncOpenBtn();
   render();
+  paintPorts();
   validateSheet();          /* la feuille restaurée du stockage se revalide */
   await autoLoad();
 })();

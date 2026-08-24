@@ -251,3 +251,67 @@ header{
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:2px 2px 16px}
 .legend i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- blocs aeroport + panneau d'identite (REV 23) ---------- */
+.ports{position:relative;display:flex;align-items:stretch;gap:8px;margin:0 0 12px}
+/* z-index seulement quand un panneau est ouvert : sinon le bloc passerait
+   au-dessus de l'entete collante au defilement. */
+.ports.open{z-index:52}
+.port{
+  flex:1 1 0;min-width:0;position:relative;cursor:pointer;text-align:left;
+  display:flex;flex-direction:column;gap:3px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:10px 12px;color:var(--txt);font-family:var(--body);
+}
+.port:hover{border-color:#2d4351}
+.port:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.port[aria-expanded="true"]{border-color:var(--cyan)}
+.port-role{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.port-icao{font-family:var(--display);font-size:22px;letter-spacing:.06em;line-height:1.05}
+.port-icao.empty{color:var(--muted)}
+.port-rwy{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.port-rwy b{color:var(--txt);font-weight:600}
+.port-rwy b.empty{color:var(--muted);font-weight:400}
+/* affordance : le bloc doit se VOIR cliquable, pas se deviner */
+.port-more{
+  position:absolute;top:9px;right:10px;
+  font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--cyan);border:1px solid #24414e;border-radius:20px;padding:2px 7px;
+}
+.port:hover .port-more,.port[aria-expanded="true"] .port-more{border-color:var(--cyan)}
+.port-link{align-self:center;color:var(--muted);font-size:15px;flex:0 0 auto}
+
+/* superpose, jamais inline : la page ne se pousse pas vers le bas */
+.port-back{position:fixed;inset:0;z-index:50}
+.port-pop{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:var(--panel-2);border:1px solid #2d4351;border-radius:var(--r);
+  padding:12px 14px 14px;box-shadow:0 14px 34px rgba(0,0,0,.5);
+}
+.pp-title{
+  display:block;font-family:var(--display);font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;
+}
+/* libelle et valeur, rien d'autre : pas de tableau, pas de cadre decoratif */
+.pp-list{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;align-items:baseline}
+.pp-list dt{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pp-list dd{margin:0;font-family:var(--mono);font-size:14px;color:var(--cyan);overflow-wrap:anywhere}
+.pp-list dd.empty{color:var(--muted)}
+.pp-list dd.unresolved{color:var(--amber)}
+.pp-list dd.unresolved::after{content:" ⚠ non résolu";font-size:10px;letter-spacing:0}
+/* pleine largeur et 44 px : atteignable au pouce sur telephone */
+.pp-close{
+  margin-top:13px;width:100%;min-height:44px;cursor:pointer;
+  font-family:var(--display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+  background:transparent;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+}
+.pp-close:hover{border-color:#2d4351}
+.pp-close:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* ecran etroit : les deux blocs l'un sous l'autre, le panneau tient dans la
+   largeur du conteneur — aucun defilement horizontal */
+@media (max-width:430px){
+  .ports{flex-wrap:wrap}
+  .port{flex:1 1 100%}
+  .port-link{display:none}
+}
