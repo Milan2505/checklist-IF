@@ -3,6 +3,29 @@
    Definit PHASES : les phases de vol et leurs lignes.
    Aucune dependance. Lu par : render.js, progress.js, refs.js.
 ============================================================ */
+
+/* ------------------------------------------------------------
+   BLOCS CONDITIONNES — UNE SEULE SOURCE DE VERITE
+   Un item qui porte `bloc:'X'` n'existe dans le deroule que si le bloc X
+   est actif. Hors condition il n'est ni affiche, ni compte : ni au total
+   de sa phase, ni a la progression generale.
+
+   `types` porte les codes qui activent le bloc, et RIEN d'autre ne les
+   porte : le jour ou un second bloc specifique arrive, il s'ajoute A CETTE
+   TABLE — il ne se greffe pas sur une condition ecrite ailleurs.
+
+   Une liste `types` VIDE est une section dormante au sens strict : aucun
+   type ne l'active, elle attend d'etre reveillee par une observation. Le
+   §6.7 est dans ce cas — le mode n'existe dans aucun build connu. C'est le
+   meme mecanisme que le bloc de type, pas un second.
+
+   Type non resolu = aucun bloc actif. Un type inconnu n'active jamais un
+   bloc specifique, et la trace le dit (voir blocTrace() dans render.js).
+------------------------------------------------------------ */
+const BLOCS_TYPE = [
+  { bloc:'7.0.A', nom:'A321neo · mise en route', types:['A21N'] },
+  { bloc:'6.7',   nom:'approche automatique',    types:[] }
+];
 const PHASES = [
   { n:"Feuille SimBrief", s:"Le formulaire, dans l'ordre de la page", items:[
     {t:"Aircraft Health consulté avant de générer l'OFP", d:"Condition, risque de panne, puissance de freinage. Un appareil usé change la distance d'atterrissage, donc la piste, donc le dégagement. Tout relevé antérieur au 21/08/2026 est périmé : jusqu'au build 18308 l'usure des freins était comptée en vol ET à l'arrêt, les appareils affichaient une dégradation qu'ils n'avaient pas méritée.", r:"7", w:1},
