@@ -11,7 +11,7 @@
 
    key       cle de FIELDS
    labels    libelles acceptes, EGALITE STRICTE apres normLabel()
-   kind      'int' | 'dec' | 'code' | 'text'
+   kind      'int' | 'dec' | 'cap' | 'code' | 'text'
    required  vrai pour les 36 cellules des cinq cartouches (REV 23 §A.4)
    max       longueur maximale de la cellule (defaut 60)
    display   libelle affiche dans le bandeau
@@ -35,7 +35,10 @@ const REGISTRE = [
 
   /* ---- cartouche ② · pistes, portes et degagement — 8 ---- */
   { key:'piste',    labels:['depart rwy','depart runway','piste depart','piste dep.'], kind:'code', required:true, display:'Piste départ' },
-  { key:'capdep',   labels:['cap depart'], kind:'int', required:true, display:'Cap départ' },
+  /* REV 28 · 'cap' et non 'int' : un cap s'ecrit sur trois chiffres et ne
+     sert a aucun calcul ici. Le passage par parseFloat mangeait le zero
+     initial — « 043 » ressortait « 43 » (voir validate.js). */
+  { key:'capdep',   labels:['cap depart'], kind:'cap', required:true, display:'Cap départ' },
   /* REV 23 · les deux portes. 'code' comme les pistes : A12, 24B, T2-15 passent,
      une phrase ne passe pas. NIL est un code valide — c'est voulu : une porte non
      observee sort en NIL, valeur nue et lisible, jamais en [MANQUE] (§A.5 regle 7).
@@ -59,7 +62,7 @@ const REGISTRE = [
   { key:'portearr', labels:['porte arrivee','arrival gate','gate arrivee'], kind:'code', max:6, required:true, display:'Porte arrivée' },
   { key:'autobrkarr',labels:['autobrake arrivee'], kind:'text', max:4, required:true, display:'Autobrake arrivée' },
   { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', required:true, display:'Dégagement' },
-  { key:'degcap',   labels:['cap degagement'], kind:'int', required:true, display:'Cap dégagement' },
+  { key:'degcap',   labels:['cap degagement'], kind:'cap', required:true, display:'Cap dégagement' },
   { key:'degdist',  labels:['distance degagement'], kind:'int', required:true, display:'Distance dégagement' },
 
   /* ---- cartouche ③ · vitesses et trajectoire — 14 ---- */

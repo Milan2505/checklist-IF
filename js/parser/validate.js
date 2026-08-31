@@ -41,6 +41,30 @@ function validate(e, raw){
   const max = e.max || 60;
   if(v.length > max) return { ok:false, reason:'trop long ('+v.length+' car., max '+max+')' };
 
+  /* ------------------------------------------------------------
+     REV 28 · CAP — UN CODE A TROIS CHIFFRES, PAS UN NOMBRE
+     `capdep` et `degcap` etaient declares 'int'. Un 'int' passe par
+     parseFloat, qui mange le zero initial : « 043 » ressortait « 43 », et
+     la page affichait autre chose que ce que la feuille portait. Aucune
+     feuille ne l'avait montre avant U21703 — la premiere a porter un cap
+     sous 100.
+     Un cap ne sert a AUCUN calcul dans cette page : il se lit, il ne se
+     compte pas. Il se valide donc comme un code et se rend sur trois
+     chiffres, toujours.
+     Genre declare, et non deux `xf` poses sur les deux entrees : le
+     prochain champ de cap heritera du comportement sans qu'on y pense.
+     UNITE est retire comme pour un 'int' : une feuille qui ecrit « 224° »
+     etait acceptee hier, elle doit l'etre encore.
+  ------------------------------------------------------------ */
+  if(e.kind === 'cap'){
+    const s = digits(v).replace(UNITE, '');
+    if(!/^\d{1,3}$/.test(s))
+      return { ok:false, reason:'cap attendu, trois chiffres au plus : « '+v+' »' };
+    const n = parseInt(s, 10);
+    if(n > 360) return { ok:false, reason:'cap hors plage : '+n+' — 360 au maximum' };
+    return { ok:true, value:String(n).padStart(3, '0') };
+  }
+
   if(e.kind === 'int' || e.kind === 'dec'){
     const s = digits(v).replace(UNITE, '');
     const motif = e.kind === 'int' ? /^\d+$/ : /^\d+([.,]\d+)?$/;
