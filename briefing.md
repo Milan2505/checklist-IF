@@ -1193,7 +1193,7 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 - Si `APU GEN` doit être coupé à la main (8.8) ou se dépose seul avec l'APU. **Comportement — celui-là ne se lit sur aucune image.**
 
 **COMPTE DES SOURCES** — 45 lignes, dont **32 portent `[WIP]`**. Une même ligne peut porter deux marqueurs : `[WIP]` dit que le bouton n'a pas été vu à l'écran, `[RÉEL]` que l'attendu vient de l'Airbus réel.
-⚠ Le chiffre de « 30 lignes `[WIP]` » porté ici et au §8 depuis la REV 21 était faux, et l'est resté en REV 23. Corrigé des deux côtés.
+⚠ Le compte est passé de 30 à 32 en REV 24, sans qu'aucune ligne antérieure change de marqueur : les REV 21 à 23 portaient 42 lignes dont 30 `[WIP]`, chiffre exact pour ce tableau. Les trois lignes ajoutées en REV 24 — `2.2`, `2.3`, `9.5` — en portent deux, d'où 32 sur 45.
 
 **CE QUE LE LIVE DU 28/08/2026 A FERMÉ — ÉTAT AU 29/08**
 
