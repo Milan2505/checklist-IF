@@ -167,7 +167,10 @@ header{
   background:none;border:0;border-bottom:1px solid var(--line-soft);color:inherit;text-align:left;
   padding:13px 14px;cursor:pointer;min-height:52px;font-family:var(--body);font-size:15px;
 }
-.item:last-child{border-bottom:0}
+/* la derniere ligne d’une phase perd son filet — qu’elle soit suivie de rien,
+   ou de son propre panneau de section (nth-last-child(2)). */
+.item:last-child,
+.item:nth-last-child(2){border-bottom:0}
 .item:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
 .box{
   width:21px;height:21px;flex:none;margin-top:1px;border-radius:5px;

@@ -2,7 +2,7 @@
    RENDU DE LA CHECKLIST
    Pastilles de valeurs ({{cle}}), construction des phases, cochage,
    depliage et defilement. Depend de : data/phases.js, state.js, dom.js.
-   Appelle paintProgress() (progress.js), markRefs() et openRef() (refs.js).
+   Appelle paintProgress() (progress.js), markRefs() et toggleRef() (refs.js).
 ============================================================ */
 /* ============================================================
    RENDU

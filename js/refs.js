@@ -1,7 +1,7 @@
 /* ============================================================
    RENVOIS § ET LECTEUR DE SECTION
    Disponibilite des renvois, extraction d'une section du markdown,
-   rendu markdown minimal, ouverture et fermeture du tiroir.
+   rendu markdown minimal, depliage en place sous la ligne qui cite la section.
    Depend de : data/phases.js, state.js, dom.js, briefing.js, render.js (esc).
 ============================================================ */
 /* tous les renvois cites par la checklist, sans doublon */
