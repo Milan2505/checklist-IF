@@ -300,6 +300,10 @@ header{
 .legend-src{padding-top:0;margin-top:-10px}
 .legend-src .it-tag{margin-left:0;margin-right:6px;font-weight:400}
 /* NIL en legende : le meme habillage que dans les cases, pas une pastille de couleur */
+/* le terminal est une valeur RELEVEE : meme cyan que les autres, jamais
+   l’habillage grise de NIL. La legende le montre tel qu’il s’affiche. */
+.legend .lg-term{color:var(--cyan);font-family:var(--mono);font-weight:400;margin-right:6px;
+  border:1px solid var(--line);border-radius:4px;padding:0 5px;background:#0A1319}
 .legend .lg-nil{color:var(--muted);font-style:italic;font-weight:400;margin-right:6px;
   border:1px dashed #2b3a44;border-radius:4px;padding:0 5px;background:#0B1218}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

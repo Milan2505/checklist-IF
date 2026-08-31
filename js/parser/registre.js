@@ -38,8 +38,15 @@ const REGISTRE = [
   { key:'capdep',   labels:['cap depart'], kind:'int', required:true, display:'Cap départ' },
   /* REV 23 · les deux portes. 'code' comme les pistes : A12, 24B, T2-15 passent,
      une phrase ne passe pas. NIL est un code valide — c'est voulu : une porte non
-     observee sort en NIL, valeur nue et lisible, jamais en [MANQUE] (§A.5 regle 7). */
-  { key:'portedep', labels:['porte depart','departure gate','gate depart'], kind:'code', required:true, display:'Porte départ' },
+     observee sort en NIL, valeur nue et lisible, jamais en [MANQUE] (§A.5 regle 7).
+     REV 27 · TROIS NIVEAUX, donc `max:6`. Une base de statut sert souvent le
+     TERMINAL sans servir le poste : la cellule porte alors le terminal prefixe T
+     — T2, TA, TIBZ. Six caracteres couvrent les deux formes, un poste (50-5,
+     T2-15) comme un terminal, et refusent toute phrase. Sans ce `max`, la seule
+     borne etait le motif 'code' a douze caracteres — assez large pour laisser
+     passer une bribe de methode. Aucune cle Terminal n'est creee : le terminal
+     n'existe que par defaut de la porte, il vit dans la meme cellule. */
+  { key:'portedep', labels:['porte depart','departure gate','gate depart'], kind:'code', max:6, required:true, display:'Porte départ' },
   /* REV 26 · les deux crans d'autobrake, sortis des « repères non lus ».
      'text' et non 'int' : les valeurs attendues sont MAX, MED, LOW autant que
      1, 2, 3 — un type numerique refuserait les trois premieres. max:4 refuse
@@ -49,7 +56,7 @@ const REGISTRE = [
      change et rien signale. */
   { key:'autobrkdep',labels:['autobrake depart'], kind:'text', max:4, required:true, display:'Autobrake départ' },
   { key:'arrpiste', labels:['arrival rwy','arrivee runway','piste arrivee','piste arr.'], kind:'code', required:true, display:'Piste arrivée' },
-  { key:'portearr', labels:['porte arrivee','arrival gate','gate arrivee'], kind:'code', required:true, display:'Porte arrivée' },
+  { key:'portearr', labels:['porte arrivee','arrival gate','gate arrivee'], kind:'code', max:6, required:true, display:'Porte arrivée' },
   { key:'autobrkarr',labels:['autobrake arrivee'], kind:'text', max:4, required:true, display:'Autobrake arrivée' },
   { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', required:true, display:'Dégagement' },
   { key:'degcap',   labels:['cap degagement'], kind:'int', required:true, display:'Cap dégagement' },
