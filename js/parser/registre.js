@@ -104,8 +104,17 @@ const REGISTRE = [
      acceptees, le §0.5 ecrit encore « Poids zéro carburant (ZFW, KG) ». */
   { key:'zfw',      labels:['zfw','poids zero carburant'], kind:'int', required:true, display:'Poids zéro carburant' },
   { key:'trip',     labels:['trip'], kind:'int', required:true, display:'Trip' },
-  { key:'tow',      labels:['tow'], kind:'dec', required:true, display:'TOW' },
-  { key:'lw',       labels:['lw','landing weight'], kind:'dec', required:true, display:'LW' },
+  /* REV 28 · 'int' et non 'dec' : 'dec' convertissait les kilos en tonnes
+     au-dessus de 1000 — une feuille portant « 62260 » faisait afficher
+     « 62.3 ». C'etaient les deux SEULES cellules de cartouche dont le
+     nombre affiche n'etait pas celui ecrit dans la feuille, alors que le
+     controle avant envoi du §A.5 demande de comparer l'un a l'autre.
+     La page ne calcule rien avec ces deux masses : elle les affiche. Elles
+     sortent donc en kilos, comme la feuille les porte. La table Vref du
+     §6.2 reste en tonnes — c'est une lecture humaine, pas une conversion
+     que la page doit faire a la place du pilote. */
+  { key:'tow',      labels:['tow'], kind:'int', required:true, display:'TOW' },
+  { key:'lw',       labels:['lw','landing weight'], kind:'int', required:true, display:'LW' },
 
   /* ---- hors cartouche : formulaire, colonne « à taper » (§A.5) ---- */
   { key:'fltnum',   labels:['flight number','numero du vol'], kind:'int',  display:'N° de vol' },

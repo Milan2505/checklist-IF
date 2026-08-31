@@ -97,6 +97,6 @@ const FIELDS = [
 
   ['oew','Masse à vide IF kg','Cartouche ⑤ · masses'],
   ['trip','Trip kg','Cartouche ⑤ · masses'],
-  ['tow','TOW t','Cartouche ⑤ · masses'],
-  ['lw','LW t','Cartouche ⑤ · masses'],
+  ['tow','TOW kg','Cartouche ⑤ · masses'],
+  ['lw','LW kg','Cartouche ⑤ · masses'],
 ];
