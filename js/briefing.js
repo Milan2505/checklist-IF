@@ -11,7 +11,7 @@
    - le DOSSIER porte la methode et les sections § ; son §0 est un gabarit,
      ses colonnes decrivent quoi taper et ne contiennent aucune valeur ;
    - la FEUILLE DU VOL porte les valeurs du jour.
-   Un fichier qui resout au moins dix renvois est un dossier, pas une feuille. */
+   Trois issues : DOSSIER, FEUILLE, ou GABARIT VIERGE refuse (voir applyDoc). */
 let docIdx = null, sheetIdx = null;
 
 function buildIndex(txt){
@@ -89,6 +89,32 @@ function countRefs(idx){
    readValues() ne touche a aucun global : la mesure est sans effet de bord.
 ------------------------------------------------------------ */
 const CELLULES_FEUILLE = 8;
+/* ------------------------------------------------------------
+   SEUIL DE RENVOIS — MESURE, PAS ESTIMATION
+   Un DOSSIER porte l'index complet de ses sections : 31 a 35 renvois §
+   releves sur les REV 21 a 27. Une feuille et un gabarit n'en portent que
+   DIX, ceux du §0 qu'ils recopient.
+   Le seuil etait a 10 : le gabarit vierge l'atteignait tout juste, et un
+   gabarit charge passait donc pour le dossier de reference — il ecrasait
+   state.doc en silence. 20 laisse onze renvois de marge du cote dossier et
+   dix du cote feuille.
+------------------------------------------------------------ */
+const RENVOIS_DOSSIER = 20;
+
+/* ------------------------------------------------------------
+   TROISIEME ISSUE — LE GABARIT VIERGE
+   Structurellement, un gabarit et une feuille dont les cellules sont vides
+   sont LE MEME DOCUMENT : memes tableaux, memes libelles, meme nombre de
+   renvois. Mesure a l'appui — gabarit 66 libelles reconnus / 2 resolus,
+   dossier 99 / 2. Compter les libelles RECONNUS ne les separe donc pas : ce
+   critere ferait passer les sept dossiers du depot pour des gabarits.
+   Ce qui les separe vraiment, c'est que le gabarit DIT ce qu'il est. On lit
+   sa declaration, et on la corrobore par le nombre de cellules resolues :
+   un fichier qui s'annonce gabarit mais porte les valeurs d'un vol est une
+   feuille, et il est traite comme telle.
+------------------------------------------------------------ */
+const MARQUE_GABARIT = /^\s*\*\*GABARIT VIERGE\*\*\s*$/mi;
+
 function compteCellules(txt){
   const vals = readValues(txt.split('\n')).vals;
   let n = 0;
@@ -99,9 +125,19 @@ function compteCellules(txt){
 function applyDoc(txt){
   const idx = buildIndex(txt);
   const cells = compteCellules(txt);
-  const dossier = cells < CELLULES_FEUILLE && countRefs(idx) >= 10;
   const m = txt.match(/REV\s*(\d+)/i);
   const rev = m ? ('REV '+m[1]) : 'BRIEFING';
+
+  /* GABARIT : on ne charge RIEN. state.doc, state.sheet, le badge et les
+     cases restent ou ils sont — et le refus s'affiche, parce qu'un refus
+     silencieux ressemblerait a un chargement reussi. */
+  if(MARQUE_GABARIT.test(txt) && cells < CELLULES_FEUILLE){
+    alertGabarit(rev, cells);
+    return { refs:availableRefs().length, vals:0, dossier:false, gabarit:true,
+             rev:rev, cells:cells, anomalies:0 };
+  }
+
+  const dossier = cells < CELLULES_FEUILLE && countRefs(idx) >= RENVOIS_DOSSIER;
   if(dossier){ state.doc = txt;   state.rev = rev;      docIdx = idx;   docDirty = true; }
   else       { state.sheet = txt; state.sheetRev = rev; sheetIdx = idx; sheetDirty = true; }
   /* seule la feuille du vol alimente les cases : le gabarit du dossier remplirait
@@ -116,7 +152,7 @@ function applyDoc(txt){
   paintBadge();
   markRefs();
   save();
-  return { refs:availableRefs().length, vals:vals, dossier:dossier, rev:rev,
+  return { refs:availableRefs().length, vals:vals, dossier:dossier, gabarit:false, rev:rev,
            anomalies: cartouche ? (cartouche.bad.length + cartouche.unknown.length + cartouche.missing.length) : 0 };
 }
 
@@ -125,6 +161,7 @@ function announceDoc(r){
   const tot = ALL_REFS.length;
   const b = r.refs === tot ? 'les '+tot+' renvois § sont lisibles'
                            : r.refs+' renvoi'+(r.refs>1?'s':'')+' § sur '+tot;
+  if(r.gabarit){ toast(r.rev+' · gabarit vierge — rien chargé, voir le bandeau'); return; }
   if(r.dossier){ toast(r.rev+' · dossier chargé — '+b); return; }
   const a = r.vals ? r.vals+' valeur'+(r.vals>1?'s':'')+' reprise'+(r.vals>1?'s':'')
                    : 'aucune valeur reconnue';

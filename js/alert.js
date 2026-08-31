@@ -4,6 +4,24 @@
    remplit les champs sans jamais ecraser une saisie du pilote.
    Depend de : data/fields.js, state.js, dom.js, render.js, parser/extract.js.
 ============================================================ */
+/* ------------------------------------------------------------
+   BANDEAU DU GABARIT VIERGE
+   Un refus silencieux ressemble a un chargement reussi : c'est exactement le
+   defaut que tout le reste de cette page combat. Le gabarit refuse le DIT, et
+   dit surtout ce qui n'a PAS bouge — le dossier, la feuille, le badge, les
+   cases. Sans cette phrase, un chargement sans effet passerait pour un succes.
+------------------------------------------------------------ */
+function alertGabarit(rev, cells){
+  el.alert.innerHTML =
+    '<strong>Gabarit vierge — rien n\'a été chargé.</strong> '+
+    esc(rev)+' · '+cells+' cellule'+(cells > 1 ? 's' : '')+' résolue'+(cells > 1 ? 's' : '')+
+    ' sur '+REQUIRED.length+' : ce fichier est le MODÈLE des feuilles, pas une feuille. '+
+    'Il ne porte aucune valeur de vol à reprendre.'+
+    '<span class="alert-note">Le dossier et la feuille déjà chargés n\'ont pas bougé, '+
+    'ni le badge, ni les cases. Chargez la feuille du vol remplie, ou le dossier de référence.</span>';
+  el.alert.hidden = false;
+}
+
 /* bandeau d'anomalie : une case vide et signalee vaut mieux qu'une valeur fausse */
 function paintAlert(){
   const c = cartouche, parts = [];
