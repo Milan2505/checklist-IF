@@ -185,6 +185,36 @@ header{
 }
 .item.wip .box{border-color:#3a3160}
 .item.done .it-wip{opacity:.5}
+
+/* REV 23 · sequence deroulee.
+   `it-ord` porte le rang de la ligne dans la sequence (1.1 ... 10.3) —
+   c'est lui qui rend l'ordre lisible sans lire le texte.
+   `item.sub` est une tete de phase : elle se coche comme les autres, mais
+   elle annonce un ETAT a obtenir, pas un bouton a pousser. */
+.it-ord{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;
+  color:var(--muted);border:1px solid var(--line);background:var(--panel-2);
+  border-radius:4px;padding:1px 5px;margin-right:8px;white-space:nowrap;
+  vertical-align:1px;
+}
+.item.done .it-ord{opacity:.5}
+.item.sub{background:#0C161D}
+.item.sub .it-ord{color:var(--amber);border-color:#4a3a12;background:#221a08}
+.item.sub .it-t{font-family:var(--display);font-size:16px;letter-spacing:.06em;
+  text-transform:uppercase;font-weight:600}
+
+/* source d'une ligne, dans le vocabulaire du §A.5 : ce qui a ete vu a
+   l'ecran ne se confond pas avec ce qui a ete emprunte a l'avion reel */
+.it-tag{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  border-radius:4px;padding:1px 5px;margin-left:7px;white-space:nowrap;
+  color:var(--muted);border:1px solid var(--line);background:var(--panel-2);
+}
+.it-tag.t-wip{color:var(--violet);border-color:#3a3160;background:#191434}
+.it-tag.t-manque{color:var(--amber);border-color:#4a3a12;background:#221a08}
+.it-tag.t-reel{color:#8FA6B3;border-color:#2a3b45;background:#111c23}
+.it-tag.t-sim{color:var(--green);border-color:#13432a;background:#082016}
+.item.done .it-tag{opacity:.5}
 .item.done .it-t{color:var(--muted);text-decoration:line-through;text-decoration-color:#2c4a39}
 .it-d{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
 .item.done .it-d{opacity:.5}
@@ -250,6 +280,8 @@ header{
 .toast.show{opacity:1}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:2px 2px 16px}
 .legend i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
+.legend-src{padding-top:0;margin-top:-10px}
+.legend-src .it-tag{margin-left:0;margin-right:6px;font-weight:400}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---------- blocs aeroport + panneau d'identite (REV 23) ---------- */

@@ -58,12 +58,17 @@ function paintBadge(){ el.revTag.innerHTML = badgeRev(); }
 function idxDoc(){   if(!docIdx   && state.doc)   docIdx   = buildIndex(state.doc);   return docIdx; }
 function idxSheet(){ if(!sheetIdx && state.sheet) sheetIdx = buildIndex(state.sheet); return sheetIdx; }
 
-/* "2" ne doit pas attraper "2.1" : apres le numero, un separateur est exige */
+/* "2" ne doit pas attraper "2.1" : apres le numero, un separateur est exige.
+   Comparaison insensible a la casse : le dossier titre « 7.0 BIS » et ecrit
+   « §7.0 bis » en prose. Un numero de section n'a pas de casse — la faire
+   compter rendait le renvoi §7.0 bis introuvable, en silence. */
 function findHead(idx, ref){
   if(!idx) return -1;
-  return idx.heads.findIndex(h=>
-    h.txt === ref || (h.txt.slice(0,ref.length) === ref && /^[\s·:\-–—]/.test(h.txt.slice(ref.length)))
-  );
+  const r = ref.toLowerCase();
+  return idx.heads.findIndex(h=>{
+    const t = h.txt.toLowerCase();
+    return t === r || (t.slice(0,r.length) === r && /^[\s·:\-–—]/.test(t.slice(r.length)));
+  });
 }
 function countRefs(idx){
   let n = 0;

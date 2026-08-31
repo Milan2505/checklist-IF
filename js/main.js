@@ -32,10 +32,10 @@ async function autoLoad(){
 (async function(){
   await load();
   paintBadge();
-  buildNodes();
   buildValues();
   syncOpenBtn();
-  render();
+  render();               /* render() construit aussi les noeuds du profil :
+                             ils suivent les phases reellement affichees */
   paintPorts();
   validateSheet();          /* la feuille restaurée du stockage se revalide */
   await autoLoad();

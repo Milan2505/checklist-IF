@@ -117,9 +117,103 @@ const PHASES = [
     {t:"GO prononcé", d:"Ou NO-GO motivé sur l'un des cinq points bloquants : masse hors limites, vitesses pour une autre piste, dégagement inutilisable, bloc insuffisant, table Vref absente ou non confirmée pour le type.", r:"8"}
   ]},
 
+
+  /* ------------------------------------------------------------
+     §7.0 · MISE EN ROUTE — CADRE GENERIQUE, TOUS TYPES
+     Les dix phases disent l'ETAT a obtenir, jamais le bouton : elles
+     valent sur n'importe quel appareil. Les lignes qui nomment une
+     commande portent `bloc:'7.0.A'` et n'existent que sur le type qui
+     les porte (BLOCS_TYPE, en tete de fichier).
+     Le deroule est celui du §7.0.A, dans l'ordre : 1.1 ... 10.3, chaque
+     ligne rangee sous la phase a laquelle sa colonne Ordre renvoie —
+     3.2 est bien la deuxieme ligne de la phase 3.
+  ------------------------------------------------------------ */
+
+  /* ------------------------------------------------------------
+     §7.0 · MISE EN ROUTE — CADRE GENERIQUE, TOUS TYPES
+     Les dix phases disent l'ETAT a obtenir, jamais le bouton : elles
+     valent sur n'importe quel appareil. Les lignes qui nomment une
+     commande portent `bloc:'7.0.A'` et n'existent que sur le type qui
+     les porte (BLOCS_TYPE, en tete de fichier).
+     Le deroule est celui du §7.0.A, dans l'ordre : 1.1 ... 10.2, chaque
+     ligne rangee sous la phase a laquelle sa colonne Ordre renvoie —
+     3.2 est bien la deuxieme ligne de la phase 3. Les 45 lignes et leurs
+     marqueurs de source sont ceux du dossier, au caractere pres.
+  ------------------------------------------------------------ */
+  { n:"Mise en route", s:"Dix phases, du cold & dark au lâcher des freins", items:[
+    {t:"Registre des types consulté", d:"Trois questions, dans cet ordre : ce type impose-t-il une séquence, l'alignement ADIRS y est-il bloquant, un bloc spécifique existe-t-il. Type volé {{type}}. Un type absent du registre ne se déduit pas d'un voisin : le vol se conduit sans séquence, et ce qui a été observé au parking se note au §9 pour créer la ligne.", r:"7.0", w:1},
+    {t:"Temps de mise en route budgété avant l'EOBT", d:"Un type à séquence ajoute un poste avant l'EOBT, exactement comme le roulage. De la batterie au lâcher des freins, alignement ADIRS compris, la séquence ne descend pas sous les dix minutes sur l'avion réel.", r:"A.2"},
+
+    {hd:1, o:"1", t:"Alimentation initiale", d:"Barres alimentées, avionique vivante, sans décharger les batteries.", r:"7.0"},
+    {bloc:"7.0.A", o:"1.1", t:"ELECTRICAL · BAT 1 → ON", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"1.2", t:"ELECTRICAL · BAT 2 → ON", d:"E/WD et SD vivants. PFD et ND restent noirs : normal sans alignement, ce n'est pas une panne.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"1.3", t:"ELECTRICAL · EXT PWR → ON si le groupe de parc est branché, sinon laisser OFF", d:"Alimentation externe en ligne, mémo EXT PWR affiché à l'E/WD — ou décision prise de partir sur l'APU, et on saute en 3.1.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"1.4", t:"GROUND SERVICES · branchement du groupe de parc", d:"Contenu du panneau non visible sur la capture : on ignore si le groupe se branche ici, ou si EXT PWR suffit.", r:"7.0.A", src:["MANQUE"]},
+
+    {hd:1, o:"2", t:"Préparation cockpit", d:"Alignement inertiel lancé, PFD et ND vivants, FMS accessible. Sur un type dont l'alignement est bloquant, rien de ce qui se lit sur PFD ou ND n'est valable avant la fin de l'alignement : cette phase conditionne tout le reste.", r:"7.0", w:1},
+    {bloc:"7.0.A", o:"2.1", t:"ADIRS → NAV", d:"Alignement lancé, et lancé TÔT. Mémo IR IN ALIGN 2 MN annoncé à l'E/WD ; sur A320 réel il demande une dizaine de minutes — il tourne pendant le briefing et le chargement. PFD et ND vivants avant le repoussage. La commande n'est sur aucun des quatre panneaux relevés : son emplacement est inconnu, sa place dans l'ordre ne l'est pas.", r:"7.0.A", src:["MANQUE","RÉEL"], w:1},
+    {bloc:"7.0.A", o:"2.2", t:"PFD et ND · contrôle", d:"Écrans vivants, plus de drapeau ATT/ALT/SPD/VS/HDG, mémo IR IN ALIGN disparu, HDG MAP NOT AVAIL et GPS PRIMARY LOST effacés des deux ND.", r:"7.0.A", src:["SIM"]},
+    {bloc:"7.0.A", o:"2.3", t:"MCDU · accès au FMGC", d:"La page racine MCDU MENU porte quatre entrées — FMGC, ATSU, AIDS, CFDS : le FMGC ne s'ouvre pas seul, il se sélectionne.", r:"7.0.A", src:["WIP"]},
+
+    {hd:1, o:"3", t:"Mise en route APU", d:"APU disponible, page APU appelée au SD si le type en a une.", r:"7.0"},
+    {bloc:"7.0.A", o:"3.1", t:"ELECTRICAL · APU MASTER → ON", d:"Le SD appelle seul sa page APU ; volet d'entrée d'air en ouverture, paramètres à zéro.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"3.2", t:"ELECTRICAL · APU START → ON, impulsion", d:"APU en accélération. Sur A320 réel, AVAIL vers 95 % de régime, une trentaine de secondes.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"3.3", t:"ELECTRICAL · APU GEN → ON", d:"APU AVAIL affiché AVANT de charger la génération. Charger un APU qui n'est pas disponible ne donne rien.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+
+    {hd:1, o:"4", t:"Libération de l'alimentation sol", d:"Barres tenues sans le groupe de parc, mémo d'alimentation externe tombé.", r:"7.0"},
+    {bloc:"7.0.A", o:"4.1", t:"ELECTRICAL · EXT PWR → OFF", d:"APU GEN déjà en ligne (3.3) : la bascule se fait sans coupure, mémo EXT PWR disparu. Couper l'externe avant, c'est retomber sur batteries.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+    {bloc:"7.0.A", o:"4.2", t:"GROUND SERVICES · retrait du groupe, des cales et de la passerelle", d:"Contenu du panneau inconnu. Sur l'avion réel, rien ne bouge tant que l'équipe au sol n'a pas dégagé.", r:"7.0.A", src:["MANQUE","RÉEL"]},
+
+    {hd:1, o:"5", t:"Carburant", d:"Pression établie des deux côtés, chaque aile alimentant son moteur.", r:"7.0"},
+    {bloc:"7.0.A", o:"5.1", t:"FUEL · L TK PUMP 1 → ON", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"5.2", t:"FUEL · L TK PUMP 2 → ON", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"5.3", t:"FUEL · R TK PUMP 1 → ON", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"5.4", t:"FUEL · R TK PUMP 2 → ON", d:"Quatre pompes en ligne, pression carburant établie des deux côtés.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"5.5", t:"FUEL · X FEED → fermé", d:"Chaque aile alimente son moteur. Le X FEED ne s'ouvre que sur déséquilibre ou perte de pompes — jamais en démarrage normal.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"5.6", t:"FUEL · pompes du réservoir central", d:"Aucune pompe centrale sur la capture alors que l'A321 porte un réservoir central : rangée coupée, ou circuit non simulé.", r:"7.0.A", src:["MANQUE"]},
+
+    {hd:1, o:"6", t:"Conditionnement avant démarrage", d:"Air de démarrage disponible, conditionnement coupé.", r:"7.0"},
+    {bloc:"7.0.A", o:"6.1", t:"BLEED · APU BLEED → ON", d:"Air APU disponible : c'est lui qui lancera les moteurs.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"6.2", t:"BLEED · PACK 1 → OFF", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"6.3", t:"BLEED · PACK 2 → OFF", d:"Packs coupés le temps du démarrage : tout le débit d'air part au démarreur. La coupure se referme en 8.6 et 8.7.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+    {bloc:"7.0.A", o:"6.4", t:"BLEED · X BLEED SHUT → fermé", d:"Les deux demi-circuits restent séparés. Sur Airbus réel, sélecteur à trois positions qui vit sur AUTO ; ici bouton unique, comportement inconnu.", r:"7.0.A", src:["WIP","MANQUE"]},
+    {bloc:"7.0.A", o:"6.5", t:"BLEED · ENG 1 BLEED → ON, laissé en place", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"6.6", t:"BLEED · ENG 2 BLEED → ON, laissé en place", d:"État requis avant de lancer : APU BLEED ON, PACK 1 et PACK 2 coupés, zone dégagée, beacon allumé.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+
+    {hd:1, o:"7", t:"Démarrage moteurs", d:"Les deux moteurs stabilisés au ralenti, aucun paramètre hors plage.", r:"7.0"},
+    {bloc:"7.0.A", o:"7.1", t:"ENGINE · NORM → sélectionné", d:"Mode d'allumage affiché avant de toucher un ENG MASTER. Hypothèse déclarée : NORM est lu comme un sélecteur réduit à un bouton.", r:"7.0.A", src:["WIP","MANQUE"]},
+    {bloc:"7.0.A", o:"7.2", t:"ENGINE · ENG MASTER 2 → ON", d:"Le 2 avant le 1, sans exception : c'est le côté opposé à la passerelle et au tracteur, personne ne travaille de ce côté-là.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+    {bloc:"7.0.A", o:"7.3", t:"Surveillance du démarrage 2 à l'E/WD", d:"Repères A320 / CFM56-5B, PAS des relevés Infinite Flight : carburant vers 22 % N2, montée d'EGT dans les 10 s qui suivent, coupure du démarreur vers 50 % N2, ralenti stabilisé N1 ≈ 20 %, N2 ≈ 59 %, EGT ≈ 400 °C. Pas de montée d'EGT après le carburant = démarrage sans allumage, on coupe.", r:"7.0.A", src:["RÉEL"], w:1},
+    {bloc:"7.0.A", o:"7.4", t:"ENGINE · ENG MASTER 1 → ON", d:"Moteur 2 stabilisé au ralenti d'abord. Un démarrage à la fois : l'air APU n'en alimente pas deux.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+    {bloc:"7.0.A", o:"7.5", t:"Surveillance du démarrage 1 à l'E/WD", d:"Mêmes repères qu'en 7.3. Deux moteurs stabilisés au ralenti avant d'enchaîner.", r:"7.0.A", src:["RÉEL"]},
+
+    {hd:1, o:"8", t:"Après démarrage", d:"Générateurs moteurs en ligne, prélèvements et conditionnement rétablis, APU coupé.", r:"7.0"},
+    {bloc:"7.0.A", o:"8.1", t:"ELECTRICAL · GEN 1 → ON, à vérifier en ligne", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.2", t:"ELECTRICAL · GEN 2 → ON, à vérifier en ligne", d:"Les deux génératrices reprennent la charge : l'APU n'alimente plus rien d'électrique.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.3", t:"BLEED · ENG 1 BLEED → ON, confirmé en place", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.4", t:"BLEED · ENG 2 BLEED → ON, confirmé en place", d:"Les moteurs fournissent l'air : l'APU peut sortir du circuit pneumatique.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.5", t:"BLEED · APU BLEED → OFF", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.6", t:"BLEED · PACK 1 → ON", d:"", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.7", t:"BLEED · PACK 2 → ON", d:"Conditionnement rétabli sur air moteur — la coupure de 6.2 et 6.3 est refermée.", r:"7.0.A", src:["WIP","RÉEL"]},
+    {bloc:"7.0.A", o:"8.8", t:"ELECTRICAL · APU GEN → OFF", d:"Sur l'avion réel ce bouton ne se touche pas : l'arrêt de l'APU dépose la génération seul. Ligne à supprimer si IF fait pareil.", r:"7.0.A", src:["WIP","MANQUE"]},
+    {bloc:"7.0.A", o:"8.9", t:"ELECTRICAL · APU MASTER → OFF", d:"GEN 1 et GEN 2 en ligne AVANT de couper. APU coupé, l'avion est autonome.", r:"7.0.A", src:["WIP","RÉEL"], w:1},
+
+    {hd:1, o:"9", t:"Configuration décollage", d:"Mémo T.O tout vert, T.O CONFIG passé, mémos sol tombés.", r:"7.0"},
+    {bloc:"7.0.A", o:"9.1", t:"Volets en configuration décollage", d:"Au cran porté par le cartouche ③ : {{volets}}. Le cran ne se redonne pas ici, il est sur la feuille.", r:"7.0.A", src:["SIM"]},
+    {bloc:"7.0.A", o:"9.2", t:"Trim · THS à tirets", d:"IF ne fournit pas de centrage.", r:"7.0.A", src:["SIM"]},
+    {bloc:"7.0.A", o:"9.3", t:"Autobrake au cran retenu", d:"{{autobrkdep}}. Le mémo T.O ne passe pas au vert tant qu'il n'est pas mis.", r:"7.0.A", src:["SIM"]},
+    {bloc:"7.0.A", o:"9.4", t:"Mémo T.O de l'E/WD · six lignes", d:"Le mémo tout vert EST la vérification. Un item qui refuse de passer désigne exactement ce qui manque.", r:"7.0.A", src:["SIM"], w:1},
+    {bloc:"7.0.A", o:"9.5", t:"Mémos sol et FOB · contrôle", d:"EXT PWR et DOORS OPEN tombés, FOB lu à l'E/WD et cohérent avec le bloc de l'OFP {{bloc}}. Le contrôle GW − FOB se fait ici.", r:"7.0.A", src:["WIP"]},
+
+    {hd:1, o:"10", t:"Alignement et lâcher des freins", d:"Transpondeur, feux, A/THR armé — dans cet ordre, à l'alignement.", r:"7.0"},
+    {bloc:"7.0.A", o:"10.1", t:"Alignement", d:"Piste attribuée = piste des vitesses, point bloquant du §8. ADIRS aligné, PFD et ND vivants, transpondeur sur ALT. Piste attendue {{piste}}.", r:"7.0.A", src:["SIM"], w:1},
+    {bloc:"7.0.A", o:"10.2", t:"Lâcher des freins", d:"Mémo T.O tout vert. La séquence s'arrête ici : le §4 prend la suite.", r:"7.0.A", src:["SIM"]},
+
+    {t:"AUTO START non utilisé", d:"L'entrée AUTO START du menu MISC court-circuite d'un appui toute la séquence. Tant qu'elle n'a pas été tenue une fois de bout en bout, AUTO START ne s'utilise pas : sinon aucune ligne WIP ne passera jamais à SIM, faute d'avoir été touchée.", r:"7.0 bis", w:1},
+    {t:"Périmètre de la checklist embarquée regardé", d:"Une entrée CHECKLIST figure au menu MISC. Si elle porte un cold & dark, cette phase se réduit à ce qu'elle ne dit pas — mais le bouton ne suffit pas : son contenu se lit avant de retirer quoi que ce soit.", r:"7.0 bis", wip:1}
+  ]},
   { n:"Avant mise en route", s:"Poste préparé, avion pas encore vivant", items:[
     {t:"Alimentation puis ADIRS aligné, en premier", d:"Batterie, puis externe ou APU, puis ADIRS — l'alignement tourne pendant le briefing et le chargement. Sans lui, PFD et ND restent noirs (drapeaux ATT/ALT/SPD/VS/HDG, GPS PRIMARY LOST) : normal, pas une panne. Décollage impossible sans PFD, ça ne se rattrape pas au roulage.", r:"7", w:1},
-    {t:"Séquence de mise en route, si le type en impose une", d:"§7.0 : dix phases du cold & dark au lâcher des freins, sur les quatre panneaux du menu Systems de l'A321neo. L'ORDRE vient de l'Airbus réel et tient ; chaque bouton, lui, sort d'une capture du studio et n'a jamais été vérifié à l'écran. Moteur 2 avant moteur 1, packs coupés pendant le démarrage, APU coupé seulement une fois GEN 1 et GEN 2 en ligne. n/a et traité sur tout appareil qui n'impose pas de séquence.", r:"7.0", wip:1},
     {t:"ATIS écouté", d:"Piste en service, QNH, information en cours.", r:"7"},
     {t:"Feux de position, puis beacon avant démarrage", d:"", r:"7"},
     {t:"Altimètres au QNH", d:"Contrôle : élévation affichée à ± 75 ft.", r:"7"},
@@ -185,7 +279,17 @@ const PHASES = [
     {t:"Conf 3 et train ensemble, vers 175 kt", d:"VFE 185 kt. Un point sous le plan ou vers 2000 ft.", r:"6.1"},
     {t:"FULL une fois établi, vers 160 kt", d:"VFE 177 kt. Sortir FULL tôt fait traîner l'avion et brûle le carburant qu'on compte.", r:"6.1", w:1},
     {t:"Tower contacté, ou annonce sur Unicom si aucun ATC", d:"Avec ATC, l'inbound se cale sur le check-in approche, ~25 NM du seuil. Sans ATC sur 122.800 : intentions, position, piste, aéroport nommé, à l'écoute avant d'émettre.", r:"6.6"},
-    {t:"Stabilisation contrôlée à 1000 ft IMC / 500 ft VMC", d:"Configuration finale, Vapp +10/−5, dans l'axe et sur le plan, moins de 1000 fpm, poussée stabilisée. Un seul critère non tenu : remise de gaz.", r:"6.4", w:1}
+    {t:"Stabilisation contrôlée à 1000 ft IMC / 500 ft VMC", d:"Configuration finale, Vapp +10/−5, dans l'axe et sur le plan, moins de 1000 fpm, poussée stabilisée. Un seul critère non tenu : remise de gaz.", r:"6.4", w:1},
+
+    /* §6.7 · approche automatique — SECTION DORMANTE.
+       Meme mecanisme que le bloc de type, liste `types` vide : rien ne
+       l'active aujourd'hui, le mode n'existe dans aucun build connu. Ces
+       quatre lignes sont ecrites pour etre reveillees, pas pour etre
+       suivies — elles ne s'affichent pas et ne comptent nulle part. */
+    {bloc:"6.7", t:"FMA · LOC puis G/S en vert", d:"Axe et plan capturés, dans cet ordre.", r:"6.7", src:["WIP"]},
+    {bloc:"6.7", t:"FMA · CAT3 DUAL affiché", d:"Double chaîne annoncée PAR L'AVION — pas par la piste, pas par la météo. Une capacité annoncée n'est pas une autorisation : le simulateur ne modélise ni les minima chartés ni l'état des équipements sol.", r:"6.7", src:["WIP"], w:1},
+    {bloc:"6.7", t:"FMA · AP1+2 engagés", d:"Les deux pilotes automatiques. Un seul AP ne donne pas la CAT III.", r:"6.7", src:["WIP"]},
+    {bloc:"6.7", t:"FMA · A/THR actif", d:"Sans lui, pas d'atterrissage automatique. Les critères du §6.4 et les minima du §6 continuent de s'appliquer tels quels : DA {{da}} reste la cellule du cartouche ③.", r:"6.7", src:["WIP"], w:1}
   ]},
 
   { n:"Arrondi & atterrissage", s:"Ce qui se pilote est l'assiette", items:[
@@ -206,7 +310,8 @@ const PHASES = [
     {t:"AIDS FLIGHT REPORT relevé", d:"FOB, GW, temps moteur, temps de vol. Il remplace le relevé à la jauge.", r:"9"},
     {t:"AIDS LANDING REPORT relevé", d:"Vitesse au toucher, Vz, G max, écart d'axe. Seule mesure objective de la tenue d'approche.", r:"9"},
     {t:"Ligne ajoutée au tableau des relevés de toucher", d:"GW, TD IAS, Vz, G, axe — la plage de décélération d'arrondi est en observation.", r:"6.3"},
-    {t:"Systèmes du type notés si une séquence a été suivie", d:"Commande introuvable, bouton sans effet observable, page SD qui n'a pas réagi. Chaque ligne remplie fait passer une ligne du §7.0 de [WIP] à [SIM], ou la supprime. Test gratuit au parking : couper un GEN et regarder si la page ELEC bascule.", r:"9", wip:1},
+    {t:"Systèmes du type notés si une séquence a été suivie", d:"Commande introuvable, bouton sans effet observable, page SD qui n'a pas réagi. Chaque ligne remplie fait passer UNE ligne du §7.0.A de [WIP] à [SIM], ou la supprime : le tableau ne bascule pas en bloc. Test gratuit au parking : couper un GEN et regarder si la page ELEC bascule.", r:"9", wip:1},
+    {t:"Type volé absent du registre du §7.0 : la ligne se crée", d:"Séquence requise ? Alignement ADIRS bloquant ? Pages SD vivantes ? Ces trois réponses se lisent au parking, sans voler. Un type ne rejoint pas le registre par ressemblance avec un autre — même règle que pour les masses à vide, et pour le même motif.", r:"7.0", w:1},
     {t:"Écarts SimBrief relevés", d:"Les six lignes laissées en AUTO : pistes, contingence, réserve, taxi, FOB, FOD.", r:"9"},
     {t:"Carburant, ETE et TOD prévus contre réels", d:"Trois vols alimentent le Fuel Factor : si IF brûle systématiquement plus, P00 devient Pxx.", r:"9"},
     {t:"Comportement FMS inattendu noté", d:"Et la ligne du dossier à corriger.", r:"9"},

@@ -21,7 +21,17 @@ const REGISTRE = [
   /* ---- cartouche ① · identite — 3 ---- */
   { key:'callsign', labels:['callsign','atc callsign','indicatif d\'appel atc'], kind:'code', required:true, display:'Callsign' },
   { key:'airline',  labels:['airline','compagnie aerienne','compagnie'], kind:'code', required:true, display:'Compagnie' },
-  { key:'type',     labels:['appareil','aircraft','type d\'aeronef','type'], kind:'text', required:true, display:'Type' },
+  /* REV 25 · `max:12` — la seule contrainte, et elle etait absente.
+     'text' sans longueur laissait passer la ligne « Type » de la table
+     « AU TEMPS 1 » du §A.4 : la cellule « donné par Milan, jamais déduit »
+     etait RETENUE, et ecrasait le code du cartouche ① par la regle « la
+     derniere l'emporte ». Les 28 autres lignes de cette table sont refusees
+     avec motif ; celle-la passait, et c'est precisement la cellule dont
+     depend l'affichage du bloc specifique §7.0.A.
+     'text' et non 'code' : « A330-900neo » doit passer, et un jour un type
+     ecrit avec un espace. 12 caracteres suffisent a tout code de type et
+     refusent toute methode en prose. */
+  { key:'type',     labels:['appareil','aircraft','type d\'aeronef','type'], kind:'text', max:12, required:true, display:'Type' },
 
   /* ---- cartouche ② · pistes, portes et degagement — 8 ---- */
   { key:'piste',    labels:['depart rwy','depart runway','piste depart','piste dep.'], kind:'code', required:true, display:'Piste départ' },
