@@ -40,8 +40,17 @@ const REGISTRE = [
      une phrase ne passe pas. NIL est un code valide — c'est voulu : une porte non
      observee sort en NIL, valeur nue et lisible, jamais en [MANQUE] (§A.5 regle 7). */
   { key:'portedep', labels:['porte depart','departure gate','gate depart'], kind:'code', required:true, display:'Porte départ' },
+  /* REV 26 · les deux crans d'autobrake, sortis des « repères non lus ».
+     'text' et non 'int' : les valeurs attendues sont MAX, MED, LOW autant que
+     1, 2, 3 — un type numerique refuserait les trois premieres. max:4 refuse
+     tout ce qui n'est pas un cran nu (« 3 (MED) », « MAX au départ »).
+     Ils ont quitte IGNORE dans le meme mouvement : un libelle ignore l'emporte
+     sur toute resolution, les declarer ici sans les en sortir n'aurait rien
+     change et rien signale. */
+  { key:'autobrkdep',labels:['autobrake depart'], kind:'text', max:4, required:true, display:'Autobrake départ' },
   { key:'arrpiste', labels:['arrival rwy','arrivee runway','piste arrivee','piste arr.'], kind:'code', required:true, display:'Piste arrivée' },
   { key:'portearr', labels:['porte arrivee','arrival gate','gate arrivee'], kind:'code', required:true, display:'Porte arrivée' },
+  { key:'autobrkarr',labels:['autobrake arrivee'], kind:'text', max:4, required:true, display:'Autobrake arrivée' },
   { key:'degag',    labels:['alternate','alterner','degagement','airport','aeroport'], kind:'code', required:true, display:'Dégagement' },
   { key:'degcap',   labels:['cap degagement'], kind:'int', required:true, display:'Cap dégagement' },
   { key:'degdist',  labels:['distance degagement'], kind:'int', required:true, display:'Distance dégagement' },
@@ -52,6 +61,13 @@ const REGISTRE = [
   { key:'v2',       labels:['v2'], kind:'int', required:true, display:'V2' },
   { key:'flex',     labels:['flex','flex temp'], kind:'code', required:true, display:'Flex' },
   { key:'volets',   labels:['volets','volets depart','flaps'], kind:'code', required:true, display:'Volets' },
+  /* REV 26 · premiere altitude apres decollage. AUCUNE PARENTE avec `fl` :
+     'Altitude (Pieds)' du §0.5 porte le FL de croisiere, ce libelle-ci porte
+     l'altitude initiale de la SID. Deux cles distinctes, deux libelles sans
+     recouvrement — regFor() compare par egalite stricte, « altitude initiale »
+     n'atteint jamais l'entree « altitude ». max:5 : une altitude nue tient en
+     cinq caracteres, l'espace de milliers est deja interdit (§A.5 regle 1). */
+  { key:'altinit',  labels:['altitude initiale'], kind:'int', max:5, required:true, display:'Altitude initiale' },
   { key:'thrred',   labels:['reduction','thrust reduction'], kind:'int', required:true, display:'Réduction' },
   { key:'accel',    labels:['acceleration'], kind:'int', required:true, display:'Accélération' },
   { key:'trans',    labels:['transition','altitude de transition'], kind:'int', required:true, display:'Transition' },
@@ -121,14 +137,18 @@ const REGISTRE = [
    ni en "libellé non reconnu". Trois familles :
    — en-tetes et intitules de colonnes qui trainent en premiere cellule ;
    — les « repères non lus » du §A.4, en attente d'inscription au registre :
-     immatriculation, altitude initiale, autobrake, route, date, MANQUE.
+     immatriculation, route, date, MANQUE.
      Ils restent DEHORS du registre tant que la REV les y laisse : la regle 11
      interdit qu'un libelle declare figure dans un bloc annonce comme non lu ;
+     ⚠ REV 26 · 'altitude initiale', 'autobrake depart' et 'autobrake arrivee'
+     ont quitte cette liste : ils sont montes aux cartouches ② et ③ du §A.4 et
+     sont declares au REGISTRE ci-dessus. Le bare 'autobrake' y reste, lui :
+     ecrit seul il ne dit pas s'il s'agit du depart ou de l'arrivee, et le
+     resoudre au hasard serait exactement le defaut que la regle 11 previent ;
    — les champs du formulaire qui n'ont pas de case et dont le libelle
      pourrait se resoudre par accident. */
 const IGNORE = ['poste','champ','marqueur','config','annonce','repere','libelle',
-                'itineraire','immatriculation','altitude initiale',
-                'autobrake','autobrake depart','autobrake arrivee',
+                'itineraire','immatriculation','autobrake',
                 'route','date','manque','piste','runway','compte alternatif',
                 /* §A.5 : Compagnie porte le code OACI, « jamais le nom
                    commercial » — le libelle existe donc dans les vieilles

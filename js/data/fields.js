@@ -64,17 +64,24 @@ const FIELDS = [
   /* ---------- cartouches du §A.4 : lus par la page, pas tapes dans le formulaire ---------- */
   /* Les deux pistes restent en AUTO cote SimBrief (§0.5) : elles ne se tapent
      pas, elles se comparent — leur place est au cartouche ②. */
-  ['piste','Piste départ','Cartouche ② · pistes et portes'],
-  ['capdep','Cap départ','Cartouche ② · pistes et portes'],
-  ['portedep','Porte départ','Cartouche ② · pistes et portes'],
-  ['arrpiste','Piste arrivée','Cartouche ② · pistes et portes'],
-  ['portearr','Porte arrivée','Cartouche ② · pistes et portes'],
+  /* REV 26 · les deux crans d'autobrake ont quitte les « repères non lus » :
+     ils sont declares au registre du parseur, donc ils remontent, donc leur
+     place est dans un cartouche (§A.3 regle 11). Ils encadrent leur phase —
+     depart apres la porte de depart, arrivee apres celle d'arrivee. */
+  ['piste','Piste départ','Cartouche ② · pistes, portes et autobrake'],
+  ['capdep','Cap départ','Cartouche ② · pistes, portes et autobrake'],
+  ['portedep','Porte départ','Cartouche ② · pistes, portes et autobrake'],
+  ['autobrkdep','Autobrake départ','Cartouche ② · pistes, portes et autobrake'],
+  ['arrpiste','Piste arrivée','Cartouche ② · pistes, portes et autobrake'],
+  ['portearr','Porte arrivée','Cartouche ② · pistes, portes et autobrake'],
+  ['autobrkarr','Autobrake arrivée','Cartouche ② · pistes, portes et autobrake'],
 
   ['v1','V1','Cartouche ③ · vitesses et trajectoire'],
   ['vr','VR','Cartouche ③ · vitesses et trajectoire'],
   ['v2','V2','Cartouche ③ · vitesses et trajectoire'],
   ['flex','Flex','Cartouche ③ · vitesses et trajectoire'],
   ['volets','Volets','Cartouche ③ · vitesses et trajectoire'],
+  ['altinit','Altitude initiale ft','Cartouche ③ · vitesses et trajectoire'],
   ['thrred','Réduction ft','Cartouche ③ · vitesses et trajectoire'],
   ['accel','Accélération ft','Cartouche ③ · vitesses et trajectoire'],
   ['trans','Transition ft','Cartouche ③ · vitesses et trajectoire'],
@@ -93,9 +100,4 @@ const FIELDS = [
   ['trip','Trip kg','Cartouche ⑤ · masses'],
   ['tow','TOW t','Cartouche ⑤ · masses'],
   ['lw','LW t','Cartouche ⑤ · masses'],
-
-  /* Repères non lus (§A.4) : hors registre, saisis a la main, jamais extraits. */
-  ['autobrkdep','Autobrake départ','Repères non lus'],
-  ['autobrkarr','Autobrake arrivée','Repères non lus'],
-  ['altinit','Altitude initiale ft','Repères non lus']
 ];

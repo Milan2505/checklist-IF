@@ -72,13 +72,13 @@ const PHASES = [
     {t:"OFP généré", d:"À partir de là c'est l'OFP qui fait foi, y compris s'il a retenu autre chose que ce qui était proposé — piste, FL, dégagement, masse.", r:"0.10", w:1}
   ]},
 
-  { n:"OFP & cartouches", s:"Les 36 cellules, puis les seuils carburant", items:[
+  { n:"OFP & cartouches", s:"Les 39 cellules, puis les seuils carburant", items:[
     {t:"① Identité", d:"{{callsign}} · {{airline}} · {{type}}. La compagnie porte le code OACI à trois lettres, jamais le nom commercial.", r:"A.4"},
-    {t:"② Pistes, portes et dégagement", d:"Piste départ {{piste}} cap {{capdep}}° porte {{portedep}} · Piste arrivée {{arrpiste}} porte {{portearr}} · Dégagement {{degag}} cap {{degcap}}° à {{degdist}} NM. Une porte ne s'estime pas : elle se lit sur le traceur de trafic, ou elle sort en NIL.", r:"A.4"},
-    {t:"③ Vitesses et trajectoire", d:"V1/VR/V2 {{v1}}/{{vr}}/{{v2}} · Flex {{flex}} · Volets {{volets}} · Réduction {{thrred}} · Accélération {{accel}} · Transition {{trans}} · ILS {{ils}} · DA {{da}} · Vref {{vref}} · Vapp {{vapp}} · Inbound {{inbwpt}} à {{inbound}} NM.", r:"A.4"},
+    {t:"② Pistes, portes, autobrake et dégagement", d:"Piste départ {{piste}} cap {{capdep}}° porte {{portedep}} autobrake {{autobrkdep}} · Piste arrivée {{arrpiste}} porte {{portearr}} autobrake {{autobrkarr}} · Dégagement {{degag}} cap {{degcap}}° à {{degdist}} NM. Une porte ne s'estime pas : elle se lit sur le traceur de trafic, ou elle sort en NIL.", r:"A.4"},
+    {t:"③ Vitesses et trajectoire", d:"V1/VR/V2 {{v1}}/{{vr}}/{{v2}} · Flex {{flex}} · Volets {{volets}} · Altitude initiale {{altinit}} · Réduction {{thrred}} · Accélération {{accel}} · Transition {{trans}} · ILS {{ils}} · DA {{da}} · Vref {{vref}} · Vapp {{vapp}} · Inbound {{inbwpt}} à {{inbound}} NM.", r:"A.4"},
     {t:"④ Carburant", d:"BLOC {{bloc}} · BINGO {{bingo}} · MIN DIV {{mindiv}} · EXTRA {{extra}} · FUEL FACTOR {{fuelfactor}}.", r:"A.4"},
     {t:"⑤ Masses", d:"Masse à vide IF {{oew}} · Charge utile {{payload}} · Poids zéro carburant {{zfw}} · Trip {{trip}} · TOW {{tow}} · LW {{lw}} t.", r:"A.4"},
-    {t:"Les 36 cellules renseignées, aucune vide", d:"Une case vide sans motif affiché est un défaut de format de la feuille, pas de la page. Le bandeau d'anomalie nomme celles qui n'ont pas été résolues.", r:"A.5", w:1},
+    {t:"Les 39 cellules renseignées, aucune vide", d:"Une case vide sans motif affiché est un défaut de format de la feuille, pas de la page. Le bandeau d'anomalie nomme celles qui n'ont pas été résolues.", r:"A.5", w:1},
     {t:"Masses dans les limites", d:"TOW {{tow}} sous MTOW, LW {{lw}} t sous MLW. Hors limite = NO-GO, sans discussion.", r:"8", w:1},
     {t:"Bloc supérieur à la somme des postes", d:"Sinon NO-GO.", r:"8", w:1},
     {t:"Table Vref disponible et confirmée pour le type volé", d:"A318/A319/A320 : table complète. A321 : pente d'environ 1 kt par tonne, estimée et non confirmée. A330-900neo : aucune table, aucune pente. Sans elle, la Vapp du briefing n'a pas de base — cinquième point bloquant depuis la REV 20.", r:"6.2", w:1},
