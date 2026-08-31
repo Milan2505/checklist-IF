@@ -10,7 +10,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<!-- ?v=NN sur la feuille de style et sur chaque script : sans lui, un
+     navigateur qui a déjà ouvert la page resservait son ancien js/refs.js et
+     ses anciennes règles, donc l’ancienne interface, sans rien dire. Ce jeton
+     se bump à chaque révision livrée. -->
+<link rel="stylesheet" href="css/style.css?v=26">
 </head>
 <body>
 
@@ -117,23 +121,23 @@
      ouvrable directement depuis le disque (file://), ou les modules
      seraient bloques par le navigateur.
 ============================================================ -->
-<script src="js/data/fields.js"></script>
-<script src="js/data/phases.js"></script>
-<script src="js/state.js"></script>
-<script src="js/dom.js"></script>
-<script src="js/render.js"></script>
-<script src="js/progress.js"></script>
-<script src="js/values.js"></script>
-<script src="js/briefing.js"></script>
-<script src="js/parser/registre.js"></script>
-<script src="js/parser/labels.js"></script>
-<script src="js/parser/validate.js"></script>
-<script src="js/parser/tables.js"></script>
-<script src="js/parser/extract.js"></script>
-<script src="js/alert.js"></script>
-<script src="js/ports.js"></script>
-<script src="js/refs.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/main.js"></script>
+<script src="js/data/fields.js?v=26"></script>
+<script src="js/data/phases.js?v=26"></script>
+<script src="js/state.js?v=26"></script>
+<script src="js/dom.js?v=26"></script>
+<script src="js/render.js?v=26"></script>
+<script src="js/progress.js?v=26"></script>
+<script src="js/values.js?v=26"></script>
+<script src="js/briefing.js?v=26"></script>
+<script src="js/parser/registre.js?v=26"></script>
+<script src="js/parser/labels.js?v=26"></script>
+<script src="js/parser/validate.js?v=26"></script>
+<script src="js/parser/tables.js?v=26"></script>
+<script src="js/parser/extract.js?v=26"></script>
+<script src="js/alert.js?v=26"></script>
+<script src="js/ports.js?v=26"></script>
+<script src="js/refs.js?v=26"></script>
+<script src="js/ui.js?v=26"></script>
+<script src="js/main.js?v=26"></script>
 </body>
 </html>
