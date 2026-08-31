@@ -3,7 +3,7 @@
 **EW9743 · LSGG → EDDL · A320-214 · D-ABNN · 31/08/2026**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
-Dossier de référence : REV 26. Cinq cartouches, 39 cellules. L'ordre des sections du §0 est celui de la variante hors dépôt de la REV 23 ; les libellés lus, eux, sont ceux du registre et ne dépendent pas de cet ordre.
+Dossier de référence : REV 27. Cinq cartouches, 39 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
 
 ---
 
@@ -169,10 +169,10 @@ n/a, décidé et assumé.
 |---|---|
 | Piste départ | 22 |
 | Cap départ | 224 |
-| Porte départ | NIL |
+| Porte départ | A1 |
 | Autobrake départ | MAX |
 | Piste arrivée | 23L |
-| Porte arrivée | NIL |
+| Porte arrivée | A49 |
 | Autobrake arrivée | LOW |
 | Dégagement | EDDK |
 | Cap dégagement | 148 |
@@ -226,7 +226,7 @@ n/a, décidé et assumé.
 | Route | LSGG-EDDL |
 | Date | 31AUG2026 |
 | Immatriculation | D-ABNN |
-| MANQUE | Portes |
+| MANQUE | aucun |
 
 ---
 
@@ -236,7 +236,7 @@ n/a, décidé et assumé.
 
 **Pistes** — Genève n'a qu'une piste, orientée 044/224, élévation 1411 ft `[NAV]`. Le sens 22 est le sens préférentiel du terrain et le dernier vent observé est faible et variable ; c'est celui qui est attendu, pas celui qui est imposé. À Düsseldorf le doublet 05/23 sert dans le sens sud-ouest la plus grande partie de l'année, et le 23L est la piste principale du terrain `[NAV]`.
 
-**Portes** — non observées, donc non écrites. Le traceur affiche la ligne, l'appareil et son immatriculation, mais le poste de stationnement n'est pas servi sur la fiche `[MANQUE]`. Aucune méthode d'estimation n'existe pour une porte : ni le terminal, ni la compagnie, ni l'habitude de la ligne ne la donnent. Les deux cellules portent `NIL`, qui est une valeur pleine et dit exactement ce qu'il y a à dire — la donnée n'a pas été relevée. Elles se remplissent en une seconde si la fiche du vol affiche le poste avant le départ.
+**Portes** — relevées sur les bases de statut de vol `[RDR]`. Le poste de départ est le A1, en terminal 1 à Genève ; le poste d'arrivée est le A49, en terminal A à Düsseldorf. Les deux viennent de la fiche du vol du jour et l'arrivée est recoupée par une seconde base. Ordre de consultation, valable pour toute feuille : airportinfo.live d'abord, qui sert les deux portes ; Airportia en recoupement ; AirNav RadarBox si le vol n'y figure pas ; le tableau des départs du terrain en dernier recours. Ni la porte ni le terminal ne se déduisent : ils sont relevés, ou la cellule descend d'un niveau. Une porte non publiée alors que le terminal l'est donne le terminal préfixé `T` ; `NIL` ne reste que si les deux manquent. La porte disparaît des tableaux dès que le vol a décollé — demandée avant, elle est là.
 
 **Dégagement** — Cologne est le terrain de dégagement usuel de Düsseldorf. Le relèvement et la distance sont calculés depuis EDDL `[CALC]`. Sa proximité est un avantage de carburant et une faiblesse météo : les deux terrains partagent souvent la même masse d'air, et c'est le point à revoir au temps 2 sur le TAF.
 
@@ -248,7 +248,7 @@ n/a, décidé et assumé.
 
 **Masses** — la chaîne part de la masse à vide relevée dans le simulateur, ajoute la charge utile à 100 kg par passager, puis le bloc moins le roulage, puis retranche l'étape `[CALC]`. La masse au décollage laisse près de 16 tonnes sous la MTOW et la masse à l'atterrissage près de 7 tonnes sous la MLW : aucune des deux barrières du §8 n'est approchée.
 
-**Repères non lus** — l'altitude initiale est celle des départs de Genève, à confirmer sur la SID retenue `[NAV]`. Le cran de freinage au décollage suit la règle du §4 `[CALC]`. Au décollage le cran retenu à l'arrivée tient à la longueur utile du 23L, environ 2700 m sur piste sèche, largement suffisante pour l'A320 à cette masse `[CALC]`. Ces trois repères ne sont pas au registre du parseur : la page les affiche en cases vides et ils se saisissent à la main, une fois.
+**Repères non lus** — l'altitude initiale est celle des départs de Genève, à confirmer sur la SID retenue `[NAV]`. Le cran de freinage au décollage suit la règle du §4 `[CALC]`. Au décollage le cran retenu à l'arrivée tient à la longueur utile du 23L, environ 2700 m sur piste sèche, largement suffisante pour l'A320 à cette masse `[CALC]`. Ces trois repères sont désormais lus par la page : l'altitude initiale au cartouche ③, les deux crans d'autobrake au cartouche ②. Ils ne se saisissent plus à la main.
 
 **Route** — la chaîne proposée passe par la Lorraine, le Luxembourg et Nörvenich. C'est un repli lisible, pas une route validée : si SimBrief la refuse à la génération, il a raison sur sa propre base et le briefing se reprend sur ce qu'il a retenu.
 
