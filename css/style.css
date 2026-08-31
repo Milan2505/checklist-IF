@@ -121,6 +121,12 @@ header{
    de l'input porte la phrase complete. Espace INSECABLE : sinon la fleche part
    seule sur la ligne suivante et ajoute une ligne vide au libelle. */
 .fld.auto label::after{content:"\00a0⇠";color:#5f7f8d;letter-spacing:0}
+/* REV 26 · NIL — donnee qui n'a jamais existe. Elle est REMPLIE : elle ne se
+   masque pas et ne se vide pas, une case vide dit qu'on n'a pas rempli, NIL dit
+   qu'il n'y avait rien a remplir. Elle perd seulement la couleur des valeurs
+   saisies. Placee APRES .fld.auto : specificite egale, l'ordre tranche, et une
+   valeur NIL reprise du briefing doit se lire NIL avant de se lire « reprise ». */
+.fld.nil input{color:var(--muted);font-style:italic;border-style:dashed;border-color:#2b3a44;background:#0B1218}
 /* attendue au cartouche mais non resolue : distinct d'une case simplement vide */
 .fld.unresolved input{border-color:#6a3a12;background:#1a1005}
 .fld.unresolved label{color:var(--amber)}
@@ -220,6 +226,7 @@ header{
 .item.done .it-d{opacity:.5}
 .val{font-family:var(--mono);color:var(--cyan);font-size:13.5px}
 .val.empty{color:#5d7280}
+.val.nil{color:var(--muted);font-style:italic}
 .ref{
   flex:none;font-family:var(--mono);font-size:10.5px;color:var(--magenta);
   border:1px solid #43244a;background:#1c1022;border-radius:6px;padding:3px 6px;margin-top:1px;
@@ -232,29 +239,36 @@ header{
 .ref.miss{color:#4e5c66;border-color:#212d35;background:#0d151a}
 .ref.miss:hover{border-color:#2f3f4a}
 
-/* ---------- lecteur de section ---------- */
-.drawer{
-  position:fixed;inset:0;z-index:60;display:none;
-  background:rgba(4,8,11,.72);backdrop-filter:blur(3px);
+/* ---------- section du dossier, dépliée SOUS sa ligne ---------- */
+/* REV 26 · le tiroir modal a disparu. Il couvrait la checklist au moment
+   précis où on cherchait le lien entre une étape et son texte ; le panneau,
+   lui, reste au même endroit que la ligne qui l'appelle. */
+.sec{
+  border-left:2px solid var(--magenta);
+  background:#0C161D;
+  margin:0 14px 10px 47px;              /* aligné sur le texte de la ligne, pas sur la case */
+  padding:2px 13px 13px;
+  border-radius:0 8px 8px 0;
+  max-height:58vh;overflow:auto;overscroll-behavior:contain;
 }
-.drawer.open{display:block}
-.dr-panel{
-  position:absolute;left:0;right:0;bottom:0;max-height:84vh;overflow:auto;overscroll-behavior:contain;
-  background:var(--panel-2);border-top:1px solid var(--line);
-  border-radius:16px 16px 0 0;padding:0 16px calc(28px + env(safe-area-inset-bottom));
-  animation:up .22s ease;
+.sec-t{
+  position:sticky;top:0;z-index:1;margin:0;padding:11px 0 8px;
+  background:#0C161D;border-bottom:1px solid var(--line);
+  font-family:var(--display);font-size:14px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--magenta);font-weight:600;
 }
-@keyframes up{from{transform:translateY(22px);opacity:.4}to{transform:none;opacity:1}}
-.dr-head{position:sticky;top:0;background:var(--panel-2);display:flex;align-items:center;gap:10px;padding:14px 0 10px;border-bottom:1px solid var(--line)}
-.dr-head h3{margin:0;flex:1;font-family:var(--display);font-size:16px;letter-spacing:.12em;text-transform:uppercase}
-.md{font-size:14.5px;line-height:1.62;padding-top:12px}
+.ref[aria-expanded="true"]{background:#3a1c43;border-color:var(--magenta);color:#f7c9ef}
+.md{font-size:14.5px;line-height:1.62}
 .md h1,.md h2,.md h3{font-family:var(--display);letter-spacing:.09em;text-transform:uppercase;margin:20px 0 8px;font-size:16px;color:var(--txt)}
 .md p{margin:9px 0}
 .md ul,.md ol{margin:9px 0;padding-left:19px}
 .md li{margin:5px 0}
 .md code{font-family:var(--mono);font-size:13px;background:#0a141a;border:1px solid var(--line);padding:1px 5px;border-radius:5px;color:var(--cyan)}
 .md pre{font-family:var(--mono);font-size:12.5px;background:#091217;border:1px solid var(--line);padding:11px;border-radius:8px;overflow:auto;white-space:pre;color:#a9c3d0}
-.md table{width:100%;border-collapse:collapse;margin:11px 0;font-size:13px}
+/* display:block + min-width : une table de six colonnes défile dans son cadre
+   au lieu de pousser toute la page en largeur (§7.0.A, séquence). */
+.md table{display:block;overflow-x:auto;max-width:100%;min-width:100%;width:max-content;
+  border-collapse:collapse;margin:11px 0;font-size:13px}
 .md th,.md td{border:1px solid var(--line);padding:6px 8px;text-align:left}
 .md th{background:#0d181e;font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
 .md .w{color:var(--amber)}
@@ -282,6 +296,9 @@ header{
 .legend i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
 .legend-src{padding-top:0;margin-top:-10px}
 .legend-src .it-tag{margin-left:0;margin-right:6px;font-weight:400}
+/* NIL en legende : le meme habillage que dans les cases, pas une pastille de couleur */
+.legend .lg-nil{color:var(--muted);font-style:italic;font-weight:400;margin-right:6px;
+  border:1px dashed #2b3a44;border-radius:4px;padding:0 5px;background:#0B1218}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---------- blocs aeroport + panneau d'identite (REV 23) ---------- */
@@ -342,6 +359,7 @@ header{
 .pp-list dt{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .pp-list dd{margin:0;font-family:var(--mono);font-size:14px;color:var(--cyan);overflow-wrap:anywhere}
 .pp-list dd.empty{color:var(--muted)}
+.pp-list dd.nil{color:var(--muted);font-style:italic}
 .pp-list dd.unresolved{color:var(--amber)}
 .pp-list dd.unresolved::after{content:" ⚠ non résolu";font-size:10px;letter-spacing:0}
 /* pleine largeur et 44 px : atteignable au pouce sur telephone */

@@ -27,7 +27,6 @@ const FIELDS = [
   ['airline','Compagnie aérienne (code OACI)','1 · Informations sur le vol'],
   ['fltnum','Numéro du vol','1 · Informations sur le vol'],
   ['route','Partir → Arriver','1 · Informations sur le vol'],
-  ['degag','Alterner','1 · Informations sur le vol'],
   ['eobt','Heure de départ (EOBT)','1 · Informations sur le vol'],
 
   ['type','Type d\'aéronef','2 · Informations sur l\'avion'],
@@ -58,9 +57,6 @@ const FIELDS = [
 
   ['rte','Selected Route','8 · Itinéraire'],
 
-  ['degcap','Cap dégagement','9 · Aéroports alternatifs'],
-  ['degdist','Distance dégagement NM','9 · Aéroports alternatifs'],
-
   /* ---------- cartouches du §A.4 : lus par la page, pas tapes dans le formulaire ---------- */
   /* Les deux pistes restent en AUTO cote SimBrief (§0.5) : elles ne se tapent
      pas, elles se comparent — leur place est au cartouche ②. */
@@ -68,13 +64,16 @@ const FIELDS = [
      ils sont declares au registre du parseur, donc ils remontent, donc leur
      place est dans un cartouche (§A.3 regle 11). Ils encadrent leur phase —
      depart apres la porte de depart, arrivee apres celle d'arrivee. */
-  ['piste','Piste départ','Cartouche ② · pistes, portes et autobrake'],
-  ['capdep','Cap départ','Cartouche ② · pistes, portes et autobrake'],
-  ['portedep','Porte départ','Cartouche ② · pistes, portes et autobrake'],
-  ['autobrkdep','Autobrake départ','Cartouche ② · pistes, portes et autobrake'],
-  ['arrpiste','Piste arrivée','Cartouche ② · pistes, portes et autobrake'],
-  ['portearr','Porte arrivée','Cartouche ② · pistes, portes et autobrake'],
-  ['autobrkarr','Autobrake arrivée','Cartouche ② · pistes, portes et autobrake'],
+  ['piste','Piste départ','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['capdep','Cap départ','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['portedep','Porte départ','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['autobrkdep','Autobrake départ','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['arrpiste','Piste arrivée','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['portearr','Porte arrivée','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['autobrkarr','Autobrake arrivée','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['degag','Dégagement','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['degcap','Cap dégagement','Cartouche ② · pistes, portes, autobrake et dégagement'],
+  ['degdist','Distance dégagement NM','Cartouche ② · pistes, portes, autobrake et dégagement'],
 
   ['v1','V1','Cartouche ③ · vitesses et trajectoire'],
   ['vr','VR','Cartouche ③ · vitesses et trajectoire'],

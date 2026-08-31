@@ -22,7 +22,7 @@ el.btnReset.addEventListener('click', ()=>{
   state.done = {}; state.values = {}; state.auto = {}; state.open = 0;
   FIELDS.forEach(([k])=>{
     const i = document.getElementById('f-'+k);
-    if(i){ i.value = ''; i.removeAttribute('title'); i.parentElement.classList.remove('auto'); }
+    if(i){ i.value = ''; i.removeAttribute('title'); i.parentElement.classList.remove('auto','nil'); }
   });
   render();
   paintPorts();

@@ -34,6 +34,7 @@ function buildValues(){
       (NUM.indexOf(k) >= 0 ? ' inputmode="decimal"' : '')+'>';
     const inp = d.querySelector('input');
     inp.value = state.values[k] || '';
+    d.classList.toggle('nil', estNil(inp.value));   /* NIL : rempli, mais pas relevé */
     if(state.auto[k]){                     /* reprise du briefing, non confirmee */
       d.classList.add('auto');
       inp.title = 'Valeur reprise du briefing — à confirmer sur l\'OFP';
@@ -41,6 +42,7 @@ function buildValues(){
     /* saisie : on rafraichit les pastilles, on ne reconstruit pas la checklist */
     inp.addEventListener('input', ()=>{
       state.values[k] = inp.value;
+      d.classList.toggle('nil', estNil(inp.value));
       d.classList.remove('auto');          /* corrigee a la main : plus une reprise */
       delete state.auto[k];
       inp.removeAttribute('title');

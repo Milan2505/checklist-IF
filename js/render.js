@@ -11,11 +11,24 @@ function esc(s){
   return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 }
 
+/* ------------------------------------------------------------
+   NIL — UNE DONNEE QUI N'A JAMAIS EXISTE N'EST PAS UN RELEVE
+   §A.5 regle 7 : ce qui ne peut pas etre estime s'ecrit `NIL`, valeur nue.
+   Elle est REMPLIE — elle ne se confond donc jamais avec une case vide, qui
+   dit qu'on n'a pas rempli — mais elle ne doit pas se lire comme un chiffre
+   releve. Le mot reste ecrit tel quel : SEUL son habillage change, et la
+   difference doit se voir sans lire. Casse indifferente.
+   Une seule definition : le panneau Valeurs, les pastilles de la checklist et
+   le panneau d'identite marquent EXACTEMENT la meme chose.
+------------------------------------------------------------ */
+function estNil(v){ return /^nil$/i.test(String(v == null ? '' : v).trim()); }
+
 /* {{cle}} devient une pastille reperable, mise a jour sans reconstruire la liste */
 const PLACEHOLDER = /\{\{(\w+)\}\}/g;
 function valSpan(k){
   const v = (state.values[k]||'').trim();
-  return '<span class="val'+(v?'':' empty')+'" data-k="'+esc(k)+'">'+esc(v||'___')+'</span>';
+  return '<span class="val'+(v?'':' empty')+(estNil(v)?' nil':'')+'" data-k="'+esc(k)+'">'+
+         esc(v||'___')+'</span>';
 }
 function inject(txt){
   let out = '', last = 0, m;
@@ -31,6 +44,7 @@ function refreshValues(){
     const v = (state.values[node.dataset.k]||'').trim();
     node.textContent = v || '___';
     node.classList.toggle('empty', !v);
+    node.classList.toggle('nil', estNil(v));
   });
   /* Le Type vient de changer de camp : le deroule n'est plus le meme.
      C'est le SEUL endroit ou l'affichage d'un bloc se decide, et il ne se
@@ -168,8 +182,22 @@ function render(){
           (it.d ? '<span class="it-d">'+inject(it.d)+'</span>' : '')+
         '</span>'+
         (it.r ? '<button type="button" class="ref" data-ref="'+esc(it.r)+'"'+
-                ' aria-label="Ouvrir la section '+esc(it.r)+' du briefing">§'+esc(it.r)+'</button>' : '');
+                ' aria-expanded="false" id="ref-'+pi+'-'+ii+'" aria-controls="sec-'+pi+'-'+ii+'"'+
+                ' aria-label="Déplier la section '+esc(it.r)+' du briefing">§'+esc(it.r)+'</button>' : '');
       body.appendChild(row);
+
+      /* Le texte de la section se déroule ICI, sous sa ligne, et non par-dessus
+         la page : on lit l'étape et son renvoi d'un seul regard. Le panneau naît
+         vide — refs.js le remplit au premier dépliage (toggleRef). */
+      if(it.r){
+        const sec = document.createElement('div');
+        sec.className = 'sec md';
+        sec.id = 'sec-'+pi+'-'+ii;
+        sec.setAttribute('role','region');
+        sec.setAttribute('aria-labelledby','ref-'+pi+'-'+ii);
+        sec.hidden = true;
+        body.appendChild(sec);
+      }
     });
 
     sec.appendChild(body);
@@ -197,7 +225,7 @@ function srcTags(src){
 /* un seul ecouteur pour toute la liste : rien a rebrancher a chaque redessin */
 el.phases.addEventListener('click', e=>{
   const ref = e.target.closest('.ref');
-  if(ref){ openRef(ref.dataset.ref); return; }
+  if(ref){ toggleRef(ref); return; }
   const head = e.target.closest('.ph-head');
   if(head){ onHead(+head.parentElement.dataset.p); return; }
   const row = e.target.closest('.item');

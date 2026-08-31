@@ -24,6 +24,7 @@ function loaded(){ return !!(state.doc || state.sheet); }
    c'est le retour visible qui manquait au chargement */
 function markRefs(){
   const ok = availableRefs();
+  resetSections();                   /* le texte déplié suit le document, pas l'inverse */
   el.phases.querySelectorAll('.ref').forEach(b=>{
     if(!loaded()){ b.classList.remove('ok','miss'); b.removeAttribute('title'); return; }
     const has = ok.indexOf(b.dataset.ref) >= 0;
@@ -109,60 +110,76 @@ function md2html(src){
   return out.join('');
 }
 
-let lastFocus = null;
-function openRef(ref){
+/* ------------------------------------------------------------
+   DEPLIAGE EN PLACE — REV 26
+   La section ne s'ouvre plus par-dessus la page : elle se deroule SOUS
+   la ligne qui la cite. Le tiroir modal a disparu, et avec lui le piege
+   qu'il portait — il masquait la checklist, donc il coupait le lien
+   entre l'etape et son texte au moment precis ou on le cherchait.
+
+   Le panneau est cree vide par render.js, juste apres sa ligne. Il se
+   remplit au premier depliage, et se vide des que les documents charges
+   changent (markRefs) : un texte de section ne survit pas au dossier qui
+   l'a produit.
+------------------------------------------------------------ */
+function contenuSection(ref){
   if(!loaded()){
-    el.drTitle.textContent = '§'+ref;
-    el.drBody.innerHTML = '<div class="empty-state">Le briefing n\'est pas chargé. Touchez « Charger le briefing » en haut et choisissez le fichier .md du dossier : le texte exact de chaque renvoi s\'ouvrira ici.</div>';
-  }else{
-    const s = section(ref);
-    if(!s){
-      el.drTitle.textContent = '§'+ref;
-      const ok = availableRefs();
-      const liste = ok.length ? ok.map(r=>'§'+r).join(' · ') : 'aucun';
-      const chargés = [state.rev ? 'dossier '+state.rev : null,
-                       state.sheetRev ? 'feuille '+state.sheetRev : null].filter(Boolean).join(' + ');
-      el.drBody.innerHTML =
-        '<div class="empty-state">'+
-        '<p>La section <strong>§'+esc(ref)+'</strong> ne figure pas dans ce qui est chargé ('+esc(chargés)+').</p>'+
-        '<p>Renvois réellement disponibles : '+esc(liste)+' — soit <strong>'+ok.length+' sur '+ALL_REFS.length+'</strong>.</p>'+
-        '<p>Il manque le dossier complet, ou la section porte un autre titre.</p>'+
-        '</div>';
-    }else{
-      el.drTitle.textContent = s.title;
-      el.drBody.innerHTML = md2html(s.body);
-    }
+    return '<div class="empty-state">Le briefing n\'est pas chargé. Touchez « Charger le briefing » '+
+           'en haut et choisissez le fichier .md du dossier : le texte exact de chaque renvoi se dépliera ici.</div>';
   }
-  lastFocus = document.activeElement;
-  el.drawer.classList.add('open');
-  el.drawer.removeAttribute('aria-hidden');
-  document.body.style.overflow = 'hidden';
-  el.drBody.parentElement.scrollTop = 0;
-  el.drClose.focus({preventScroll:true});
+  const s = section(ref);
+  if(s) return '<h4 class="sec-t">'+esc(s.title)+'</h4>'+md2html(s.body);
+
+  const ok = availableRefs();
+  const liste = ok.length ? ok.map(r=>'§'+r).join(' · ') : 'aucun';
+  const chargés = [state.rev ? 'dossier '+state.rev : null,
+                   state.sheetRev ? 'feuille '+state.sheetRev : null].filter(Boolean).join(' + ');
+  return '<div class="empty-state">'+
+         '<p>La section <strong>§'+esc(ref)+'</strong> ne figure pas dans ce qui est chargé ('+esc(chargés)+').</p>'+
+         '<p>Renvois réellement disponibles : '+esc(liste)+' — soit <strong>'+ok.length+' sur '+ALL_REFS.length+'</strong>.</p>'+
+         '<p>Il manque le dossier complet, ou la section porte un autre titre.</p>'+
+         '</div>';
 }
 
-function closeRef(){
-  if(!el.drawer.classList.contains('open')) return;
-  el.drawer.classList.remove('open');
-  el.drawer.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-  if(lastFocus && lastFocus.focus) lastFocus.focus({preventScroll:true});
-  lastFocus = null;
+/* le panneau d'une ligne est son voisin immediat : aucun index a tenir */
+function panneauDe(btn){
+  const row = btn.closest('.item');
+  const p = row && row.nextElementSibling;
+  return (p && p.classList.contains('sec')) ? p : null;
 }
 
-el.drClose.addEventListener('click', closeRef);
-el.drawer.addEventListener('click', e=>{ if(e.target === el.drawer) closeRef(); });
-document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeRef(); });
+function toggleRef(btn){
+  const p = panneauDe(btn); if(!p) return;
+  const ouvert = !p.hidden;
+  if(ouvert){
+    p.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+    return;
+  }
+  if(!p.dataset.rempli){                       /* rendu une fois, pas a chaque clic */
+    p.innerHTML = contenuSection(btn.dataset.ref);
+    p.dataset.rempli = '1';
+  }
+  p.hidden = false;
+  btn.setAttribute('aria-expanded','true');
+}
 
-/* le clavier reste dans le lecteur tant qu'il est ouvert */
-el.drawer.addEventListener('keydown', e=>{
-  if(e.key !== 'Tab') return;
-  const f = Array.prototype.filter.call(
-    el.drawer.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'),
-    x => x.offsetParent !== null
-  );
-  if(!f.length) return;
-  const first = f[0], last = f[f.length-1];
-  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
-  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+/* Un dossier qui change rend tous les textes deja deplies caducs : on les
+   vide et on les referme, plutot que de laisser lire la section d'hier. */
+function resetSections(){
+  el.phases.querySelectorAll('.sec').forEach(p=>{
+    p.hidden = true;
+    p.innerHTML = '';
+    delete p.dataset.rempli;
+  });
+  el.phases.querySelectorAll('.ref[aria-expanded]').forEach(b=> b.setAttribute('aria-expanded','false'));
+}
+
+/* Échap referme ce qui est ouvert, sans toucher aux phases dépliées */
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Escape') return;
+  const ouverts = el.phases.querySelectorAll('.sec:not([hidden])');
+  if(!ouverts.length) return;
+  ouverts.forEach(p=>{ p.hidden = true; });
+  el.phases.querySelectorAll('.ref[aria-expanded="true"]').forEach(b=> b.setAttribute('aria-expanded','false'));
 });

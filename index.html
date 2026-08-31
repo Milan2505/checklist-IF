@@ -82,6 +82,9 @@
     <span><i style="background:var(--magenta)"></i>renvoi au dossier</span>
     <span><i style="background:var(--cyan)"></i>valeur saisie</span>
     <span><i style="background:var(--violet)"></i>WIP, annoncé jamais vérifié</span>
+    <!-- NIL n'est pas une couleur mais un état : la légende le montre tel qu'il
+         s'affiche dans les cases, pour que l'œil fasse le lien sans traduire. -->
+    <span><b class="lg-nil">NIL</b>donnée non relevée, jamais estimée</span>
   </div>
 
   <!-- Source des lignes de séquence : le §A.5 distingue ce qui a été vu à
@@ -103,15 +106,6 @@
   </div>
 </div>
 
-<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drTitle" aria-hidden="true">
-  <div class="dr-panel">
-    <div class="dr-head">
-      <h3 id="drTitle">Section</h3>
-      <button type="button" class="btn ghost" id="drClose">Fermer</button>
-    </div>
-    <div class="md" id="drBody"></div>
-  </div>
-</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 

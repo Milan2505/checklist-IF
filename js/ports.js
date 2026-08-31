@@ -62,6 +62,7 @@ function fillPort(which){
        donnee n'a pas ete observee, et c'est une information (§A.5 regle 7). */
     dd.textContent = v || '___';
     dd.classList.toggle('empty', !v);
+    dd.classList.toggle('nil', estNil(v));
     /* Attendu au cartouche mais non resolu : meme marque que le panneau Valeurs.
        Un champ non resolu ne se masque JAMAIS — un panneau qui omet une valeur
        absente transforme un defaut visible en defaut invisible. */

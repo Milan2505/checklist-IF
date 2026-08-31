@@ -104,6 +104,7 @@ function fillFrom(got){
         inp.value = neuf;
         inp.parentElement.classList.add('auto');
         inp.parentElement.classList.remove('unresolved');
+        inp.parentElement.classList.toggle('nil', estNil(neuf));
         inp.title = 'Valeur reprise du briefing — à confirmer sur l\'OFP';
       }
       n++;
@@ -113,6 +114,7 @@ function fillFrom(got){
       if(inp){
         inp.value = '';
         inp.parentElement.classList.remove('auto');
+        inp.parentElement.classList.remove('nil');
         inp.removeAttribute('title');
       }
     }
