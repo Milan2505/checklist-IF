@@ -54,7 +54,14 @@ const WIP = /\[\s*WIP\s*\]/i;
    « cellule non atomique », qui ne dit pas ce qui s'est passe.
    La convention « ces marqueurs ne s'ecrivent que dans la PARTIE B » etait donc
    la seule barriere, et elle etait redactionnelle. Elle est ici, nommee. */
-const MARQUEUR_INCONNU = /\[[^\]]*\]/;
+/* REV 30 · le filet n'exigeait le crochet FERMANT — « [RÉEL » tronque, ou
+   « (RÉEL) » entre parentheses, traversait un champ 'text' et s'affichait tel
+   quel dans la case. Le crochet fermant est desormais optionnel, et une
+   parenthese dont le contenu ressemble a un marqueur — deux a douze majuscules,
+   accents compris — est attrapee elle aussi. La parenthese n'est prise que dans
+   cette forme : une valeur qui porterait un commentaire en minuscules reste
+   refusee par son genre, pas par ce filet. */
+const MARQUEUR_INCONNU = /\[[^\]]*\]?|\(\s*[A-Z\u00C0-\u00DE]{2,12}\s*\)/;
 
 function validate(e, raw){
   const v = (raw || '').trim();

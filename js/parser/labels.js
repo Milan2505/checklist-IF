@@ -4,15 +4,27 @@
    libelle vers une entree du registre, forme retenue, libelles ignores.
    Depend de : parser/registre.js.
 ============================================================ */
+/* REV 30 · le libelle est nettoye de ses marqueurs AVANT resolution. Un
+   « Cap départ [NAV] » en colonne 1 ne resolvait pas : la cle restait inconnue,
+   la valeur n'atteignait aucune case, et rien ne le disait. Le retrait porte sur
+   les crochets seuls, jamais sur les parentheses : la parenthese de traduction
+   (« Passagers (Passengers) ») est traitee par regFor(), et les deux mecanismes
+   ne se marchent pas dessus. */
 function normLabel(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-          .replace(/[`*]/g,'').replace(/\s+/g,' ').trim();
+          .replace(/[`*]/g,'').replace(/\[[^\]]*\]?/g,'')
+          .replace(/\s+/g,' ').trim();
 }
 /* Marqueurs de SOURCE du dossier (§Conventions) : ils qualifient l'origine de la
    valeur, pas la valeur elle-meme, donc ils se retirent avant validation.
    [WIP] et [MANQUE] n'y figurent pas volontairement — le premier disqualifie la
-   cellule, le second dit « non fourni ». Tous deux sont traites dans validate(). */
-const MARQUEUR_SOURCE = /\[(OFP|FORM|NAV|SIM|RDR|CALC)\]/g;
+   cellule, le second dit « non fourni ». Tous deux sont traites dans validate().
+   REV 30 · casse et espaces internes indifferents. Le motif etait sensible a la
+   casse et exigeait des crochets colles : « [ofp] » et « [ OFP ] » n'etaient pas
+   retires, ils descendaient jusqu'au filet des marqueurs inconnus et faisaient
+   refuser la cellule. Six marqueurs retires a la lecture, c'etait vrai en
+   majuscules seulement. */
+const MARQUEUR_SOURCE = /\[\s*(OFP|FORM|NAV|SIM|RDR|CALC)\s*\]/gi;
 function cleanCell(s){
   return s.replace(/[`*]/g,'').replace(MARQUEUR_SOURCE,'')
           .replace(/\s+/g,' ').trim();
