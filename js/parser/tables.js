@@ -171,14 +171,29 @@ function readCartouche(lines, read){
    Ne restent que des motifs ancres, sans quantificateur ouvert.
    N'ecrit jamais par-dessus une cle deja lue en tableau.
 ------------------------------------------------------------ */
-function scanProse(txt, out){
+/* ------------------------------------------------------------
+   REV 30 · TROIS ETATS, PAS DEUX
+   La garde etait « la cle est vide » — vraie aussi bien quand la feuille
+   ne porte rien que quand validate() vient de REFUSER la cellule. La
+   prose reecrivait donc precisement ce qu'un refus venait d'ecarter : un
+   cartouche portant « Cap dégagement | 400 » etait refuse par la borne
+   360, puis la prose « 400° / 29 NM » reposait 400 dans la case — sans
+   borne, sans rendu sur trois chiffres, et la case remplie n'etait plus
+   signalee comme non resolue. Le refus devenait invisible.
+   `refusees` porte les cles qu'une cellule a tentees et ratees. Une
+   cellule vide ou en AUTO n'en fait pas partie : elle n'a rien tente, et
+   c'est par ce chemin que « DEP RWY EXPECTED 04R » remplit encore une
+   piste laissee en AUTO au §0.
+------------------------------------------------------------ */
+function scanProse(txt, out, refusees){
+  const libre = k => out[k] === undefined && !(refusees && refusees.has(k));
   let m;
   /* "258° / 42 NM depuis LEBL" — cap et distance du degagement */
   m = txt.match(/(\d{1,3})\s*°\s*\/\s*(\d{1,4})\s*NM/);
-  if(m){ if(!out.degcap) out.degcap = m[1]; if(!out.degdist) out.degdist = m[2]; }
+  if(m){ if(libre('degcap')) out.degcap = m[1]; if(libre('degdist')) out.degdist = m[2]; }
   /* pistes attendues, telles qu'elles figurent dans les remarks de l'OFP */
   m = txt.match(/DEP\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
-  if(m && !out.piste) out.piste = m[1];
+  if(m && libre('piste')) out.piste = m[1];
   m = txt.match(/ARR\s*RWY\s*EXPECTED\s*(\d{2}[LRC]?)/i);
-  if(m && !out.arrpiste) out.arrpiste = m[1];
+  if(m && libre('arrpiste')) out.arrpiste = m[1];
 }

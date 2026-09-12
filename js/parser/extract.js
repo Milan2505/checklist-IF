@@ -15,7 +15,12 @@ function extractValues(txt){
   /* Partir → Arriver se reconstruit toujours depuis les deux lignes atomiques :
      aucun libellé « Route » n'est lu, le mot est trop ambigu (voir REGISTRE) */
   if(out._dep && out._arr) out.route = out._dep+' → '+out._arr;
-  scanProse(txt, out);                                   /* cles encore absentes uniquement */
+  /* REV 30 · les cles qu'une cellule a tentees et ratees ne repassent pas par
+     la prose : un refus doit rester visible, donc la case reste vide. */
+  const refusees = new Set(read.rows
+    .filter(r => r.key && !r.ok && r.reason !== 'non fourni')
+    .map(r => r.key));
+  scanProse(txt, out, refusees);                         /* cles encore absentes uniquement */
   cartouche = readCartouche(lines, read);
   /* Un rejet disparaissait en silence : la case restait vide sans rien dire,
      exactement le defaut que la lecture stricte doit supprimer. Une cellule
