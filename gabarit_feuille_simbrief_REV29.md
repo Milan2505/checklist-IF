@@ -3,13 +3,37 @@
 **GABARIT VIERGE**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
-Dossier de référence : REV 27. Cinq cartouches, 39 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
+Dossier de référence : REV 29. Cinq cartouches, 39 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
 
 Les cases déjà remplies sont les réglages permanents, identiques d'un vol à l'autre. Les cases vides se remplissent au vol. Aucune ne se laisse vide à la livraison : la méthode d'estimation de chacune est au §A.4 du dossier.
 
+⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 29, section par section. S'il contredit le dossier, c'est lui qui est périmé.
+
 ---
 
-## §0.1 · IDENTIFICATION ET ÉQUIPEMENT — PRIORITÉ
+## §0.1 · INFORMATIONS SUR LE VOL
+
+| Champ | À taper | Valeur attendue |
+|---|---|---|
+| Compagnie aérienne (Airline) | | |
+| Numéro du vol (Flight Number) | | — |
+| Partir (Depart) | | |
+| Arriver (Arrive) | | |
+| Alterner (Alternate) | | |
+| Heure de départ (EOBT) | | |
+
+## §0.2 · INFORMATIONS SUR L'AVION — PARTIE VISIBLE
+
+| Champ | À taper | Valeur attendue |
+|---|---|---|
+| Type d'aéronef (Aircraft) | | |
+| Variante ou cellule (Airframe) | | |
+| Profil d'ascension (Climb) | AUTO | |
+| Profil de croisière (Cruise) | AUTO | |
+| Profil de descente (Descent) | AUTO | |
+| Indicatif d'appel ATC (ATC Callsign) | | — |
+
+## §0.2 bis · INFORMATIONS SUR L'AVION — SOUS « PLUS D'OPTIONS »
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -23,29 +47,7 @@ Les cases déjà remplies sont les réglages permanents, identiques d'un vol à 
 | Capacité PBN (PBN Capability) | A1B1C1D1L1O1S1 | chaîne appliquée par SimBrief |
 | Informations supplémentaires sur le FPL — Article 18 | DAT/V RMK/SIMBRIEF | chaîne appliquée par SimBrief |
 
-## §0.2 · INFORMATIONS SUR LE VOL
-
-| Champ | À taper | Valeur attendue |
-|---|---|---|
-| Compagnie aérienne (Airline) | | |
-| Numéro du vol (Flight Number) | | — |
-| Partir (Depart) | | |
-| Arriver (Arrive) | | |
-| Alterner (Alternate) | | |
-| Heure de départ (EOBT) | | |
-
-## §0.3 · INFORMATIONS SUR L'AVION — PARTIE VISIBLE
-
-| Champ | À taper | Valeur attendue |
-|---|---|---|
-| Type d'aéronef (Aircraft) | | |
-| Variante ou cellule (Airframe) | | |
-| Profil d'ascension (Climb) | AUTO | |
-| Profil de croisière (Cruise) | AUTO | |
-| Profil de descente (Descent) | AUTO | |
-| Indicatif d'appel ATC (ATC Callsign) | | — |
-
-## §0.4 · SÉLECTIONS
+## §0.3 · SÉLECTIONS
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -64,7 +66,7 @@ Les cases déjà remplies sont les réglages permanents, identiques d'un vol à 
 | Inclure les NOTAM | ON | — |
 | NOTAM FIR | ON | — |
 
-## §0.5 · ENTRÉES FACULTATIVES
+## §0.4 · ENTRÉES FACULTATIVES
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -77,7 +79,7 @@ Les cases déjà remplies sont les réglages permanents, identiques d'un vol à 
 | Charge utile (Payload, KG) | | |
 | Poids zéro carburant (ZFW, KG) | | |
 
-## §0.6 · PLANIFICATION DU CARBURANT
+## §0.5 · PLANIFICATION DU CARBURANT
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -92,23 +94,23 @@ Les cases déjà remplies sont les réglages permanents, identiques d'un vol à 
 | EXTRA | 0 | |
 | Transport de pétrole (Tankering) | 0 | — |
 
-## §0.7 · ENTRÉES DE TEXTE
+## §0.6 · ENTRÉES DE TEXTE
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
 | Identifiant du pilote (Pilot ID) | 1312837 | — |
 | Nom du capitaine (Captain Name) | MILAN ELIAYAN | — |
 | Nom du premier officier (First Officer) | Random | — |
-| Nom de l'expéditeur (Dispatcher Name) | Random | — |
+| Nom du distributeur (Dispatcher Name) | Random | — |
 | Remarques du répartiteur | | quatre lignes séparées |
 
-## §0.8 · ITINÉRAIRE
+## §0.7 · ITINÉRAIRE
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
 | Selected Route | | |
 
-## §0.9 · AÉROPORTS ALTERNATIFS
+## §0.8 · AÉROPORTS ALTERNATIFS
 
 **Critères de recherche**
 
@@ -145,11 +147,11 @@ Les cases déjà remplies sont les réglages permanents, identiques d'un vol à 
 | Gares en route (Enroute Stations) | Disabled | — |
 | Aéroports sélectionnés (Selected Airports) | vide | — |
 
-## §0.10 · SCÉNARIO ETOPS
+## §0.9 · SCÉNARIO ETOPS
 
 n/a hors survol maritime ou désertique.
 
-## §0.11 · MÉTÉO HISTORIQUE · PARAMÈTRES DE DÉBOGAGE
+## §0.10 · MÉTÉO HISTORIQUE · PARAMÈTRES DE DÉBOGAGE
 
 n/a, décidé et assumé.
 
@@ -248,8 +250,10 @@ Un paragraphe par famille, à écrire au vol : identité, pistes, portes, dégag
 
 # NOTES DU GABARIT
 
-**Altitude initiale et autobrakes** — ces trois repères sont désormais lus. L'altitude initiale est au cartouche ③ avec les autres altitudes, les deux crans d'autobrake au cartouche ②. Ils ne se saisissent plus à la main. Attention à ne jamais confondre `Altitude initiale`, qui est celle du départ, avec `Altitude (Pieds)` du §0.5, qui porte le niveau de croisière : ce sont deux clés distinctes.
+**Numérotation** — celle du §0 du dossier, section par section : `§0.1` Informations sur le vol, `§0.2` avion partie visible, `§0.2 bis` les neuf champs repliés derrière « Plus d'options », puis `§0.3` à `§0.10`. Aucune feuille ne renumérote et aucune ne remonte les neuf champs en tête : le titre « identification et équipement — priorité » est supprimé depuis la REV 22.
 
-**Les deux portes — trois niveaux** — porte relevée en premier ; à défaut, le terminal relevé, préfixé `T` (`T2`, `TA`, `TIBZ`) ; à défaut des deux, `NIL`. Ordre de consultation, valable pour toute feuille : airportinfo.live d'abord, qui sert les deux portes ; Airportia en recoupement ; AirNav RadarBox si le vol n'y figure pas ; le tableau des départs du terrain en dernier recours. Ni la porte ni le terminal ne se déduisent : ils sont relevés, ou la cellule descend d'un niveau. Une porte non publiée alors que le terminal l'est donne le terminal préfixé `T` ; `NIL` ne reste que si les deux manquent. La porte disparaît des tableaux dès que le vol a décollé — demandée avant, elle est là.
+**Altitude initiale et autobrakes** — ces trois repères sont lus depuis la REV 26. L'altitude initiale est au cartouche ③ avec les autres altitudes, les deux crans d'autobrake au cartouche ②. Ils ne se saisissent plus à la main. Ne jamais confondre `Altitude initiale`, qui est celle du départ, avec `Altitude (Pieds)` du §0.4, qui porte le niveau de croisière : ce sont deux clés distinctes.
 
-**Quel dossier fait foi** — ce gabarit suit ce que la checklist en ligne lit aujourd'hui : 39 cellules, cartouche ② à dix, cartouche ③ à quinze. Le fichier `briefing_prevol_IF_REV23.md` transmis hors dépôt en définit 34 et ne connaît ni les portes ni la règle `NIL`. Les deux ne décrivent pas le même dossier. Tant que ce n'est pas tranché, c'est la page qui commande, parce que c'est elle qui refuse une feuille.
+**Les deux portes — trois niveaux** — porte relevée en premier ; à défaut, le terminal relevé, préfixé `T` (`T2`, `TA`, `TIBZ`) ; à défaut des deux, `NIL`. Ordre de consultation : airportinfo.live d'abord, qui sert les deux portes ; Airportia en recoupement ; AirNav RadarBox si le vol n'y figure pas ; le tableau des départs du terrain en dernier recours. Ni la porte ni le terminal ne se déduisent : ils sont relevés, ou la cellule descend d'un niveau. La porte disparaît des tableaux dès que le vol a décollé — demandée avant, elle est là.
+
+**Ce que le parseur fait des valeurs** — genre par genre, la table est au §A.5 du dossier. Deux conséquences pour qui remplit une feuille : un cap s'écrit sur trois chiffres (`043`, pas `43`), et aucune masse ne s'écrit en tonnes.
