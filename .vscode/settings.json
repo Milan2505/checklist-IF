@@ -1,0 +1,18 @@
+{
+    // Le markdown de ce dépôt est une interface machine (§A.5) : la feuille du
+    // vol est lue par js/parser/, pas seulement par un humain. Un formateur qui
+    // passe à l'enregistrement réécrit donc le contrat de lecture, sans rien
+    // dire — c'est ce qui est arrivé à briefing_prevol_IF_REV25.md, dont les
+    // 77 séparateurs de tableaux « |---| » sont devenus « | --- | » tout seuls.
+    // Ce coup-là était inoffensif : SEPARATEUR (js/parser/tables.js) tolère les
+    // espaces. Le prochain — un retour à la ligne dans une cellule, une
+    // réécriture d'emphase — ne le serait pas.
+    "[markdown]": {
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false,
+        "editor.formatOnType": false
+    },
+    // Les règles éteintes et leur motif sont dans .markdownlint.yaml, à la
+    // racine. Elles ne sont pas éteintes par confort : voir le fichier.
+    "markdownlint.configFile": ".markdownlint.yaml"
+}

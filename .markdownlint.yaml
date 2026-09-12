@@ -1,0 +1,44 @@
+# ============================================================
+# MARKDOWNLINT — POURQUOI TROIS REGLES SONT ETEINTES
+#
+# Le markdown de ce depot n'est pas de la mise en page : c'est une
+# interface machine. Le §A.5 du dossier l'ecrit noir sur blanc — la
+# feuille du vol est chargee par la checklist, qui en extrait les valeurs
+# et les pousse dans ses cases. Une regle de style qui reecrit la forme
+# d'un document reecrit donc le contrat de lecture.
+#
+# Les trois regles ci-dessous sont eteintes pour une raison mesuree, pas
+# par confort. Toutes les autres restent actives.
+# ============================================================
+
+# MD025 · plusieurs titres de niveau 1 dans le meme document.
+# Le dossier en porte trois, et c'est sa structure : le document,
+# « PARTIE A · PROTOCOLE », « PARTIE B · DOSSIER ». Le dossier s'y refere
+# lui-meme. Les degrader en niveau 2 decalerait toute la hierarchie d'un
+# document publie et archive.
+MD025: false
+
+# MD036 · emphase utilisee a la place d'un titre.
+# ⚠ CELLE-CI EST LA PLUS IMPORTANTE : les lignes en gras isolees sont
+# PORTEUSES. js/parser/tables.js les lit comme contexte de section —
+# `section += ' ' + normLabel(...)` pour une ligne en gras, mais
+# `section = normLabel(...)` pour un titre : le gras AJOUTE, le titre
+# REMET A ZERO.
+# Mesure faite a l'execution sur une vraie feuille : convertir les onze
+# lignes en gras en titres ne change rien AUJOURD'HUI — 39/39 cellules,
+# memes valeurs — mais seulement parce que le bloc s'appelle
+# « Dégagement n° 1 », qui porte lui-meme le mot discriminant de
+# SECTION_ALTERNATE. Sur un bloc nomme « Critères de recherche » ou
+# « Terrain de dégagement », la remise a zero fait perdre « alternatifs »
+# et l'ignore contextuel cesse de jouer : l'elevation du terrain de
+# degagement ecrase alors le niveau de croisiere, en silence. C'est
+# exactement le correctif bloquant de la REV 19, reintroduit par une
+# regle de style.
+MD036: false
+
+# MD040 · bloc de code sans langage declare.
+# Les blocs clotures de ce depot ne sont pas du code : ce sont des
+# transcriptions de cockpit, des profils de montee, l'alerte du §A.2 et
+# des formules de TOD. Leur declarer un langage serait faux, et les
+# editer signifierait modifier des archives publiees.
+MD040: false
