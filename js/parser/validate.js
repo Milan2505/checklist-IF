@@ -10,7 +10,31 @@
    d'une meme cellule. Une cellule qui contient autre chose qu'une
    valeur est un rejet, pas une matiere premiere.
 ------------------------------------------------------------ */
-const UNITE = /(kg|ft|kt|nm|min|°c|°)$/i;
+/* Le blanc qui precede l'unite part avec elle : « 250 kg » comme « 250kg ». */
+const UNITE = /[\s\u00A0\u202F]*(kg|ft|kt|nm|min|°c|°)$/i;
+/* ------------------------------------------------------------
+   REV 30 · L'ATOMICITE SE TESTE AVANT D'ECRASER LES BLANCS
+   digits() ne retire pas « l'espace de milliers » : il retire TOUS les
+   blancs, ou qu'ils soient. Il etait applique AVANT le seul test
+   d'atomicite, qui ne voyait donc jamais le blanc qui separait deux
+   nombres : « 1 100 1 050 » ressortait « 11001050 », accepte, sans motif
+   et sans bandeau. C'est la panne fondatrice decrite en tete de ce
+   fichier, dans sa forme « separateur blanc » — et le refus promis par la
+   regle 2 du §A.5 n'existait pas pour ce cas.
+   Aggravant : cleanCell() retire marqueurs et asterisques EN PREMIER,
+   donc il pouvait creer l'adjacence — « 64 460 [CALC] 77 800 ».
+   La cellule doit desormais ressembler a UN SEUL nombre avant que le
+   moindre blanc ne soit retire : soit une suite de chiffres sans blanc,
+   soit un groupement de milliers regulier — 1 a 3 chiffres, puis des
+   groupes de 3 exactement, un seul blanc entre chacun. Ce qui passait
+   hier passe encore (« 6 250 », « 250 kg », « 62260 ») ; ce qui soudait
+   deux nombres est refuse, sous le motif de la cellule non atomique.
+   ⚠ Reste indecidable, et c'est assume : « 1 100 800 » est un groupement
+   de milliers valide autant que deux nombres. Un groupement correct est
+   lu comme le nombre qu'il ecrit.
+------------------------------------------------------------ */
+const UN_NOMBRE  = /^(?:\d+|\d{1,3}(?:[\s\u00A0\u202F]\d{3})+)$/;
+const UN_DECIMAL = /^(?:\d+|\d{1,3}(?:[\s\u00A0\u202F]\d{3})+)(?:[.,]\d+)?$/;
 /* MANQUE est le marqueur de non-fourni du dossier (§Conventions), pas une
    valeur : sans cette ligne il passait pour un code valide et « MANQUE »
    s'affichait dans la case ILS comme s'il s'agissait d'une frequence. */
@@ -57,7 +81,7 @@ function validate(e, raw){
      etait acceptee hier, elle doit l'etre encore.
   ------------------------------------------------------------ */
   if(e.kind === 'cap'){
-    const s = digits(v).replace(UNITE, '');
+    const s = v.replace(UNITE, '');
     if(!/^\d{1,3}$/.test(s))
       return { ok:false, reason:'cap attendu, trois chiffres au plus : « '+v+' »' };
     const n = parseInt(s, 10);
@@ -66,10 +90,13 @@ function validate(e, raw){
   }
 
   if(e.kind === 'int' || e.kind === 'dec'){
-    const s = digits(v).replace(UNITE, '');
-    const motif = e.kind === 'int' ? /^\d+$/ : /^\d+([.,]\d+)?$/;
+    /* REV 30 · l'atomicite se teste sur la cellule AVANT que digits() n'ecrase
+       les blancs — voir UN_NOMBRE en tete de fichier. digits() ne sert plus
+       qu'a retirer le groupement de milliers d'un nombre deja reconnu. */
+    const s = v.replace(UNITE, '');
+    const motif = e.kind === 'int' ? UN_NOMBRE : UN_DECIMAL;
     if(!motif.test(s)) return { ok:false, reason:'cellule non atomique : « '+v+' »' };
-    let n = parseFloat(s.replace(',', '.'));
+    let n = parseFloat(digits(s).replace(',', '.'));
     if(!isFinite(n)) return { ok:false, reason:'nombre illisible : « '+v+' »' };
     if(e.kind === 'dec' && n > 1000) n = Math.round(n/100)/10;      /* kg -> t */
     if(e.xf) n = e.xf(n);
