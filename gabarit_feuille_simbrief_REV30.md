@@ -3,11 +3,11 @@
 **GABARIT VIERGE**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
-Dossier de référence : REV 29. Cinq cartouches, 39 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
+Dossier de référence : REV 30. Cinq cartouches, 39 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
 
 Les cases déjà remplies sont les réglages permanents, identiques d'un vol à l'autre. Les cases vides se remplissent au vol. Aucune ne se laisse vide à la livraison : la méthode d'estimation de chacune est au §A.4 du dossier.
 
-⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 29, section par section. S'il contredit le dossier, c'est lui qui est périmé.
+⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 30, section par section. S'il contredit le dossier, c'est lui qui est périmé.
 
 ---
 
@@ -256,4 +256,9 @@ Un paragraphe par famille, à écrire au vol : identité, pistes, portes, dégag
 
 **Les deux portes — trois niveaux** — porte relevée en premier ; à défaut, le terminal relevé, préfixé `T` (`T2`, `TA`, `TIBZ`) ; à défaut des deux, `NIL`. Ordre de consultation : airportinfo.live d'abord, qui sert les deux portes ; Airportia en recoupement ; AirNav RadarBox si le vol n'y figure pas ; le tableau des départs du terrain en dernier recours. Ni la porte ni le terminal ne se déduisent : ils sont relevés, ou la cellule descend d'un niveau. La porte disparaît des tableaux dès que le vol a décollé — demandée avant, elle est là.
 
-**Ce que le parseur fait des valeurs** — genre par genre, la table est au §A.5 du dossier. Deux conséquences pour qui remplit une feuille : un cap s'écrit sur trois chiffres (`043`, pas `43`), et aucune masse ne s'écrit en tonnes.
+**Ce que le parseur fait des valeurs** — genre par genre, la table est au §A.5 du dossier. Quatre conséquences pour qui remplit une feuille :
+
+- un cap s'écrit sur trois chiffres (`043`, pas `43`), et **la prose ne porte jamais un cap qui contredit la cellule** : si la cellule est refusée, c'est la prose qui remplit la case, sans borne et sans un mot ;
+- aucune masse ne s'écrit en tonnes ;
+- **jamais deux nombres dans une cellule**, même séparés d'un simple blanc : ils seraient soudés et acceptés, pas refusés ;
+- les marqueurs s'écrivent en majuscules, crochets fermés, en colonne 2 ou en prose — **jamais collés à un libellé**, ce qui empêcherait la résolution en silence.
