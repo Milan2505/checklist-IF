@@ -14,5 +14,35 @@
     },
     // Les règles éteintes et leur motif sont dans .markdownlint.yaml, à la
     // racine. Elles ne sont pas éteintes par confort : voir le fichier.
-    "markdownlint.configFile": ".markdownlint.yaml"
+    "markdownlint.configFile": ".markdownlint.yaml",
+
+    // Le correcteur ne connaissait que l'anglais alors que tout ce dépôt est
+    // écrit en français : « préparation », « départ », « croisière » et cent
+    // autres sortaient en « Unknown word » sur le seul index.html. Le
+    // dictionnaire français (streetsidesoftware.code-spell-checker-french)
+    // était déjà installé, mais aucun réglage ne le réclamait — il ne
+    // s'active que sur la locale « fr ». On garde « en » à côté : les
+    // identifiants du HTML et du JS en vivent (preconnect, crossorigin,
+    // viewport, progressbar…).
+    "cSpell.language": "fr,en",
+    // Les sigles du dossier de vol — OFP, MCDU, APU, ADIRS, ZFW, VFE, FOB — et
+    // les codes OACI — LSGG, EDDL, LFMN, EW9743 — forment un ensemble ouvert
+    // qui s'allonge à chaque révision livrée. Les lister un par un imposerait
+    // de tenir la liste à jour pour rien : aucun dictionnaire n'a d'avis sur
+    // eux, ils viennent de l'OFP et du MCDU, pas du français. On cesse donc de
+    // vérifier les mots écrits tout en majuscules. Contrepartie assumée : une
+    // coquille DANS un sigle passera — mais elle passait déjà, noyée sous les
+    // faux positifs.
+    "cSpell.ignoreRegExpList": [
+        "/\\b[A-ZÀÂÄÇÈÉÊËÎÏÔÖÙÛÜ][A-ZÀÂÄÇÈÉÊËÎÏÔÖÙÛÜ0-9]+\\b/g"
+    ],
+    // Ce qui reste après les deux dictionnaires : les noms propres. Pour en
+    // ajouter un, l'ampoule sur le mot souligné → « Add to workspace
+    // settings » écrit ici même.
+    "cSpell.words": [
+        "barlow",
+        "googleapis",
+        "gstatic",
+        "simbrief"
+    ]
 }
