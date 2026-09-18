@@ -1,82 +1,82 @@
 # ============================================================
-# MARKDOWNLINT — AUCUNE REGLE DE STYLE SUR CE DEPOT
+# MARKDOWNLINT — AUCUNE RÈGLE DE STYLE SUR CE DÉPÔT
 #
-# Le markdown d'ici n'est pas de la prose a mettre en page : c'est une
-# interface machine. Le §A.5 du dossier l'ecrit noir sur blanc — la
-# feuille du vol est chargee par la checklist, qui en extrait les valeurs
-# et les pousse dans ses cases. La forme EST le contrat. Une regle de
-# style qui propose de reecrire la forme propose de reecrire le contrat.
+# Le markdown d'ici n'est pas de la prose à mettre en page : c'est une
+# interface machine. Le §A.5 du dossier l'écrit noir sur blanc — la
+# feuille du vol est chargée par la checklist, qui en extrait les valeurs
+# et les pousse dans ses cases. La forme EST le contrat. Une règle de
+# style qui propose de réécrire la forme propose de réécrire le contrat.
 #
 # `default: false` n'est donc pas un bandeau sur un compteur : c'est la
 # reconnaissance qu'un linter de style n'a pas juridiction sur ces
-# fichiers. Ils sont deja verifies, et beaucoup mieux, par le parseur
-# lui-meme — voir plus bas.
+# fichiers. Ils sont déjà vérifiés, et beaucoup mieux, par le parseur
+# lui-même — voir plus bas.
 # ============================================================
 
 default: false
 
 # ------------------------------------------------------------
-# CE QUI A MOTIVE CETTE DECISION, POUR QUE PERSONNE NE LA DEFASSE
+# CE QUI A MOTIVÉ CETTE DÉCISION, POUR QUE PERSONNE NE LA DÉFASSE
 #
-# MD036 · emphase utilisee a la place d'un titre — LA DANGEREUSE.
-#   Les lignes en gras isolees sont PORTEUSES. js/parser/tables.js les lit
+# MD036 · emphase utilisée à la place d'un titre — LA DANGEREUSE.
+#   Les lignes en gras isolées sont PORTEUSES. js/parser/tables.js les lit
 #   comme contexte de section : le gras AJOUTE
-#   (`section += ' ' + normLabel(...)`), un titre REMET A ZERO
+#   (`section += ' ' + normLabel(...)`), un titre REMET À ZÉRO
 #   (`section = normLabel(...)`).
-#   Mesure faite a l'execution, sur une vraie feuille : convertir ses onze
+#   Mesure faite à l'exécution, sur une vraie feuille : convertir ses onze
 #   lignes en gras en titres ne change rien AUJOURD'HUI — 39/39 cellules,
-#   memes valeurs — mais seulement parce que le bloc s'appelle
-#   « Dégagement n° 1 » et porte donc lui-meme le mot discriminant de
-#   SECTION_ALTERNATE. Releve a l'execution :
+#   mêmes valeurs — mais seulement parce que le bloc s'appelle
+#   « Dégagement n° 1 » et porte donc lui-même le mot discriminant de
+#   SECTION_ALTERNATE. Relevé à l'exécution :
 #       **Dégagement n° 1**       -> "0.8 · aeroports alternatifs degagement n° 1"  ignore=true
 #       #### Dégagement n° 1      -> "degagement n° 1"                              ignore=true
 #       **Critères de recherche**  -> "0.8 · aeroports alternatifs criteres..."     ignore=true
 #       #### Critères de recherche -> "criteres de recherche"                       ignore=FALSE
-#   Sur ce dernier cas, l'ignore contextuel cesse de jouer et l'elevation
-#   du terrain de degagement ecrase le niveau de croisiere, en silence :
-#   le correctif bloquant de la REV 19, reintroduit par une regle de style.
+#   Sur ce dernier cas, l'ignore contextuel cesse de jouer et l'élévation
+#   du terrain de dégagement écrase le niveau de croisière, en silence :
+#   le correctif bloquant de la REV 19, réintroduit par une règle de style.
 #
-# MD013 · longueur de ligne. Le dossier ecrit des paragraphes de 450
-#   caracteres sur une ligne, par construction : une cellule de tableau ne
+# MD013 · longueur de ligne. Le dossier écrit des paragraphes de 450
+#   caractères sur une ligne, par construction : une cellule de tableau ne
 #   se coupe pas, et un ⚠ non plus.
 #
-# MD060 · style de colonne de tableau. Les separateurs sont compacts
-#   (`|---|`) et les cellules vides sont ecrites `| Callsign | |`. Un
-#   formateur qui « corrige » ce style a deja reecrit 77 separateurs de
-#   briefing_prevol_IF_REV25.md tout seul. Ce coup-la etait inoffensif —
-#   SEPARATEUR tolere les espaces — le prochain ne l'aurait pas forcement
-#   ete. Le formatage markdown a l'enregistrement est coupe dans
-#   .vscode/settings.json pour la meme raison.
+# MD060 · style de colonne de tableau. Les séparateurs sont compacts
+#   (`|---|`) et les cellules vides sont écrites `| Callsign | |`. Un
+#   formateur qui « corrige » ce style a déjà réécrit 77 séparateurs de
+#   briefing_prevol_IF_REV25.md tout seul. Ce coup-là était inoffensif —
+#   SEPARATEUR tolère les espaces — le prochain ne l'aurait pas forcément
+#   été. Le formatage markdown à l'enregistrement est coupé dans
+#   .vscode/settings.json pour la même raison.
 #
 # MD025 · plusieurs titres de niveau 1. Le dossier en porte trois par
 #   construction — le document, « PARTIE A · PROTOCOLE », « PARTIE B ·
-#   DOSSIER » — et il s'y refere lui-meme.
+#   DOSSIER » — et il s'y réfère lui-même.
 #
-# MD040 · bloc cloture sans langage. Ce ne sont pas des blocs de code :
-#   ce sont des transcriptions de cockpit, des profils de montee, l'alerte
+# MD040 · bloc clôturé sans langage. Ce ne sont pas des blocs de code :
+#   ce sont des transcriptions de cockpit, des profils de montée, l'alerte
 #   du §A.2, des formules de TOD.
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
-# CE QUI VERIFIE REELLEMENT CES FICHIERS
+# CE QUI VÉRIFIE RÉELLEMENT CES FICHIERS
 #
-# Le depot a son propre linter, et il est fait pour eux :
-#   — le parseur refuse une cellule mal formee et NOMME le motif ;
-#   — le bandeau d'anomalie liste les valeurs refusees, les libelles non
-#     reconnus, les champs absents, et le compte de cellules resolues ;
-#   — `window.debugBriefing()` donne, ligne par ligne, le libelle cherche,
-#     la cellule brute, la valeur retenue, la forme du libelle et le motif
+# Le dépôt a son propre linter, et il est fait pour eux :
+#   — le parseur refuse une cellule mal formée et NOMME le motif ;
+#   — le bandeau d'anomalie liste les valeurs refusées, les libellés non
+#     reconnus, les champs absents, et le compte de cellules résolues ;
+#   — `window.debugBriefing()` donne, ligne par ligne, le libellé cherché,
+#     la cellule brute, la valeur retenue, la forme du libellé et le motif
 #     de chaque rejet ;
-#   — le §A.5 porte un controle avant envoi en cinq lignes.
+#   — le §A.5 porte un contrôle avant envoi en cinq lignes.
 # Une feuille qui charge sans bandeau et rend 39/39 est conforme. Aucune
-# regle de style ne dit cela, et aucune ne le dira.
+# règle de style ne dit cela, et aucune ne le dira.
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
-# SI UN JOUR CE DEPOT PORTE UN MARKDOWN ORDINAIRE
+# SI UN JOUR CE DÉPÔT PORTE UN MARKDOWN ORDINAIRE
 # Un README, une note qui n'est lue par personne d'autre qu'un humain :
-# il n'est pas couvert par le §A.5 et peut etre style normalement. Le
-# faire proprement, c'est retirer ce fichier de son perimetre — un
-# `.markdownlintignore` qui liste les documents d'interface — plutot que
-# de rallumer des regles ici.
+# il n'est pas couvert par le §A.5 et peut être stylé normalement. Le
+# faire proprement, c'est retirer ce fichier de son périmètre — un
+# `.markdownlintignore` qui liste les documents d'interface — plutôt que
+# de rallumer des règles ici.
 # ------------------------------------------------------------

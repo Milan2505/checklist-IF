@@ -1,0 +1,95 @@
+# Vocabulaire propre à ce dépôt : les mots que ni le dictionnaire français ni
+# l'anglais ne portent. Lu par cSpell via .vscode/settings.json.
+# Un mot par ligne, en minuscules (la casse est ignorée à la lecture).
+#
+# Ce fichier ne contient PAS les sigles écrits tout en majuscules — OFP, MCDU,
+# ADIRS, ZFW, ni les codes OACI LSGG, EDDL, LFMN. Ceux-là forment un ensemble
+# ouvert et sont dispensés en bloc par cSpell.ignoreRegExpList ; le motif et son
+# raisonnement sont dans settings.json.
+
+# ── Libellés de l'écran SimBrief et champs de l'OFP ──────────────────
+airframe
+altn
+callsign
+contingency
+dispatcher
+enroute
+freight
+kilograms
+oew
+payload
+sched
+scheduled
+stations
+stepclimbs
+takeoff
+tankering
+transponder
+unicom
+zfw
+
+# ── Aviation : termes et abréviations de procédure ───────────────────
+autobrake
+autobrakes
+driftdown
+orthodromie
+orthodromique
+rwy
+squawk
+vapp
+vectoring
+vfe
+vref
+waypoint
+waypoints
+winglets
+
+# ── Noms propres : compagnies, appareils, terrains, services ─────────
+airbus
+boeing
+cointrin
+discord
+easyjet
+eurowings
+flightaware
+ibiza
+instagram
+majorque
+simbrief
+skyvector
+
+# ── Français forgé par le dossier, à conserver tel quel ──────────────
+charté
+chartés
+forçable
+immat
+refusionne
+retentable
+revérifie
+revérifient
+revérifier
+réordonne
+volable
+échap
+
+# ── Interface de la page : polices, hôtes, formats ───────────────────
+barlow
+condensed
+googleapis
+gstatic
+markdown
+
+# ── Formes élidées ──────────────────────────────────────────────────
+# cSpell lit « d'autobrake » comme un seul mot, apostrophe comprise : connaître
+# « autobrake » ne suffit pas. Le dépôt emploie les deux apostrophes (176 droites,
+# 6 typographiques), les deux sont donc déclarées.
+l'airbus
+l’airbus
+d'autobrake
+d’autobrake
+d'airframe
+d’airframe
+l'immat
+l’immat
+d'ibiza
+d’ibiza

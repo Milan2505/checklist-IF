@@ -36,13 +36,17 @@
     "cSpell.ignoreRegExpList": [
         "/\\b[A-ZÀÂÄÇÈÉÊËÎÏÔÖÙÛÜ][A-ZÀÂÄÇÈÉÊËÎÏÔÖÙÛÜ0-9]+\\b/g"
     ],
-    // Ce qui reste après les deux dictionnaires : les noms propres. Pour en
-    // ajouter un, l'ampoule sur le mot souligné → « Add to workspace
-    // settings » écrit ici même.
-    "cSpell.words": [
-        "barlow",
-        "googleapis",
-        "gstatic",
-        "simbrief"
-    ]
+    // Le vocabulaire du dépôt — SimBrief, aviation, noms propres, et le
+    // français forgé par le dossier — vit dans .cspell-mots.txt à la racine,
+    // classé par famille et commenté, plutôt qu'en tableau ici. Même partage
+    // que .markdownlint.yaml : le réglage pointe, le fichier explique.
+    "cSpell.dictionaryDefinitions": [
+        {
+            "name": "checklist-IF",
+            "path": "${workspaceFolder}/.cspell-mots.txt",
+            "description": "Vocabulaire SimBrief, aviation et dossier de vol",
+            "addWords": true
+        }
+    ],
+    "cSpell.dictionaries": ["checklist-IF"]
 }
