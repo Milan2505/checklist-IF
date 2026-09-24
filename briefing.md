@@ -1,26 +1,28 @@
 # BRIEFING PRÉ-VOL — INFINITE FLIGHT
 
-**REV 30**
+**REV 31**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
 
-## CE QUI CHANGE DEPUIS LA REV 29
+## CE QUI CHANGE DEPUIS LA REV 30
 
-**Objet de la révision : le dossier cesse de promettre des refus qui n'arrivent pas.** Un audit du code, mené sur le dépôt et rejoué à l'exécution, a montré que quatre affirmations du §A.5 décrivaient un parseur plus sévère que le vrai. Deux d'entre elles couvrent des chemins par lesquels **une valeur fausse est lue en silence** — exactement la classe de défaut que le §A.5 dit être pire qu'une case vide. Aucune cellule n'est ajoutée : le total reste à 39.
+**Objet de la révision : l'A321neo est au sélecteur depuis la 26.4, et un premier vol complet a été tenu le 24/09/2026.** Ce qui était annoncé par le studio est confronté à ce qui a volé. Aucune cellule n'est ajoutée : le total reste à 39, §0, §A.4 et §A.5 sont inchangés.
 
 | # | Objet | Nature |
 |---|---|---|
-| 1 | **§A.5 règles 1 et 2 — deux nombres séparés par un blanc sont soudés, pas refusés.** `digits()` retire **tous** les blancs avant le seul test d'atomicité : `1 100 1 050` ressort `11001050`, accepté, sans motif et sans bandeau. L'exemple du dossier était bien refusé, mais pour une autre raison — des lettres et un tiret y survivaient. Aggravant : `cleanCell` retire marqueurs et astérisques d'abord, donc il peut créer l'adjacence. Seule `Altitude initiale` l'intercepte, par son `max:5`, sous un motif qui ne nomme pas la cause | correctif |
-| 2 | **§A.5 · la borne 360 du cap ne tient pas sur le chemin prose.** `validate()` refuse bien `400`, puis `scanProse` réécrit la clé précisément **parce qu'elle vient d'être refusée** — sa condition est « la clé est vide ». Le motif de prose capture trois chiffres sans borne et sans rendu sur trois chiffres, et la case étant remplie, l'alerte ne la marque plus non résolue. Le refus devient invisible | correctif |
-| 3 | **§A.5 · « aucune cellule ne sort convertie » était faux tel qu'écrit.** La phrase, ajoutée en REV 29, vaut pour les 39 cellules de cartouche. Elle ne vaut pas pour la clé `Altitude (Pieds)` du §0, rendue en niveau de vol : `35000` s'affiche `350`, relevé sur les deux feuilles du dépôt. La phrase est restreinte et la conversion nommée | correctif |
-| 4 | **§A.5 · le bandeau d'anomalie est conditionnel.** Seuls les champs requis y entrent, seul le premier refus par clé est nommé, un refus est jeté si la clé a été résolue ailleurs, et sans aucun cartouche le bandeau est masqué. Le dossier écrivait « affiché au bandeau » comme une garantie | mise à jour |
-| 5 | **§A.5 · les marqueurs, deux angles morts.** Les six retirés à la lecture ne le sont qu'en majuscules et crochets collés — `[ofp]` n'est pas retiré. Un marqueur sans crochet fermant ou entre parenthèses traverse un champ `text`. Et un marqueur collé à un **libellé** empêche la résolution, sans que rien ne le dise | mise à jour |
-| 6 | **§A.5 · un dossier ne remplit aucune case.** L'extraction n'est jamais appelée sur `briefing.md` : seule une feuille alimente la checklist. Le récit du correctif `max:12` de la REV 25 désignait donc la mauvaise cellule — le correctif est juste, son explication ne l'était pas | note |
-| 7 | **§8 · quatre points ouverts de plus**, dont trois sont des correctifs de code déjà écrits et non appliqués, et un est une décision à prendre sur la conversion en niveau de vol | ajout |
-| 8 | **Aucun compteur ne bouge.** 39 cellules, cinq cartouches, cartouche ② à dix, cartouche ③ à quinze | note |
+| 1 | **§7.0 registre · ligne A21N** : séquence requise passe à `[SIM]`. L'appareil est apparu hors tension au parking et la mise en route a été tenue par la checklist embarquée. L'alignement ADIRS bloquant et les pages SD restent `[WIP]` : ni l'un ni l'autre n'a été relevé | correctif |
+| 2 | **§7.0.A · la phrase « l'A321neo n'est pas dans le sélecteur de Milan » est retirée.** Nouveau bloc « ce que le vol du 24/09/2026 a fermé » : liste complète de TURN ON AIRCRAFT, extraits de START ENGINES et Before Takeoff, sélecteur de mode moteur lu au pedestal, PTU entendu au bon moment | correctif |
+| 3 | **§7.0.A ligne 7.1 et hypothèse `NORM`** : le sélecteur est lu au pedestal, CRANK, NORM et IGN/START. Hypothèse retirée, ligne passée à `[SIM]`, compte `[WIP]` de 32 à 31 | correctif |
+| 4 | **§7.0 bis · menu MISC en release** relevé à l'écran. La checklist embarquée existe et couvre la mise en route : le point ouvert du §8 se ferme. La condition posée sur les raccourcis de démarrage est remplie pour l'A21N | ajout |
+| 5 | **§6.1 · VFE de l'A21N**, lues sur le placard LIMIT SPD du cockpit, avec les limites train | ajout |
+| 6 | **§6.2 · premier point Vapp A21N** : 150 kt pour une masse d'atterrissage reconstituée de 74,0 t. Une ligne séparée de la table A321, pente non établie | ajout |
+| 7 | **§2 · la 26.4 est sortie.** V-speeds importées au HUD et au PFD, MCDU 2D retiré avant la sortie. La reprise complète du §2 attend des relevés du MCDU | mise à jour |
+| 8 | **§8 · deux points ouverts fermés** (sélecteur `NORM`, checklist embarquée), trois mis à jour (VFE, Vref, chaîne systèmes) | mise à jour |
+| 9 | **§9 · registre des masses à vide complété** : A21N, et quatre types donnés par Milan mais absents du dossier (A319, A350-900, C208, BCS3). Masse par passager IF, consommation relevée A21N, et première ligne du registre d'identification | ajout |
+| 10 | **Aucun compteur de cartouche ne bouge.** 39 cellules, cinq cartouches | note |
 
----
+⚠ **Ce que cette révision ne fait pas.** Elle ne réaligne pas les 45 lignes du §7.0.A sur la séquence d'IF : START ENGINES et Before Takeoff n'ont été vus que par extraits. Elle ne reprend pas le §2 FMS. Les deux attendent leurs relevés complets.
 
 ## RÈGLE DE NON-RÉPÉTITION
 
@@ -34,7 +36,7 @@ Document de simulation. Aucune valeur opérationnelle réelle.
 
 ⚠ Le §0 est l'exception assumée : il précède SimBrief, donc il ne peut rien répéter.
 
-⚠ **Une entrée `CHECKLIST` figure au menu MISC des captures studio (§7.0 bis).** Si elle porte une checklist cold & dark, la troisième liste ci-dessus perd sa dernière ligne et le §7.0 comme le §7.0.A se réduisent à ce que la checklist embarquée ne dit pas. La règle ne s'applique pas sur la foi d'un bouton : elle attend que son contenu soit lu.
+⚠ **La checklist embarquée existe et couvre la mise en route (§7.0 bis).** Relevée à l'écran sur A21N le 24/09/2026 `[SIM]`. La troisième liste ci-dessus perdra sa dernière ligne pour l'A21N le jour où le §7.0.A sera aligné sur les listes complètes : ce jour-là, il se réduit à ce que la checklist ne dit pas. Tant que START ENGINES et Before Takeoff n'ont pas été lus en entier, le §7.0.A reste tel quel.
 
 ---
 
@@ -708,7 +710,8 @@ La carte anti-répétition. Rien de ce qui suit ne se redemande, ne se recopie, 
 
 État relevé à l'écran le 19/08/2026 sur le **build 18266** (26.3 beta). Le **build 18308** (21/08/2026) a publié des correctifs qui touchent cette section : ils sont rangés en « à revérifier », pas appliqués.
 
-⚠ La 26.4 est annoncée comme apportant un FMS fonctionnel. Au premier vol sur 26.4, cette section est à reprendre entièrement.
+⚠ **La 26.4 est sortie le 24/09/2026.** Un premier vol A21N a été tenu sous cette version. La reprise complète de cette section attend des relevés du MCDU à l'écran, pas encore fournis : d'ici là, chaque ligne ci-dessous reste celle du build 18266 et se vérifie avant d'être invoquée.
+⚠ **Le MCDU en 2D annoncé pendant la beta a été retiré avant la sortie** `[WIP]`, d'après la note éditoriale de l'article de sortie. Seul le MCDU du cockpit 3D existe.
 ⚠ Le cycle 26.3 bouge vite : entre deux builds, une ligne du §2.3 peut devenir fausse sans prévenir. Toute ligne de cette section se vérifie à l'écran avant d'être invoquée en vol.
 
 ### 2.1 · L'IMPORT FAIT LE TRAVAIL
@@ -719,6 +722,7 @@ FROM/TO · FLT NBR · CI · ZFW · BLOCK · CRZ FL · TO RUNWAY · FLAPS/THS · 
 On relit, on ne retape pas.
 
 ⇒ L'import s'ouvre désormais dans une vue de briefing déroulante : la relecture se fait là, avant validation, plutôt que page par page dans le MCDU.
+⇒ **Depuis la 26.4, V1, VR et V2 importées s'affichent au HUD et sur le PFD**, et peuvent aussi se saisir à la main `[WIP]`, d'après le changelog et l'article de sortie. Elles donnent une troisième source à comparer au cartouche ③, à côté de l'OFP et du MCDU. Passe à `[SIM]` dès qu'une capture du HUD les montre.
 
 **LA ROUTE SE MODIFIE DANS LE MCDU**
 
@@ -910,6 +914,7 @@ Ce que le MCDU remplit seul (piste, ILS, fréquence, élévation, TRANS LVL, LDG
 | A318 / A319 / A320 | relevées | table complète | 11,7° |
 | A321 | `[MANQUE]` | pente estimée, non confirmée | `[MANQUE]` |
 | A330-900neo | `[MANQUE]` | `[MANQUE]` | `[MANQUE]` |
+| A321neo (`A21N`) | relevées | un point, pente à établir | `[MANQUE]` |
 
 ⇒ Ces sept trous datent de trois révisions. Ils se comblent en une session : les VFE se lisent au badin cran par cran, la limite d'assiette se lit dans la fiche du type, la pente Vref sort de deux vols à des masses différentes.
 ⚠ Un vol sur A321 ou A330-900neo part donc avec une Vref calculée sur une pente non vérifiée et sans marge d'assiette connue. C'est un point d'arrêt du §8, pas une réserve de bloc 5.
@@ -940,6 +945,20 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 
 ⚠ **L'A321 ne partage pas ces VFE.** Aile plus chargée, crans différents : sa ligne se remplit au premier vol sur le type, VFE relevées à l'écran, et ne se déduit pas de la famille.
 ⚠ **L'A330-900neo non plus.** Aile, crans et masses sans rapport avec la famille A320.
+
+**AIRBUS A321neo (`A21N`)** : limites `[SIM]`, lues sur le placard LIMIT SPD (IAS) du cockpit le 24/09/2026. Vitesses de sélection `[CALC]`, prises 10 à 20 kt sous chaque limite.
+
+| Config | VFE, limite | Sélection normale | Repère |
+|---|---|---|---|
+| 1 | 243 kt | ~215 kt | à green dot |
+| 1+F | 225 kt | ~205 kt | si sortie en approche |
+| 2 | 215 kt | ~190 kt | à S speed |
+| 3 | 195 kt | ~180 kt | avec le train |
+| FULL | 186 kt | ~165 kt | puis décélération sur Vapp |
+
+**Train A21N** `[SIM]` : sortie ≤ 250 kt / M .60 · rentrée ≤ 220 kt / M .54 · sorti ≤ 280 kt / M .67.
+⇒ Chaque cran de l'A21N est plus haut que celui de l'A320, de 13 kt en conf 1 à 9 kt en FULL. Le §6.1 A320 ne se lit jamais pour lui.
+⇒ Limites générales de l'avion réel `[RÉEL]` : VMO 350 kt, MMO .82. La croisière normale se vole à .78, qui est une cible et non un plafond.
 
 **AUTRES TYPES** — à remplir au premier vol sur le type, puis gardé.
 
@@ -975,6 +994,16 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 | 65 t | 134 kt |
 | 70 t | 139 kt |
 | 75 t | 144 kt |
+
+**A321neo (`A21N`)** : **un seul point, pente non établie.** Ne se déduit pas de la table A321 ci-dessus, même si elle en est proche.
+
+| LW | Vapp du MCDU | Source |
+|---|---|---|
+| 74,0 t | 150 kt | Vapp `[SIM]`, 24/09/2026, HV6867 EHAM vers LGAV · LW `[CALC]` |
+
+⇒ La masse d'atterrissage est reconstituée : masse lue au parking après le vol, plus le carburant du roulage retour. Elle n'a pas été lue en courte finale.
+⇒ À cette masse, la table A321 donnait 148 kt en Vref + 5 : l'écart est de 2 kt, sous le seuil de 5 kt du §2.3. La Vapp du MCDU a été volée telle quelle.
+⇒ **Deuxième point à prendre sur un vol dont la masse d'atterrissage s'écarte d'au moins 8 t de celle-ci.** Deux points donnent la pente, et ferment le point bloquant du §8 pour ce type.
 
 **A330-900neo** — `[MANQUE]`. Aucune table, aucune pente : la première Vapp du MCDU sur le type sert de point de départ, et deux vols à des masses différentes donnent la pente.
 
@@ -1125,7 +1154,7 @@ Cette section vaut pour n'importe quel appareil du simulateur. Elle ne nomme auc
 | A318 · A319 · A320 (release) | non | non | non | — |
 | A321 (classique) | non | non | non | — |
 | A330 · A330-900neo | oui `[SIM]` | oui `[SIM]` | oui `[SIM]` | aucun — dix phases seules |
-| A321neo (`A21N`) | oui `[WIP]` | oui `[WIP]` | oui `[WIP]` | **§7.0.A** |
+| A321neo (`A21N`) | oui `[SIM]`, raccourcis disponibles | oui `[WIP]` | oui `[WIP]` | **§7.0.A** |
 | Boeing, Embraer, autres | `[MANQUE]` | `[MANQUE]` | `[MANQUE]` | — |
 
 ⚠ **Type absent de ce registre : on ne suppose rien.** Le vol se conduit sans séquence, et ce qui a été observé au parking se note au §9 pour créer la ligne. Un type ne rejoint pas ce tableau par ressemblance avec un autre — même règle qu'au §9 pour les masses à vide, et pour le même motif.
@@ -1160,7 +1189,7 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 
 ⚠ **CONDITION D'ENTRÉE : la cellule `Type` du cartouche ① vaut `A21N`.** Pour tout autre type, ce bloc est inerte — ni lu, ni affiché, ni tenu. C'est la seule question que le code a à trancher sur cette section : est-ce l'A21N, oui ou non. Aucun libellé nouveau n'est créé pour ça, `Type` est au registre du parseur depuis l'origine. Si `Type` ne résout pas, le bloc ne s'affiche pas — un type inconnu n'active jamais un bloc spécifique.
 
-⚠ **La section n'est plus dormante pour l'ORDRE de la procédure. Elle le reste bouton par bouton.** Les quatre panneaux viennent d'une capture Discord de Dan (tag WIP, 15:05) ; l'A321neo n'est pas dans le sélecteur de Milan. **Aucune ligne n'a été vérifiée à l'écran**, aucune n'entre dans un calcul, aucune ne franchit le §8. Ce qui est écrit ici, c'est l'ordre : il vient de l'Airbus réel, il ne dépend d'aucun build, il ne changera pas au premier vol. Ce qui reste ouvert, c'est ce que fait chaque bouton.
+⚠ **La section n'est plus dormante pour l'ORDRE de la procédure. Elle le reste bouton par bouton.** Les quatre panneaux viennent d'une capture Discord de Dan (tag WIP, 15:05). **L'A321neo est au sélecteur de Milan depuis la 26.4, et un vol complet a été tenu le 24/09/2026** : ce qu'il a vérifié est rangé plus bas, dans « ce que le vol du 24/09/2026 a fermé ». Les autres lignes restent `[WIP]` : aucune n'entre dans un calcul, aucune ne franchit le §8. Ce qui est écrit ici, c'est l'ordre : il vient de l'Airbus réel, il ne dépend d'aucun build, il ne changera pas au premier vol. Ce qui reste ouvert, c'est ce que fait chaque bouton.
 
 **Les quatre panneaux relevés** — même colonne latérale `DEV` / `GROUND SERVICES` / `SYSTEMS` / `AP OFF` :
 
@@ -1201,7 +1230,7 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 | 6.4 | BLEED | `X BLEED SHUT` | fermé | les deux demi-circuits restent séparés. Sur Airbus réel, sélecteur à trois positions qui vit sur AUTO ; ici bouton unique, comportement inconnu | `[WIP]` `[MANQUE]` |
 | 6.5 | BLEED | `ENG 1 BLEED` | ON, laissé en place | — | `[WIP]` `[RÉEL]` |
 | 6.6 | BLEED | `ENG 2 BLEED` | ON, laissé en place | **état requis avant de lancer** : APU BLEED ON, PACK 1 et PACK 2 coupés, zone dégagée, beacon allumé (§7) | `[WIP]` `[RÉEL]` |
-| 7.1 | ENGINE | `NORM` | sélectionné | mode d'allumage affiché avant de toucher un ENG MASTER. Hypothèse déclarée, voir plus bas : `NORM` est lu comme un sélecteur réduit à un bouton | `[WIP]` `[MANQUE]` |
+| 7.1 | pedestal | sélecteur `ENG MODE` | IGN/START | allumage armé avant de toucher un ENG MASTER. Sélecteur rotatif à trois positions lu au pedestal : CRANK, NORM, IGN/START. La checklist START ENGINES porte la même ligne | `[SIM]` |
 | 7.2 | ENGINE | `ENG MASTER 2` | ON | **le 2 avant le 1, sans exception : c'est le côté opposé à la passerelle et au tracteur, personne ne travaille de ce côté-là** | `[WIP]` `[RÉEL]` |
 | 7.3 | hors Systems | surveillance du démarrage 2 à l'E/WD | — | repères A320 / CFM56-5B, **pas des relevés IF** : carburant vers 22 % N2, montée d'EGT dans les 10 s qui suivent, coupure du démarreur vers 50 % N2, ralenti stabilisé N1 ≈ 20 %, N2 ≈ 59 %, EGT ≈ 400 °C. Pas de montée d'EGT après le carburant = démarrage sans allumage, on coupe | `[RÉEL]` |
 | 7.4 | ENGINE | `ENG MASTER 1` | ON | **moteur 2 stabilisé au ralenti d'abord.** Un démarrage à la fois : l'air APU n'en alimente pas deux | `[WIP]` `[RÉEL]` |
@@ -1225,24 +1254,24 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 
 **HYPOTHÈSES DÉCLARÉES** — ce qui est raisonné, pas observé :
 
-- `NORM` est lu comme le **sélecteur de mode d'allumage réduit à un bouton** — NORM / IGN START / CRANK sur l'Airbus réel. Rien sur la capture ne le confirme : les deux autres positions sont peut-être dans la rangée coupée, peut-être absentes, peut-être remplacées par un automatisme. Hypothèse, pas fait.
+- ~~`NORM` lu comme un sélecteur réduit à un bouton~~ : **hypothèse fermée le 24/09/2026.** Le sélecteur existe entier au pedestal. Coquille de texture relevée : il porte « ING/ START » au lieu de IGN/START ; la checklist écrit bien IGN/START.
 - `X BLEED SHUT` est lu comme la **position fermée d'un sélecteur à trois crans** (SHUT / AUTO / OPEN). Le libellé porte déjà sa position, ce qui suggère un bouton d'état plutôt qu'un sélecteur — donc un comportement qui n'est pas celui de l'avion.
 - **L'ordre des dix phases vient de l'Airbus réel, pas d'Infinite Flight.** Il est juste sur l'avion. Ce qui reste à voir, c'est si le simulateur le rend nécessaire — ou s'il pardonne tout.
 - La colonne latérale `DEV` / `GROUND SERVICES` / `SYSTEMS` / `AP OFF` est lue comme une **navigation**, pas comme des étapes. `AP OFF` est un raccourci de déconnexion du pilote automatique : il n'a pas sa place dans une mise en route.
 - **Les deux motorisations sont gérées par livrée, pas par entrée au sélecteur** — comme l'A330. Elles sont toutes deux annoncées : PW1100G-JM `[WIP]` (Instagram du studio, 24/07/2026), LEAP `[WIP]` (placard de nacelle lu sur la vignette du live, 22/08/2026). Il en découle qu'un modèle moteur unique porte les deux nacelles, donc que les repères de démarrage affichés sont les mêmes quelle que soit la livrée choisie. Le motoriste n'est pas une inconnue de cette section.
 - Hypothèse de fond, celle qui porte tout le reste : **ces boutons commandent une chaîne systèmes, pas un état d'affichage.**
 
-**CE QUI RESTE À VÉRIFIER À L'ÉCRAN** `[MANQUE]` — six points, dont quatre d'inventaire :
+**CE QUI RESTE À VÉRIFIER À L'ÉCRAN** `[MANQUE]` — cinq points, dont trois d'inventaire :
 
 - La **rangée basse coupée** sur les quatre panneaux : au moins une commande par panneau reste inconnue. *Inventaire.*
 - **Où vit la commande `ADIRS`** : absente des quatre panneaux, alors que l'alignement est annoncé pour l'A321neo (Discord IF, 13/08/2026) et déjà actif sur A330-900neo depuis le build 18266. *Inventaire.*
-- Les **positions réelles de `NORM`**, et s'il existe un mode CRANK. *Inventaire — tombe avec la rangée basse si le panneau ENGINE est montré entier.*
 - Le **contenu de `GROUND SERVICES`** : GPU, cales, portes, passerelle, repoussage — rien n'est visible. *Inventaire.*
 - L'absence de **pompes de réservoir central** alors que l'A321 en porte un. *Tombe avec la rangée basse si le panneau FUEL est montré entier.*
 - Si `APU GEN` doit être coupé à la main (8.8) ou se dépose seul avec l'APU. **Comportement — celui-là ne se lit sur aucune image.**
 
-**COMPTE DES SOURCES** — 45 lignes, dont **32 portent `[WIP]`**. Une même ligne peut porter deux marqueurs : `[WIP]` dit que le bouton n'a pas été vu à l'écran, `[RÉEL]` que l'attendu vient de l'Airbus réel.
+**COMPTE DES SOURCES** — 45 lignes, dont **31 portent `[WIP]`**. Une même ligne peut porter deux marqueurs : `[WIP]` dit que le bouton n'a pas été vu à l'écran, `[RÉEL]` que l'attendu vient de l'Airbus réel.
 ⚠ Le compte est passé de 30 à 32 en REV 24, sans qu'aucune ligne antérieure change de marqueur : les REV 21 à 23 portaient 42 lignes dont 30 `[WIP]`, chiffre exact pour ce tableau. Les trois lignes ajoutées en REV 24 — `2.2`, `2.3`, `9.5` — en portent deux, d'où 32 sur 45.
+⚠ Le compte passe de 32 à 31 en REV 31 : la ligne `7.1` a été vue à l'écran et porte désormais `[SIM]`. C'est la première ligne du tableau vérifiée en vol, et non par une capture studio.
 
 **CE QUE LE LIVE DU 28/08/2026 A FERMÉ — ÉTAT AU 29/08**
 
@@ -1261,6 +1290,38 @@ Deux captures relevées. Ce qu'elles montrent est ailleurs que là où le dossie
 
 ⇒ **Test discriminant, gratuit, deux minutes au parking** : couper un GEN et regarder si la page ELEC du SD bascule ; couper une pompe et regarder si la page FUEL réagit. Une chaîne réellement simulée se voit en cinq secondes. L'indice existe déjà sur la flotte : sur A330-900neo, NORM BRK passe en ambre tant que le moteur 1 est arrêté — la chaîne moteur → hydraulique → freinage est réelle.
 
+**CE QUE LE VOL DU 24/09/2026 A FERMÉ** `[SIM]`
+
+Premier vol complet sur A21N en 26.4 : HV6867 EHAM vers LGAV, Transavia PH-YHF, mise en route tenue par la checklist embarquée.
+
+**TURN ON AIRCRAFT, liste complète, 9 éléments, dans l'ordre de l'écran :**
+
+| # | Élément | Cible |
+|---|---|---|
+| 1 | Batteries 1 & 2 | ON |
+| 2 | External Power | ON (if available) |
+| 3 | ADIRS Switches | NAV |
+| 4 | APU Master | ON |
+| 5 | APU Start | ON |
+| 6 | APU Bleed | ON |
+| 7 | NAV Lights | ON |
+| 8 | No portable devices sign | ON |
+| 9 | Seatbelts | ON |
+
+⇒ Le compteur « x/9 » en tête de fenêtre compte les éléments validés, pas des étapes : vert pour fait, orange pour à faire. Déduction tirée de la progression 4/9 puis 5/9 à l'allumage de l'APU ; elle n'a pas été démentie en vol.
+⇒ L'ordre d'IF suit celui des phases 1 à 3 et 6 du §7.0, avec deux écarts : les feux de navigation et les panneaux cabine arrivent dès la mise sous tension, et l'APU BLEED est mis avant tout démarrage, sans passage par les packs.
+⇒ **Une commande `ADIRS` existe** : elle figure à la ligne 3. Son emplacement sur l'overhead n'a pas été relevé, le point du §8 reste ouvert sur ce seul aspect.
+
+**START ENGINES, 11 éléments, extraits vus** : Beacon Light ON · Fuel Pumps ON · Engine Mode Selector IGN/START. Les huit autres restent à lire.
+**Before Takeoff, 8 éléments, extraits vus** : Flaps SET · Strobe Lights ON. Les six autres restent à lire.
+**SHUTDOWN AIRCRAFT** : présent au menu, contenu non lu.
+
+**Outils de la checklist** `[SIM]` : SHOW ME amène la caméra sur la commande et la met en surbrillance ; une lecture automatique enchaîne les commandes seule et se désactive ; la fenêtre se redimensionne par la poignée hachurée et se ferme ; CHECK ALL valide la liste d'un coup.
+
+**Chaîne systèmes** : le PTU se déclenche au démarrage du moteur 2 et se tait quand le moteur 1 tourne. C'est le comportement d'une vraie logique de pression entre circuits vert et jaune, pas d'une piste sonore calée sur la séquence. **Indice fort pour l'hydraulique, pas une preuve pour l'électrique et le carburant** : le test discriminant ELEC et FUEL du paragraphe ci-dessus reste à faire.
+
+**Bugs de version relevés en vol, signalés par de nombreux joueurs** : livrée mal chargée en vue extérieure, et E/WD éteint en croisière, rétabli par un redémarrage de l'application sous AP+. Ce ne sont pas des lignes du dossier : ils se notent ici pour ne pas être pris pour une panne simulée au prochain vol.
+
 **DIFFÉRENCES ATTENDUES AVEC L'A320 EN RELEASE** :
 
 - Sur les types volés aujourd'hui, **aucune séquence de mise en route n'est demandée** : l'appareil apparaît prêt, et le §7 ne décrit qu'un avant-mise-en-route de cockpit. C'est exactement ce que dit la ligne de checklist, « si le type en impose une ». Un menu Systems change ce statut : la mise en route cesse d'être un état de départ et devient une procédure à tenir.
@@ -1278,6 +1339,19 @@ Deux captures relevées. Ce qu'elles montrent est ailleurs que là où le dossie
 
 Relevé sur capture studio du 29/08/2026, appareil au parking. Vingt entrées, quatre par rangée. `[WIP]` en entier.
 
+**EN RELEASE, SUR A21N, 24/09/2026** `[SIM]` : le menu ne ressemble plus à la capture studio ci-dessous. Il porte douze entrées, dont quatre en colonne latérale :
+
+| | | | |
+|---|---|---|---|
+| TURN ON AIRCRAFT | START ENGINES | SHUTDOWN AIRCRAFT | GROUND SERVICES |
+| CHECKLIST | FLIGHT PLAN | AUTO BRAKES OFF | SYSTEMS |
+| BRK FAN | ECAM PAGE | | AP OFF |
+| | | | RUD BRAKES |
+
+⇒ Un sous-menu **LIGHTS** porte NAV LIGHTS, STROBES, LAND, BEACON, LOGO LIGHTS, TAXI LIGHTS et COCKPIT DOME.
+⇒ TURN ON AIRCRAFT, START ENGINES et SHUTDOWN AIRCRAFT ouvrent chacun leur checklist assistée. Des raccourcis de démarrage et d'arrêt existent en plus `[WIP]`, annoncés par l'article de sortie et par le staff sur le fil de la communauté, non relevés à l'écran.
+⇒ Ni `DEV`, ni `TIME x1`, ni `AUTO START` sous ce nom n'apparaissent sur les captures de release. La table studio ci-dessous est conservée pour mémoire : elle ne décrit plus l'A21N.
+
 | | | | |
 |---|---|---|---|
 | AUTO START | TIME x1 | FLIGHT PLAN | ✈ |
@@ -1291,8 +1365,8 @@ Relevé sur capture studio du 29/08/2026, appareil au parking. Vingt entrées, q
 
 | Entrée | Ce qu'elle fait au dossier | Décision |
 |---|---|---|
-| `AUTO START` | court-circuite la séquence du §7.0 d’un appui, et les 45 lignes du §7.0.A quand il s’applique | **À ne pas utiliser avant que la séquence manuelle ait été tenue une fois de bout en bout.** Sinon les lignes `[WIP]` ne passeront jamais à `[SIM]` : elles resteront invérifiées parce qu'aucune n'aura été touchée |
-| `CHECKLIST` | checklists embarquées, périmètre inconnu | Point ouvert du §8. Si elles couvrent le cold & dark, la règle de non-répétition s’applique et le §7.0 comme le §7.0.A se réduisent à ce qu’elles ne disent pas. Le bouton ne suffit pas : son contenu se lit avant de retirer quoi que ce soit |
+| `AUTO START` et raccourcis de démarrage | court-circuitent la séquence du §7.0, et le §7.0.A sur A21N | **Condition remplie pour l'A21N le 24/09/2026** : la séquence a été tenue une fois de bout en bout, par la checklist embarquée. Les raccourcis sont donc autorisés sur ce type. Sur tout autre type à séquence, la règle reste : pas de raccourci avant une première séquence manuelle complète |
+| `CHECKLIST` | checklists embarquées | **Point fermé le 24/09/2026.** Elles existent sur A21N et couvrent la mise sous tension, le démarrage, l'avant-décollage et l'arrêt. Leur contenu complet décidera de combien le §7.0.A se réduit : voir « ce que le vol du 24/09/2026 a fermé » |
 | `TIME x1` | accélération temporelle | Un vol accéléré ne remplit pas le §9 : ni écart carburant, ni ETE, ni TOD. Le noter avant de partir, pas après |
 
 **LES AUTRES**
@@ -1399,23 +1473,21 @@ Frein de parc · feux de position seuls · carburant restant relevé · AIDS FLI
 ⚠ **Ni le §7.0 ni le §7.0.A ne sont bloquants, et ne le seront jamais.** Une séquence de mise en route mal comprise se voit au parking, avant l’EOBT, et ne fait décoller personne avec un chiffre faux. C’est une réserve de bloc 5, pas un point d’arrêt.
 
 **À VÉRIFIER, non bloquant** :
-OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **39 cellules des cartouches renseignées** · **neuf champs du §0.2 bis renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **séquence du §7.0 tenue si le type en impose une, §7.0.A tenu si `Type` vaut `A21N`** · **`AUTO START` non utilisé tant que la séquence n'a pas été tenue une fois** · **mémo T.O tout vert** · **`GW − FOB` comparé à l'EZFW** · Aircraft Health regardé, relevé postérieur au 21/08 · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
+OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **39 cellules des cartouches renseignées** · **neuf champs du §0.2 bis renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **séquence du §7.0 tenue si le type en impose une, §7.0.A tenu si `Type` vaut `A21N`** · **raccourcis de démarrage autorisés sur A21N ; sur tout autre type à séquence, pas avant une première séquence manuelle complète** · **mémo T.O tout vert** · **`GW − FOB` comparé à l'EZFW** · Aircraft Health regardé, relevé postérieur au 21/08 · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
 
 **POINTS OUVERTS — se ferment par une observation, jamais par déduction** :
 
 | Point | Comment il se ferme | Depuis |
 |---|---|---|
 | Parenthèse de traduction des libellés (§A.5 règle 4) | un `window.debugBriefing()` sur la prochaine feuille chargée | REV 19 |
-| VFE A321 et A330-900neo (§6.1) | une descente, cran par cran, au ruban | REV 15 |
-| Vref A321 confirmée, A330-900neo à créer (§6.2) | deux vols à des masses différentes | REV 17 |
+| VFE A321 classique et A330-900neo (§6.1). **A21N fermé le 24/09/2026**, placard du cockpit | une descente, cran par cran, au ruban | REV 15 |
+| Vref A321 confirmée, A330-900neo à créer, **A21N : un point sur deux** (§6.2) | deux vols à des masses différentes. Pour l'A21N, un seul vol de plus, à une masse d'atterrissage écartée d'au moins 8 t | REV 17 |
 | Limite de tail strike A321 et A330-900neo (§6.3) | fiche du type | REV 17 |
 | Huit lignes « à revérifier » du §2.3 | une observation à l'écran chacune | REV 18 / REV 20 |
 | §7.0.A — rangée basse coupée sur les quatre panneaux | **inventaire** : une capture studio qui les vise. Le live du 28/08 ne les a pas visés | REV 20 |
 | §7.0.A — emplacement de la commande `ADIRS` | **inventaire** : une capture studio qui les vise. Le live du 28/08 ne les a pas visés | REV 21 |
-| §7.0.A — positions réelles du sélecteur `NORM` | **inventaire** : une capture studio qui les vise, et tombe avec la rangée basse si le panneau ENGINE est montré entier | REV 21 |
 | §7.0.A — contenu du panneau `GROUND SERVICES` | **inventaire** : une capture studio qui les vise. Le live du 28/08 ne les a pas visés | REV 21 |
-| §7.0.A — chaîne systèmes réellement simulée, ou état d'affichage | **comportement** : le test discriminant du §7.0.A, deux minutes au parking. Aucune image ne le ferme | REV 20 |
-| **Périmètre de la checklist embarquée** (§7.0 bis) | ouvrir l'entrée `CHECKLIST` et lire ce qu'elle porte. Tant que ce n'est pas fait, aucune ligne du §7.0 ni du §7.0.A ne se retire au motif qu'elle ferait doublon | REV 24 |
+| §7.0.A · chaîne systèmes réellement simulée, ou état d'affichage | **comportement** : le test discriminant ELEC et FUEL du §7.0.A, deux minutes au parking. Indice `[SIM]` du 24/09/2026 : PTU déclenché et arrêté au bon moment, donc hydraulique simulée | REV 20 |
 | **Mémo `IR IN ALIGN` dans le build** (§7 · ADIRS) | une mise sous tension, ADIRS non aligné, regarder l'E/WD | REV 24 |
 | **Contrôle `GW − FOB` au poste** (§7) | une lecture au parking, comparée à l'EZFW de l'OFP | REV 24 |
 | **Approche automatique CAT3 DUAL** (§6.7) | un vol : le FMA l'affiche ou il ne l'affiche pas | REV 24 |
@@ -1426,11 +1498,11 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 | **Marqueurs — casse, crochet fermant, marqueur sur libellé** (§A.5) | correctif de code, trois retouches d'expression régulière. Le troisième cas est silencieux | REV 30 |
 | **`Altitude (Pieds)` rendue en niveau de vol** (§A.5) | décision, pas observation : ce rendu est voulu ou il ne l'est pas. S'il l'est, il s'écrit comme tel ; sinon il se retire | REV 30 |
 
-⚠ **Les cinq points §7.0.A ne bloquent aucun vol.** L'A321neo n'est pas au sélecteur de Milan : la section ne s'applique à rien de volable aujourd'hui, et l'ordre qu'elle pose ne dépend d'aucune de ces réponses. Ils se ferment le jour où le type entre au sélecteur — pas avant, et sans rien retarder.
-⇒ **Les quatre premiers sont des questions d'inventaire** : ils demandent de voir le menu entier, pas de le manipuler. Le live du studio du **28/08/2026** devait être cette occasion : il ne l'a pas été — aucun panneau Systems n'y figure (§7.0.A, « ce que le live a fermé »). Ils attendent une capture qui les vise, ou le menu à l'écran. Le cinquième est une question de comportement : il ne se ferme qu'aux commandes.
+⚠ **Les quatre points §7.0.A restants ne bloquent aucun vol.** L'A21N est au sélecteur depuis la 26.4 et a volé le 24/09/2026 sans qu'aucun d'eux ne gêne. Ils se ferment à l'écran, au fil des vols, sans rien retarder.
+⇒ **Les trois premiers sont des questions d'inventaire** : ils demandent de voir le menu entier, pas de le manipuler. Le live du studio du **28/08/2026** devait être cette occasion : il ne l'a pas été — aucun panneau Systems n'y figure (§7.0.A, « ce que le live a fermé »). Ils attendent une capture qui les vise, ou le menu à l'écran. Le cinquième est une question de comportement : il ne se ferme qu'aux commandes.
 ⚠ **Le §6.7 ne bloque rien non plus.** Une approche automatique qui n'existe pas dans le build ne bloque aucun départ : elle ne se briefe pas, voilà tout.
 ⚠ **Trois des quatre points ajoutés en REV 24 se ferment sans voler** : une mise sous tension au parking suffit pour le mémo ADIRS, la lecture `GW − FOB` et le contenu de la checklist embarquée. Ce sont les moins chers du tableau.
-⚠ Fermer les quatre premiers **ne lève aucun `[WIP]`** du §7.0.A (§A.3 règle 12) : un live complète le matériel studio, il ne le vérifie pas.
+⚠ Fermer les trois premiers par une capture studio **ne lève aucun `[WIP]`** du §7.0.A (§A.3 règle 12) : un live complète le matériel studio, il ne le vérifie pas.
 
 ⚠ Le premier de cette liste est le seul capable de faire **lire une valeur fausse sans rien afficher**. Les autres se voient ; celui-là se vole.
 
@@ -1457,7 +1529,19 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 | A321 | 43 600 kg | `[SIM]`, donné par Milan | 93 800 / 77 800 |
 | A330 (type exact non précisé) | 129 811 kg | `[SIM]`, donné par Milan | 242 000 / 185 000 |
 | A330 (seconde variante) | 129 811 kg | `[SIM]`, donné par Milan | 251 000 / 185 000 |
+| A319 | 39 600 kg | `[SIM]`, donné par Milan le 31/08/2026 | 75 500 / 62 500 |
+| A321neo (`A21N`) | 50 100 kg | `[SIM]`, donné par Milan le 24/09/2026 | 101 000 / 79 200 |
+| A350-900 | 140 011 kg | `[SIM]`, donné par Milan le 06/09/2026, cellule ET-ATR | 280 000 / 207 000 |
+| BCS3 (A220-300) | 37 154 kg | `[SIM]`, donné par Milan le 14/09/2026 | 70 900 / 60 600 |
+| C208 Caravan | 2 109 kg | `[SIM]`, donné par Milan le 12/09/2026, livrée TI-BDL | 3 969 / 3 856 |
 | ____ | ____ | ____ | ____ |
+
+**MASSE PAR PASSAGER DANS IF** `[SIM]` : 76,5 kg sur A21N (138 passagers pour 10 557 kg), environ 77 kg sur A350-900 (441 pour 33 910 kg).
+⇒ SimBrief compte 100 kg par passager, bagages compris. Pour qu'IF porte la même charge utile que la feuille, l'écart se charge en fret : nombre de passagers × 23,5 kg sur A21N.
+
+**CAPACITÉ CARBURANT A21N** `[SIM]` : 31 202 kg au plein, dont 6 037 kg dans chaque aile, 6 437 kg au centre et 12 691 kg en AUX. MTOW de 101 t et réservoir AUX correspondent aux valeurs de l'A321XLR réel `[RÉEL]` : IF donne cette enveloppe à toutes les livrées, LR ou non. Un bloc de moins de 12 074 kg tient dans les ailes seules.
+
+**CONSOMMATION RELEVÉE PAR TYPE** : A21N, environ 1,9 t/h en moyenne montée comprise `[CALC]`, sur un seul vol (HV6867, 24/09/2026 : environ 5 450 kg de vol pour un temps affiché de 03:09). L'estimation de la feuille, 2,4 t/h, était trop forte d'environ 20 %. À recouper sur deux autres vols avant d'en faire une règle.
 
 ⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0.4). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
 ⚠ Ne jamais déduire la masse à vide d'un type de celle d'un type voisin : l'écart constaté sur l'A321 était de 4 900 kg, soit 4,9 t d'erreur sur le ZFW, donc sur les vitesses et la flex.
@@ -1467,6 +1551,7 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 
 | Immatriculation | Fin | SELCAL | Mode-S | Chaîne équipement modifiée ? |
 |---|---|---|---|---|
+| PH-YHF | YHF | FHCP | 4869BD | non |
 | ____ | ____ | ____ | ____ | ____ |
 
 ⇒ Une chaîne composée avec un bouton **Constructeur** se recopie ici, sinon elle est refaite de zéro au vol suivant.
@@ -1505,4 +1590,4 @@ Page racine `MCDU MENU` : quatre entrées confirmées ? ____ ⇒ ferme la ligne 
 **Type volé absent du registre du §7.0** : ____ · séquence requise ? ____ · alignement ADIRS bloquant ? ____ · pages SD vivantes ? ____
 ⇒ Ces trois réponses créent la ligne du registre. Elles se lisent au parking, sans voler.
 
-**FIN · REV 30 · Simulation uniquement**
+**FIN · REV 31 · Simulation uniquement**
