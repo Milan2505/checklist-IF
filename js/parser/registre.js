@@ -12,11 +12,18 @@
    key       cle de FIELDS
    labels    libelles acceptes, EGALITE STRICTE apres normLabel()
    kind      'int' | 'dec' | 'cap' | 'code' | 'text'
-   required  vrai pour les 36 cellules des cinq cartouches (REV 23 §A.4)
+   required  vrai pour les 49 cellules des six cartouches (REV 32 §A.4)
    max       longueur maximale de la cellule (defaut 60)
    display   libelle affiche dans le bandeau
    xf        transformation optionnelle du nombre valide
 ------------------------------------------------------------ */
+/* REV 32 · forme d'un Mach de cartouche ⑥ : point en tete, deux decimales.
+   Defini ici, et non dans validate.js, parce que les entrees du REGISTRE le
+   referencent a l'evaluation du tableau — donc avant que tout autre fichier
+   n'ait pu le poser. NIL est admis par le motif pour ne rien retirer : sans
+   motif, une cle 'code' accepte NIL, et elle doit continuer. */
+const MACH = /^(?:\.\d{2}|NIL)$/;
+
 const REGISTRE = [
   /* ---- cartouche ① · identite — 3 ---- */
   { key:'callsign', labels:['callsign','atc callsign','indicatif d\'appel atc'], kind:'code', required:true, display:'Callsign' },
@@ -115,6 +122,38 @@ const REGISTRE = [
      que la page doit faire a la place du pilote. */
   { key:'tow',      labels:['tow'], kind:'int', required:true, display:'TOW' },
   { key:'lw',       labels:['lw','landing weight'], kind:'int', required:true, display:'LW' },
+
+  /* ---- cartouche ⑥ · vitesses en vol — 10 (REV 32) ----
+     Declarees ICI et dans FIELDS dans le meme commit : une cle inscrite a un
+     seul des deux endroits est lue puis jetee en silence (§A.3 regle 10).
+
+     `max:3` sur les sept vitesses — c'est le controle de longueur, qui court
+     AVANT le genre, qui refuse la soudure de deux nombres : « 180 160 » fait
+     sept caracteres et part en « trop long » avant que digits() n'ait pu
+     souder quoi que ce soit (§A.5 regle 1). Meme protection que `altinit`,
+     et meme contrepartie : la tolerance d'unite finale ne joue plus sur ces
+     sept cellules, « 290 kt » est refuse comme « 35000 ft » l'est deja sur
+     l'altitude initiale. Le §A.5 demande une valeur nue, c'est tenu.
+
+     Les trois Mach sont en 'code' et non en numerique : un entier refuse la
+     decimale, et « .78 » doit traverser tel quel. 'code' seul accepterait
+     aussi « 0.78 », « 78 » et « M.78 » — mesure faite — d'ou `motif`, qui ne
+     s'applique qu'aux entrees qui le portent et ne change rien aux onze
+     autres cles 'code'. NIL figure dans le motif pour ne RIEN retirer : une
+     cle 'code' accepte NIL aujourd'hui, elle doit continuer. */
+  { key:'clbinit',  labels:['montee initiale'], kind:'int', max:3, required:true, display:'Montée initiale' },
+  { key:'clbbas',   labels:['montee basse'], kind:'int', max:3, required:true, display:'Montée basse' },
+  { key:'clbias',   labels:['montee ias'], kind:'int', max:3, required:true, display:'Montée IAS' },
+  { key:'clbmach',  labels:['montee mach'], kind:'code', required:true, display:'Montée Mach',
+    motif:MACH, motifDit:'un Mach sur deux décimales, point en tête — « .78 »' },
+  { key:'crzmach',  labels:['croisiere mach'], kind:'code', required:true, display:'Croisière Mach',
+    motif:MACH, motifDit:'un Mach sur deux décimales, point en tête — « .78 »' },
+  { key:'desmach',  labels:['descente mach'], kind:'code', required:true, display:'Descente Mach',
+    motif:MACH, motifDit:'un Mach sur deux décimales, point en tête — « .78 »' },
+  { key:'desias',   labels:['descente ias'], kind:'int', max:3, required:true, display:'Descente IAS' },
+  { key:'applisse', labels:['approche lisse'], kind:'int', max:3, required:true, display:'Approche lisse' },
+  { key:'vfaf',     labels:['vitesse faf'], kind:'int', max:3, required:true, display:'Vitesse FAF' },
+  { key:'vplancher',labels:['plancher finale'], kind:'int', max:3, required:true, display:'Plancher finale' },
 
   /* ---- hors cartouche : formulaire, colonne « à taper » (§A.5) ---- */
   { key:'fltnum',   labels:['flight number','numero du vol'], kind:'int',  display:'N° de vol' },

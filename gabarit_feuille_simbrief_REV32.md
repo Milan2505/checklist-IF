@@ -3,11 +3,11 @@
 **GABARIT VIERGE**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
-Dossier de référence : REV 30. Cinq cartouches, 39 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
+Dossier de référence : REV 32. Six cartouches, 49 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
 
 Les cases déjà remplies sont les réglages permanents, identiques d'un vol à l'autre. Les cases vides se remplissent au vol. Aucune ne se laisse vide à la livraison : la méthode d'estimation de chacune est au §A.4 du dossier.
 
-⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 30, section par section. S'il contredit le dossier, c'est lui qui est périmé.
+⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 32, section par section. S'il contredit le dossier, c'est lui qui est périmé.
 
 ---
 
@@ -223,6 +223,21 @@ n/a, décidé et assumé.
 | TOW | |
 | LW | |
 
+### ⑥ Vitesses en vol · 10 cellules
+
+| Champ | Valeur |
+|---|---|
+| Montée initiale | |
+| Montée basse | |
+| Montée IAS | |
+| Montée Mach | |
+| Croisière Mach | |
+| Descente Mach | |
+| Descente IAS | |
+| Approche lisse | |
+| Vitesse FAF | |
+| Plancher finale | |
+
 **Repères non lus**
 
 | Repère | Valeur |
@@ -238,13 +253,14 @@ n/a, décidé et assumé.
 
 Un paragraphe par famille, à écrire au vol : identité, pistes, portes, dégagement, décollage, arrivée, carburant, masses, repères non lus, route, remarques du répartiteur. La prose porte la méthode et les sources, le tableau porte la valeur — jamais l'inverse, jamais les deux.
 
-**Contrôle avant envoi** — cinq lignes, à passer avant que la feuille parte en fichier :
+**Contrôle avant envoi** — six lignes, à passer avant que la feuille parte en fichier :
 
-- [ ] Les 39 cellules des cinq cartouches sont remplies, valeurs nues.
+- [ ] Les 49 cellules des six cartouches sont remplies, valeurs nues.
 - [ ] Aucune cellule ne contient d'unité, d'espace de milliers, ni de second nombre.
 - [ ] Aucun libellé déclaré n'apparaît en prose suivi d'un chiffre.
-- [ ] Aucun libellé du registre ne figure hors cartouche, et aucun champ du §0 portant un libellé du registre n'est laissé sans valeur en colonne « À taper ».
-- [ ] Aucune cellule lue ne porte de marqueur hors des six retirés à la lecture.
+- [ ] **Aucun libellé du registre ne figure hors cartouche**, et aucun champ du §0 portant un libellé du registre n'est laissé sans valeur en colonne « À taper ».
+- [ ] **Aucune cellule ne porte de marqueur autre que les six retirés à la lecture** — `[OFP]` `[FORM]` `[NAV]` `[SIM]` `[RDR]` `[CALC]`. `[WIP]` disqualifie, `[MANQUE]` seul vaut « non fourni », `[DOC]` et `[TIERS]` vivent en prose, tout le reste est rejeté en étant nommé (§Conventions). *Ligne ajoutée en REV 21, en même temps que le contrôle correspondant dans le parseur.*
+- [ ] **Chaque vitesse des cartouches ③ et ⑥ a son rang de source nommé en prose (§5.1)**, et ni `Vapp` ni `Plancher finale` n'est sous un plancher observé du type. *Ligne ajoutée en REV 32.*
 
 ---
 

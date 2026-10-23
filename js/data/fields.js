@@ -99,4 +99,21 @@ const FIELDS = [
   ['trip','Trip kg','Cartouche ⑤ · masses'],
   ['tow','TOW kg','Cartouche ⑤ · masses'],
   ['lw','LW kg','Cartouche ⑤ · masses'],
+
+  /* REV 32 · cartouche ⑥ · vitesses en vol — 10. Declarees ici ET au registre
+     du parseur dans le meme commit (§A.3 regle 10) : une cle inscrite d'un
+     seul cote est lue puis jetee, sans case pour la recevoir et sans bandeau
+     pour le dire. L'unite vit dans le libelle d'affichage, comme « Vref kt »
+     et « DA ft » : elle est ajoutee par la page, jamais lue dans la cellule.
+     Les trois Mach n'en portent aucune — un Mach est sans dimension. */
+  ['clbinit','Montée initiale kt','Cartouche ⑥ · vitesses en vol'],
+  ['clbbas','Montée basse kt','Cartouche ⑥ · vitesses en vol'],
+  ['clbias','Montée IAS kt','Cartouche ⑥ · vitesses en vol'],
+  ['clbmach','Montée Mach','Cartouche ⑥ · vitesses en vol'],
+  ['crzmach','Croisière Mach','Cartouche ⑥ · vitesses en vol'],
+  ['desmach','Descente Mach','Cartouche ⑥ · vitesses en vol'],
+  ['desias','Descente IAS kt','Cartouche ⑥ · vitesses en vol'],
+  ['applisse','Approche lisse kt','Cartouche ⑥ · vitesses en vol'],
+  ['vfaf','Vitesse FAF kt','Cartouche ⑥ · vitesses en vol'],
+  ['vplancher','Plancher finale kt','Cartouche ⑥ · vitesses en vol'],
 ];

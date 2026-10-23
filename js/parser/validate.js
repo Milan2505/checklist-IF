@@ -110,6 +110,14 @@ function validate(e, raw){
     return { ok:true, value:String(n) };
   }
   if(e.kind === 'code'){
+    /* REV 32 · UN MOTIF DE FORME, SUR LES SEULES ENTREES QUI EN PORTENT UN
+       'code' n'a jamais borne la FORME : mesure faite, « .78 » passe, mais
+       « 0.78 », « 78 » et « M.78 » passent aussi. Les trois Mach du cartouche
+       ⑥ ont donc besoin d'une borne que le genre ne donne pas. Elle vit sur
+       l'entree, pas sur le genre : une cle 'code' sans `motif` se valide
+       exactement comme hier — les onze existantes ne changent pas d'un iota. */
+    if(e.motif && !e.motif.test(v))
+      return { ok:false, reason:'format refusé : « '+v+' » — attendu '+(e.motifDit || e.motif.source) };
     if(!/^[A-Z0-9+.\-\/]{1,12}$/i.test(v))
       return { ok:false, reason:'code attendu, reçu « '+v+' »' };
     return { ok:true, value:v };
