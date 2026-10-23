@@ -10,7 +10,7 @@ Document de simulation. Aucune valeur opérationnelle réelle.
 **Objet de la révision : le §7.0 cesse d'être écrit pour un seul appareil.** La REV 24 portait une section de mise en route entièrement A321neo, inutilisable sur tout autre type. Elle se scinde en un cadre valable pour toute la flotte et un bloc spécifique conditionné au type volé. Les 45 lignes de la REV 24 sont conservées **au caractère près** : elles ont changé d'adresse et gagné une condition d'entrée. Aucune cellule de cartouche ne bouge.
 
 | # | Objet | Nature |
-|---|---|---|
+| --- | --- | --- |
 | 1 | **§7.0 · CADRE GÉNÉRIQUE — tous types.** Registre des types (séquence requise ou non, alignement ADIRS, pages SD vivantes, bloc spécifique), puis les dix phases écrites sans nommer un seul bouton. S'applique à n'importe quel appareil | refonte |
 | 2 | **§7.0.A · BLOC SPÉCIFIQUE — A321neo.** Les 45 lignes de la REV 24, inchangées, mais désormais **conditionnées** : le bloc n'existe que si la cellule `Type` du cartouche ① vaut `A21N`. Inerte pour tout autre type | refonte |
 | 3 | **La condition passe par une cellule déjà lue.** Aucun libellé nouveau, aucune clé à déclarer : `Type` est au registre depuis toujours, au cartouche ①. Le code n'a qu'une question à trancher — est-ce l'A21N, oui ou non | note |
@@ -42,7 +42,7 @@ Document de simulation. Aucune valeur opérationnelle réelle.
 ## CONVENTIONS
 
 | Marqueur | Sens |
-|---|---|
+| --- | --- |
 | `[OFP]` | plan de vol SimBrief |
 | `[FORM]` | lu sur le formulaire de dispatch SimBrief |
 | `[NAV]` | cartes et base de données |
@@ -143,7 +143,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **① Identité — 3 cellules**
 
 | Champ | Valeur |
-|---|---|
+| --- | --- |
 | Callsign | |
 | Compagnie | |
 | Type | |
@@ -151,7 +151,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **② Pistes, portes et dégagement — 8 cellules**
 
 | Champ | Valeur |
-|---|---|
+| --- | --- |
 | Piste départ | |
 | Cap départ | |
 | Porte départ | |
@@ -164,7 +164,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **③ Vitesses et trajectoire — 14 cellules**
 
 | Champ | Valeur |
-|---|---|
+| --- | --- |
 | V1 | |
 | VR | |
 | V2 | |
@@ -183,7 +183,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **④ Carburant — 5 cellules**
 
 | Champ | Valeur |
-|---|---|
+| --- | --- |
 | BLOC | |
 | BINGO | |
 | MIN DIV | |
@@ -193,7 +193,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **⑤ Masses — 6 cellules**
 
 | Champ | Valeur |
-|---|---|
+| --- | --- |
 | Masse à vide IF | |
 | Charge utile | |
 | Poids zéro carburant | |
@@ -204,7 +204,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **Repères non lus** — hors registre, pour l'œil seulement, une valeur par ligne quand même :
 
 | Repère | Valeur |
-|---|---|
+| --- | --- |
 | Route | |
 | Date | |
 | Immatriculation | |
@@ -220,7 +220,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 **AU TEMPS 1 — comment j'estime les 36**
 
 | Champ | Méthode d'estimation avant l'OFP |
-|---|---|
+| --- | --- |
 | Callsign | indicatif réel de la ligne `[RDR]`, à défaut OACI + numéro |
 | Compagnie | code OACI trois lettres de l'exploitant `[RDR]` |
 | Type | donné par Milan `[SIM]`, jamais déduit |
@@ -263,20 +263,25 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 ⇒ Au temps 2, elles se réécrivent sur l'OFP et le MCDU, et tout écart supérieur à un cran se nomme en sortie (§A.3 règle 7).
 
 ### BLOC 1 · MCDU APRÈS IMPORT
+
 Ce que l'import a rempli et qu'il faut relire, ce qui reste à taper à la main, ce qui ne marchera pas.
 
 ### BLOC 2 · SEUILS CARBURANT
+
 MIN DIV · BINGO · réserve finale, et la conduite à tenir en dessous. Le détail des postes est sur l'OFP.
 
 ### BLOC 3 · DÉCOLLAGE & PANNE
+
 Avant V1 : interruption. Après V1 : EOSID ou cap piste jusqu'à [alt], retour ou dégagement. Réduction et accélération, à tenir à la main. Cran d'autobrake retenu.
 
 ### BLOC 4 · ARRIVÉE, CONFIGURATION & DÉROUTEMENT
+
 Minima contre météo prévue · schedule volets du type avec la vitesse de sélection de chaque cran (§6.1) · Vref à la masse d'arrivée, Vapp corrigée du vent, conduite de l'arrondi (§6.2, §6.3) · distances d'annonce (§6.6) · dégagement, cap et distance directs.
 
 ⚠ Ce bloc sort avec ses chiffres. La masse d'atterrissage se prend sur le LW de l'OFP.
 
 ### BLOC 5 · VIGILANCE & VERDICT
+
 Deux ou trois points propres à CE vol. Puis une ligne : GO, ou NO-GO motivé.
 
 ⚠ **Ce qui bloque un départ, et rien d'autre :** masse hors MTOW ou MLW · vitesses calculées pour une autre piste que celle attribuée · dégagement inutilisable · bloc inférieur à la somme des postes · **table Vref absente pour le type volé** (§6.2).
@@ -291,7 +296,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 **Ce qui est lu**
 
 | Forme du tableau | Colonne lue |
-|---|---|
+| --- | --- |
 | deux colonnes, quel que soit l'en-tête | colonne 2 |
 | trois colonnes dont l'en-tête porte « À taper » | colonne 2 |
 | toute autre forme | rien, tableau ignoré |
@@ -327,7 +332,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 **Vocabulaire déclaré** — un libellé absent de cette liste n'atteint pas la checklist, même écrit dans un tableau parfait.
 
 | Libellé à écrire | Ce qu'il alimente | Où il vit |
-|---|---|---|
+| --- | --- | --- |
 | Callsign · Compagnie · Type | identité — Compagnie porte le code OACI à trois lettres, jamais le nom commercial | cartouche ① |
 | Piste départ · Cap départ · Porte départ · Piste arrivée · Porte arrivée | pistes et portes | cartouche ② |
 | Dégagement · Cap dégagement · Distance dégagement | déroutement | cartouche ② |
@@ -342,7 +347,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 **Libellés déclarés ignorés** — écrits dans la feuille, volontairement non résolus :
 
 | Libellé | Pourquoi |
-|---|---|
+| --- | --- |
 | Itinéraire (Route) | c'est la route du dégagement, pas celle du vol |
 | Altitude (Pieds) — ligne du dégagement | c'est l'élévation du terrain de dégagement, pas le FL de croisière |
 
@@ -351,7 +356,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 **En attente d'inscription au registre** — écrits dans le dossier, pas encore lus par la page :
 
 | Libellé | Ce qu'il alimenterait |
-|---|---|
+| --- | --- |
 | Autobrake départ · Autobrake arrivée | crans retenus |
 | Immatriculation | identité appareil |
 | Altitude initiale | première altitude après décollage |
@@ -376,7 +381,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ⚠ **ORDRE GELÉ — 74 champs, relevés sur capture le 24/08/2026.** Le §0 se lit dans l'ordre de l'écran, section par section et champ par champ, **sans exception**. Une feuille de temps 1 se remplit en descendant la page : tout écart entre l'ordre du dossier et l'ordre de la page fait sauter des cases. **Ce tableau fait foi, pas la mémoire.**
 
 | § | Section de la page | n | Champs, dans l'ordre de l'écran |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | §0.1 | Informations sur le vol | 6 | Compagnie aérienne · Numéro du vol · Partir · Arriver · Alterner · Heure de départ (EOBT) |
 | §0.2 | Informations sur l'avion — partie visible | 6 | Type d'aéronef · Variante ou cellule · Profil d'ascension · Profil de croisière · Profil de descente · Indicatif d'appel ATC — *puis le bouton* Plus d'options / Moins d'options |
 | §0.2 bis | Informations sur l'avion — sous « Plus d'options » | 9 | Facteur carburant · Inscription · Numéro Fin · SELCAL · Code Mode-S · Équipement de l'OACI · Transpondeur · Capacité PBN · Informations supplémentaires sur le FPL (Article 18) |
@@ -396,6 +401,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 3. Une largeur de fenêtre différente peut réarranger l'affichage : **le tableau ci-dessus l'emporte sur ce qu'un écran plus étroit montre ce jour-là.** Seul un changement réel de SimBrief ouvre une révision.
 
 ⚠ **RÈGLE DE REMPLISSAGE.** Aucune ligne ne sort sans valeur. Ni « AUTO » seul, ni « laisser vide ».
+
 - **À TAPER** — ce qui va dans la case, littéralement. C'est **la colonne lue par la checklist** (§A.5).
 - **VALEUR ATTENDUE** — mon chiffre, pour comparer ce que SimBrief a calculé à ce que j'annonçais. Elle ne se saisit pas et **n'est pas lue par la page**.
 
@@ -406,7 +412,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ### §0.1 · INFORMATIONS SUR LE VOL (Flight Info)
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Compagnie aérienne (Airline) | OACI 3 lettres | compagnie nommée |
 | Numéro du vol (Flight Number) | numéro réel de la ligne | — |
 | Partir (Depart) | OACI départ | — |
@@ -421,7 +427,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ### §0.2 · INFORMATIONS SUR L'AVION (Aircraft Info) — partie visible
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Type d'aéronef (Aircraft) | code type OACI | variante exacte volée dans IF |
 | Variante ou cellule (Airframe) | le générique du type | motorisation attendue |
 | Profil d'ascension (Climb) | AUTO | profil retenu, à relire sur l'OFP |
@@ -441,7 +447,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ⚠ **Ces neuf champs figuraient en tête du §0 jusqu'à la REV 21**, sous le titre « identification et équipement — priorité », au motif qu'ils étaient les derniers du dossier livrés sans valeur. Ils en portent tous une depuis la REV 19 : le motif a expiré, et un ordre qui ne suit pas l'écran fait sauter des cases. Ils sont revenus à leur place réelle.
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Facteur carburant (Fuel Factor) | P00 | écart réel mesuré au §9 |
 | Inscription (Registration) | immatriculation réelle du vol | immat `[RDR]` |
 | Numéro Fin (Fin Number) | trois derniers caractères de l'immatriculation | cosmétique |
@@ -457,6 +463,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ⚠ **Les quatre premières lignes du bloc gris sont des exemples, pas des valeurs.** `N999SB`, `999`, `ABCD` et `ZZZZZZ` sont des amorces de démonstration : les laisser produit un plan de vol au nom d'un appareil qui n'existe pas. Elles se remplissent depuis l'immatriculation réelle.
 
 **Règles de dérivation** :
+
 - **Numéro Fin** — les trois derniers caractères de l'immatriculation, sans tiret.
 - **SELCAL** — quatre lettres prises entre A et S, **sans I, N ni O** ; deux paires, chaque paire en ordre alphabétique croissant, aucune lettre répétée. Se construit sur les lettres disponibles de l'immatriculation, complété si besoin.
 - **Code Mode-S** — l'adresse OACI 24 bits de l'appareil, six caractères hexadécimaux. Connue : elle se tape. Inconnue : une valeur cohérente avec le bloc du pays d'immatriculation, marquée `[CALC]` et jamais présentée comme réelle.
@@ -471,7 +478,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ### §0.3 · SÉLECTIONS (Selections) — réglages permanents
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Disposition OFP (Layout) | LIDO | — |
 | Cycle AIRAC | le cycle courant | fenêtre de validité |
 | Unités (Units) | Kilograms | — |
@@ -496,7 +503,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ### §0.4 · ENTRÉES FACULTATIVES (Optional Entries)
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Bloc horaire prévu (Sched Block Time) | `h : mm` | ETE estimé + 28 min de roulage, arrondi à 5 min |
 | Départ Runway (Depart Rwy) | AUTO | piste attendue au vent du METAR départ |
 | Arrivée Runway (Arrival Rwy) | AUTO | piste attendue au vent prévu à l'ETA |
@@ -517,7 +524,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ### §0.5 · PLANIFICATION DU CARBURANT (Fuel Planning)
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Carburant de secours (Contingency) | Auto | 5 % du trip fuel |
 | Carburant de réserve (Reserve) | Auto | 30 min d'attente à 1500 ft au-dessus du dégagement |
 | Carburant pour taxis (Taxi Fuel) | AUTO | 20 min au débit roulage du type |
@@ -536,7 +543,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ### §0.6 · ENTRÉES DE TEXTE (Text Entries)
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Identifiant du pilote (Pilot ID) | 1312837 | — |
 | Nom du capitaine (Captain Name) | MILAN ELIAYAN | — |
 | Nom du premier officier (First Officer) | Random | — |
@@ -563,7 +570,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 **Critères de recherche** — permanents :
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Compte alternatif (Alternates) | 1 | — |
 | Distance maximale (NM) | 400 | — |
 | Plafond minimum (Pieds) | 600 | — |
@@ -578,7 +585,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 **Dégagement n° 1** :
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Aéroport (Airport) | l'OACI retenu | terrain nommé |
 | Piste (Runway) | N/A | piste attendue au vent |
 | Altitude (Pieds) | AUTO | élévation du terrain |
@@ -590,14 +597,14 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 **Les deux autres dégagements** :
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Décoller (Takeoff altn) | NONE | terrain nommé si la météo départ est sous les minima de retour |
 | En route (Enroute altn) | NONE | terrain nommé sur survol maritime ou désertique |
 
 **Bas de section — terrains en route** :
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Gares en route (Enroute Stations) | Disabled | — |
 | Aéroports sélectionnés (Selected Airports) | vide | terrains dont la météo mérite d'être imprimée |
 
@@ -608,7 +615,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 Actif seulement sur survol maritime ou désertique. Sinon : n/a, ne pas y toucher.
 
 | Champ | À taper | Valeur attendue |
-|---|---|---|
+| --- | --- | --- |
 | Threshold | 60 min | — |
 | Scenario | Auto | — |
 | Exclude Airports | vide | — |
@@ -639,6 +646,7 @@ La carte anti-répétition. Rien de ce qui suit ne se redemande, ne se recopie, 
 - **Step climbs** — si le vol en comporte.
 
 **CE QUE L'OFP NE PORTE PAS**
+
 - l'état du FMS d'IF (§2)
 - les seuils MIN DIV et BINGO (§3)
 - les MSA à 25 NM et les minima d'approche, qui sont sur les cartes
@@ -728,7 +736,7 @@ Puis, avant repoussage : scratchpad vide, aucun message ambre, mémo T.O tout ve
 **À REVÉRIFIER — annoncé corrigé par un changelog, pas encore recontrôlé à l'écran**
 
 | Ligne | Build qui l'annonce corrigée |
-|---|---|
+| --- | --- |
 | arrondi du FOB à l'ECAM | 18266 |
 | ILS, course et glide en ROSE VOR et ROSE LS | 18266 |
 | fiabilité de l'accord RADIO NAV et libellé de la station ou piste la plus proche | 18266 |
@@ -769,6 +777,7 @@ BINGO   = MIN DIV + 5 %
 Relevés sur la jauge, comparés à la colonne carburant du navlog aux deux ou trois points retenus au bloc 2.
 
 ⚠ Écart défavorable > 3 % du bloc :
+
 1. vérifier ZFW et CI dans le MCDU
 2. vent réel contre vent prévu
 3. optimiser le niveau
@@ -793,6 +802,7 @@ Réduction de poussée ____ ft · Accélération ____ ft · Altitude de transiti
 ⚠ Le cran se sélectionne avant l'alignement. Le mémo T.O ne passe pas au vert tant qu'il n'est pas mis.
 
 **SÉQUENCE**
+
 1. A/THR armé avant lâcher frein
 2. Poussée stabilisée avant 80 kt
 3. Rotation à VR, 3°/s
@@ -801,19 +811,21 @@ Réduction de poussée ____ ft · Accélération ____ ft · Altitude de transiti
 6. 250 kt sous 10 000 ft
 
 **BRIEFING PANNE**, énoncé avant d'entrer en piste
+
 - **AVANT V1** → interruption : idle, freinage max, inverseurs, spoilers, immobilisation, annonce.
 - **APRÈS V1** → poursuite : assiette V2 (ou V2+10 si déjà au-dessus), symétrie, EOSID ____ ou cap piste jusqu'à ____ ft, altitude de sécurité ____ ft, retour piste ___ ou dégagement au décollage ____.
 - **CISAILLEMENT** → TOGA, assiette de sauvegarde, configuration conservée.
   ⚠ Cisaillement signalé : flex interdite, TOGA.
 
 **LIMITES DU TYPE**, non portées par l'OFP
-Travers max ___ kt · arrière max ___ kt (piste sèche ; réduire si mouillée ou contaminée)
+Travers max ***kt · arrière max*** kt (piste sèche ; réduire si mouillée ou contaminée)
 
 ---
 
 ## 5 · EN VOL
 
 **MONTÉE**
+
 ```
 0 → 10 000    : 250 kt, 1800–2200 fpm
 10 000 → FL180: ___ kt, 1500–1800
@@ -821,6 +833,7 @@ FL180 → FL260 : ___ kt, 1200–1500
 FL260 → FL280 : transition IAS → Mach
 FL280 → FL___ : Mach ____, 800–1000
 ```
+
 ⚠ VS < 300 fpm en montée finale : niveau trop élevé pour la masse, demander plus bas.
 RVSM FL290–FL410 : écart entre altimètres ≤ 200 ft.
 
@@ -833,6 +846,7 @@ OAT réelle contre OAT du navlog : un écart notable fausse le TOD.
 Carburant contre navlog (§3) · GS · ETA · météo destination au plus tard 1 h avant le TOD · dégagement toujours utilisable.
 
 **DESCENTE — TOD MANUEL**
+
 ```
 (altitude à perdre en milliers de ft) × 3
 + 10 NM pour décélérer et configurer
@@ -840,6 +854,7 @@ Carburant contre navlog (§3) · GS · ETA · météo destination au plus tard 1
 − 1 NM par 10 kt de vent de face
 + marge par contrainte intermédiaire
 ```
+
 ⇒ à comparer au TOD du MCDU une fois établi en croisière, écart max 15 NM.
 
 Taux 1500–2000 fpm · 250 kt sous 10 000 ft · aérofreins jusqu'à 50 %
@@ -857,7 +872,7 @@ Ce que le MCDU remplit seul (piste, ILS, fréquence, élévation, TRANS LVL, LDG
 ⚠ **CE QUI MANQUE ENCORE, PAR TYPE — à lire avant de choisir l'appareil du vol**
 
 | Type | VFE §6.1 | Vref §6.2 | Tail strike §6.3 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A318 / A319 / A320 | relevées | table complète | 11,7° |
 | A321 | `[MANQUE]` | pente estimée, non confirmée | `[MANQUE]` |
 | A330-900neo | `[MANQUE]` | `[MANQUE]` | `[MANQUE]` |
@@ -879,7 +894,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 **AIRBUS A318 / A319 / A320** `[NAV]`
 
 | Config | VFE — limite | Sélection normale | Repère |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Lisse | — | — | décélérer vers green dot |
 | 1 (slats) | 230 kt | ~205 kt | à green dot |
 | 1+F | 215 kt | ~200 kt | si sortie en approche |
@@ -895,7 +910,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 **AUTRES TYPES** — à remplir au premier vol sur le type, puis gardé.
 
 | Type | Conf 1 | Conf 2 | Conf 3 | FULL | Train |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | A321 | ___ kt | ___ kt | ___ kt | ___ kt | ___ kt |
 | A330-900neo | ___ kt | ___ kt | ___ kt | ___ kt | ___ kt |
 | ____ | ___ kt | ___ kt | ___ kt | ___ kt | ___ kt |
@@ -912,7 +927,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 **A320** — `Vref ≈ masse d'atterrissage en tonnes + 73`, valable entre 50 et 73 t, précision ±3 kt.
 
 | LW | Vref conf FULL |
-|---|---|
+| --- | --- |
 | 55 t | 128 kt |
 | 60 t | 133 kt |
 | 64,5 t (MLW) | 138 kt |
@@ -921,7 +936,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 **A321** — pente d'environ 1 kt par tonne, **non confirmée**. À recouper avec la Vapp du MCDU au premier vol sur le type, avant de s'en servir pour un briefing d'arrivée.
 
 | LW | Vref conf FULL |
-|---|---|
+| --- | --- |
 | 60 t | 129 kt |
 | 65 t | 134 kt |
 | 70 t | 139 kt |
@@ -939,6 +954,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 ⇒ Au temps 1, l'OFP n'existe pas : la table se lit sur le LW attendu du cartouche ⑤.
 
 **VAPP** `[CALC]`
+
 ```
 Vapp = Vref + correction vent
 minimum : Vref + 5
@@ -995,7 +1011,7 @@ TOGA · assiette ~15° · un cran de volets rentré (FULL → 3) · train à Vz 
 ⚠ Après deux approches manquées, la troisième suppose un carburant au-dessus du BINGO. Sinon, déroutement.
 
 **DÉROUTEMENT**
-Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstruite avec DIR TO. NEARBY AIRPORTS si le terrain retenu ne convient plus.
+Pas de plan secondaire (§2.3). Cap direct ***° sur*** NM, puis route reconstruite avec DIR TO. NEARBY AIRPORTS si le terrain retenu ne convient plus.
 ⇒ BRG/DIST sur PROG donne le relèvement et la distance vers le terrain de dégagement en direct, même hors route, sans toucher au plan actif (§2.3).
 
 ---
@@ -1005,7 +1021,7 @@ Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstr
 **Méthode** — les distances se cumulent à l'envers depuis le seuil, tronçon par tronçon : finale, intercepteur, base, vent arrière ou transition, IAF. La distance se construit sur la STAR du jour.
 
 | Annonce | Avec ATC | Sans ATC (Unicom) |
-|---|---|---|
+| --- | --- | --- |
 | ANNOUNCE INBOUND for landing | ~25 NM du seuil | 10 NM du seuil |
 | Position et intentions | à chaque changement de tronçon | toutes les 2–3 min et à chaque virage |
 | Finale annoncée | sur instruction | à l'établissement en finale |
@@ -1031,7 +1047,7 @@ Paramètres au moment de l'image : 1 024 ft AGL · 144 kt · volets FULL · trai
 **CE QUE LE FMA DOIT DIRE, LE JOUR OÙ IL SERA LU EN SESSION**
 
 | Case | Attendu | Ce que ça veut dire |
-|---|---|---|
+| --- | --- | --- |
 | `LOC` puis `G/S` | en vert | axe et plan capturés, dans cet ordre |
 | `CAT3 DUAL` | affiché | double chaîne annoncée **par l'avion** — pas par la piste, pas par la météo |
 | `AP1+2` | affiché | les deux pilotes automatiques engagés. Un seul AP ne donne pas la CAT III |
@@ -1048,13 +1064,13 @@ La cellule de décision d'atterrissage du cartouche ③ reste obligatoire et gar
 **CE QUI RÉVEILLE LA SECTION**
 
 | Point | Comment il se ferme |
-|---|---|
+| --- | --- |
 | Le mode existe dans le build de Milan | un vol : le FMA affiche `CAT3 DUAL` ou il ne l'affiche pas |
 | Deux AP engageables séparément | deux boutons sur la planche, ou un seul |
 | Comportement à l'arrondi automatique | un atterrissage, relevé au LANDING REPORT (§9) |
 | Comportement en cas de perte d'un AP en finale | à provoquer une fois, hors trafic |
 
-⇒ Tant que la première ligne n'est pas fermée, les trois autres n'ont pas de sens.
+⇒ Tant que la première ligne n'est pas fermée, les trois autres n'ont pas de sens
 ---
 
 ## 7 · PROPRE AU SIMULATEUR
@@ -1072,7 +1088,7 @@ Cette section vaut pour n'importe quel appareil du simulateur. Elle ne nomme auc
 **REGISTRE DES TYPES**
 
 | Type | Séquence requise | Alignement ADIRS bloquant | Pages SD vivantes | Bloc spécifique |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | A318 · A319 · A320 (release) | non | non | non | — |
 | A321 (classique) | non | non | non | — |
 | A330 · A330-900neo | oui `[SIM]` | oui `[SIM]` | oui `[SIM]` | aucun — dix phases seules |
@@ -1085,7 +1101,7 @@ Cette section vaut pour n'importe quel appareil du simulateur. Elle ne nomme auc
 **LES DIX PHASES** — ordre valable sur tout Airbus, et vraisemblablement au-delà.
 
 | Phase | Objet | Attendu observable avant de passer à la suivante |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Alimentation initiale | barres alimentées, avionique vivante, sans décharger les batteries |
 | 2 | Préparation cockpit | alignement inertiel lancé, PFD et ND vivants, FMS accessible |
 | 3 | Mise en route APU | APU disponible, page APU appelée au SD si le type en a une |
@@ -1116,7 +1132,7 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 **Les quatre panneaux relevés** — même colonne latérale `DEV` / `GROUND SERVICES` / `SYSTEMS` / `AP OFF` :
 
 | Panneau | Commandes lues |
-|---|---|
+| --- | --- |
 | ELECTRICAL | EXT PWR · BAT 1 · BAT 2 · GEN 1 · GEN 2 · APU GEN · APU MASTER · APU START |
 | BLEED | APU BLEED · ENG 1 BLEED · ENG 2 BLEED · PACK 1 · PACK 2 · X BLEED SHUT |
 | FUEL | L TK PUMP 1 · L TK PUMP 2 · X FEED · R TK PUMP 1 · R TK PUMP 2 |
@@ -1127,7 +1143,7 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 **LES DIX PHASES** — ce sont celles du §7.0, sans changement. Le §7.0.A n'en redéfinit aucune : l'entier de la colonne « Ordre » y renvoie, et `3.2` est la deuxième ligne de la phase 3.
 
 | Ordre | Panneau | Action | Position | Attendu avant de continuer | Source |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | 1.1 | ELECTRICAL | `BAT 1` | ON | — | `[WIP]` `[RÉEL]` |
 | 1.2 | ELECTRICAL | `BAT 2` | ON | E/WD et SD vivants. PFD et ND restent noirs : normal sans alignement, ce n'est pas une panne | `[WIP]` `[RÉEL]` |
 | 1.3 | ELECTRICAL | `EXT PWR` | ON si le groupe de parc est branché, sinon laisser OFF | alimentation externe en ligne, mémo `EXT PWR` affiché à l'E/WD — ou décision prise de partir sur l'APU, et on saute en 3.1 | `[WIP]` `[RÉEL]` |
@@ -1200,7 +1216,7 @@ Le menu MISC (§7.0 bis), le mémo T.O, l'Aircraft Health, le comportement d'app
 Deux captures relevées. Ce qu'elles montrent est ailleurs que là où le dossier attendait.
 
 | Point | Attendu du live | Réellement fermé ? |
-|---|---|---|
+| --- | --- | --- |
 | Rangée basse des quatre panneaux | oui, si montrés entiers | **non** — aucun panneau Systems dans les captures |
 | Emplacement de la commande `ADIRS` | oui | **non** — l'overhead n'est pas dans le champ |
 | Positions du sélecteur `NORM` | oui | **non** |
@@ -1230,7 +1246,7 @@ Deux captures relevées. Ce qu'elles montrent est ailleurs que là où le dossie
 Relevé sur capture studio du 29/08/2026, appareil au parking. Vingt entrées, quatre par rangée. `[WIP]` en entier.
 
 | | | | |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | AUTO START | TIME x1 | FLIGHT PLAN | ✈ |
 | FMS | CHECKLIST | AUTO BRAKES OFF | DEV |
 | BRK FAN | ECAM PAGE | CAMERA SNAPSHOT | GROUND SERVICES |
@@ -1241,7 +1257,7 @@ Relevé sur capture studio du 29/08/2026, appareil au parking. Vingt entrées, q
 **LES TROIS QUI TOUCHENT LE DOSSIER**
 
 | Entrée | Ce qu'elle fait au dossier | Décision |
-|---|---|---|
+| --- | --- | --- |
 | `AUTO START` | court-circuite la séquence du §7.0 d’un appui, et les 45 lignes du §7.0.A quand il s’applique | **À ne pas utiliser avant que la séquence manuelle ait été tenue une fois de bout en bout.** Sinon les lignes `[WIP]` ne passeront jamais à `[SIM]` : elles resteront invérifiées parce qu'aucune n'aura été touchée |
 | `CHECKLIST` | checklists embarquées, périmètre inconnu | Point ouvert du §8. Si elles couvrent le cold & dark, la règle de non-répétition s’applique et le §7.0 comme le §7.0.A se réduisent à ce qu’elles ne disent pas. Le bouton ne suffit pas : son contenu se lit avant de retirer quoi que ce soit |
 | `TIME x1` | accélération temporelle | Un vol accéléré ne remplit pas le §9 : ni écart carburant, ni ETE, ni TOD. Le noter avant de partir, pas après |
@@ -1295,7 +1311,7 @@ Briefing décollage énoncé
 L'E/WD affiche un mémo de décollage dynamique, six lignes :
 
 | Item | Cible attendue |
-|---|---|
+| --- | --- |
 | AUTO BRK | MAX |
 | SEAT BELTS | ON |
 | CABIN | READY |
@@ -1341,6 +1357,7 @@ Frein de parc · feux de position seuls · carburant restant relevé · AIDS FLI
 ## 8 · GO / NO-GO
 
 **BLOQUANT** — cinq points, pas un de plus :
+
 - masse hors MTOW ou MLW
 - vitesses calculées pour une autre piste que celle attribuée
 - dégagement inutilisable à l'ETA
@@ -1355,7 +1372,7 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 **POINTS OUVERTS — se ferment par une observation, jamais par déduction** :
 
 | Point | Comment il se ferme | Depuis |
-|---|---|---|
+| --- | --- | --- |
 | Parenthèse de traduction des libellés (§A.5 règle 4) | un `window.debugBriefing()` sur la prochaine feuille chargée | REV 19 |
 | VFE A321 et A330-900neo (§6.1) | une descente, cran par cran, au ruban | REV 15 |
 | Vref A321 confirmée, A330-900neo à créer (§6.2) | deux vols à des masses différentes | REV 17 |
@@ -1397,7 +1414,7 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des valeurs déjà fournies, pour ne pas les redemander deux fois.
 
 | Type | Masse à vide IF | Source | MTOW / MLW |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A318 | ≈ 39 500 kg | `[CALC]`, une valeur donnée (SimBrief : 37 416) | ____ |
 | A320 | 42 100 kg | `[SIM]`, donné par Milan | 78 000 / 66 500 |
 | A321 | 43 600 kg | `[SIM]`, donné par Milan | 93 800 / 77 800 |
@@ -1420,7 +1437,6 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 **ÉCARTS SIMBRIEF — la colonne « valeur attendue » du §0**
 Champ où ma valeur attendue s'est écartée ____ · écart ____ · méthode à corriger ____
 ⇒ pistes, contingence, réserve, taxi, FOB et FOD sont les six lignes à relever en priorité.
-
 
 **ÉCART DE MASSE — RELEVÉ AU POSTE**
 `GW` lu ____ · `FOB` lu ____ · masse sans carburant obtenue ____ · EZFW de l'OFP ____ · écart ____
