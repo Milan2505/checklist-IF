@@ -383,3 +383,16 @@ Consignes `consignes_claude_code_A380_format.md`, sans nouvelle REV (`briefing.m
 | 3 · `grep -n "23 captures" briefing.md` | **passé** : aucun résultat |
 | 4 · page rechargée | **passé** : REV 34 reconnue, aucun bandeau, aucune erreur ; suite complète identique au commit précédent |
 | 5 · LF, tiret long | **passé** |
+
+## Page A380-800 FMS v3 · routes CPNY RTE et ALTN RTE
+
+Correction en place, sans nouvelle REV ; `briefing.md` reste en REV 34 et n'est pas modifié.
+
+- `page_A380-800_FMS.md` remplacé par `page_A380-800_FMS_v3.md`, tel quel (`cmp` identique). Trois lignes changent : §3 CPNY RTE (NONE, la route du jour étant chargée par SIMBRIEF REQUEST) et ALTN RTE (route réelle la plus déposée entre destination et dégagement, analyse des routes IFR FlightAware, à défaut celle de l'OFP), et la ligne ALTN RTE du gabarit §15. Le gabarit garde 79 lignes.
+- Jeton de cache passé à `?v=40` (18 références). Code, parseur, registre et `FIELDS` inchangés.
+
+| Contrôle | Résultat |
+|---|---|
+| Feuille `feuille_QFA7_YSSY-KDFW_REV34_v3.md` | **passé** : « 79 lignes », aucune alerte (attendu lu dans la page : 79) ; « INIT · ALTN RTE » affiche DARTZ9 TORNN GUSHR3 en 20 px cyan ; « INIT · CPNY RTE » en style contrôle, NONE ; feuille REV 34 à 49/49, 64 valeurs, aucun bandeau |
+| Page rechargée | **passé** : REV 34 reconnue, aucun bandeau, aucune erreur ; suite complète identique au commit précédent |
+| LF, tiret long | **passé** |

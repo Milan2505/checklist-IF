@@ -64,8 +64,8 @@ Non rempli par l'import : ALTN (NONE), CPNY RTE et ALTN RTE (NONE), ZFWCG, BLOCK
 | FLT NBR | Importé, à contrôler contre l'indicatif de la feuille |
 | FROM / TO | Importés |
 | ALTN | Dégagement de l'OFP (code OACI) |
-| CPNY RTE | NONE, la route étant chargée par SIMBRIEF REQUEST ; nom de route compagnie si RTE SEL en propose une liste |
-| ALTN RTE | Route de dégagement de l'OFP, via ALTN RTE SEL |
+| CPNY RTE | NONE, la route du jour étant chargée par SIMBRIEF REQUEST ; nom de route compagnie si RTE SEL en propose une liste |
+| ALTN RTE | Route réelle la plus déposée entre destination et dégagement (analyse des routes IFR FlightAware), via ALTN RTE SEL ; à défaut, route de dégagement de l'OFP |
 | CRZ FL | Niveau initial de l'OFP |
 | CRZ TEMP | Température au niveau initial, OFP |
 | CI | Cost index de l'OFP |
@@ -241,7 +241,7 @@ Liste de référence pour toute feuille A388 : 79 lignes, dans cet ordre, sans e
 | INIT | TO | contrôle : OACI arrivée |
 | INIT | ALTN | dégagement de la feuille |
 | INIT | CPNY RTE | contrôle : NONE, sauf nom de route proposé par RTE SEL |
-| INIT | ALTN RTE | route de dégagement de l'OFP |
+| INIT | ALTN RTE | route réelle la plus déposée destination vers dégagement (FlightAware) ; à défaut, celle de l'OFP |
 | INIT | CRZ FL | niveau initial |
 | INIT | CRZ TEMP | température au niveau initial |
 | INIT | CI | contrôle : cost index de l'OFP |
