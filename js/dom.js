@@ -17,6 +17,7 @@ const el = {
   btnFms:   document.getElementById('btnFms'),
   fmsSheet: document.getElementById('fmsSheet'),
   fmsBody:  document.getElementById('fmsBody'),
+  fmsVol:   document.getElementById('fmsVol'),
   btnLoad:  document.getElementById('btnLoad'),
   btnReset: document.getElementById('btnReset'),
   file:     document.getElementById('file'),

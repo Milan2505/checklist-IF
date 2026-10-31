@@ -1,6 +1,7 @@
 /* ============================================================
    ONGLET A380-800 FMS · REV 33
-   Affiche page_A380-800_FMS.md en lecture, quel que soit le type du vol.
+   En tete, les valeurs FMS de la feuille chargee ; dessous, repliee,
+   page_A380-800_FMS.md en lecture. Visible quel que soit le type du vol.
    Depend de : state.js, dom.js, render.js (esc), refs.js (md2html).
 ============================================================ */
 /* ------------------------------------------------------------
@@ -23,6 +24,65 @@ function paintFms(){
   const on = fmsActif();
   el.btnFms.hidden = !on;
   if(!on) fermerOnglet(el.btnFms);
+  paintFmsVol();
+}
+
+/* ------------------------------------------------------------
+   EN TETE · CE QU'ON TAPE POUR CE VOL
+   La feuille du vol porte une section « ## SAISIE FMS A388 » : un tableau
+   Page FMS | Champ | Saisie, puis de la prose. Elle est lue ICI, dans le
+   texte brut de la feuille, et nulle part ailleurs : ni registre, ni
+   FIELDS, ni validation, ni bandeau. Le parseur des cartouches ignore deja
+   ce tableau a trois colonnes, sans rien signaler.
+------------------------------------------------------------ */
+const FMS_SECTION = '## SAISIE FMS A388';
+let fmsSource;                      /* feuille deja rendue : on ne relit pas a chaque frappe */
+
+function saisieFms(txt){
+  if(!txt) return null;
+  const lignes = txt.split('\n').map(l=> l.replace(/\r$/,''));
+  const debut = lignes.findIndex(l=> l.indexOf(FMS_SECTION) === 0);
+  if(debut < 0) return null;
+  let fin = lignes.length;
+  for(let k = debut+1; k < lignes.length; k++){
+    if(/^#{1,2}\s/.test(lignes[k])){ fin = k; break; }
+  }
+  const corps = lignes.slice(debut+1, fin);
+  const cells = r => r.trim().replace(/^\||\|$/g,'').split('|').map(c=> c.trim());
+  const t = corps.findIndex(l=> /^\s*\|/.test(l));
+  if(t < 0) return null;
+  const rows = [];
+  let k = t + 2;                    /* en-tete, puis ligne de separation */
+  while(k < corps.length && /^\s*\|/.test(corps[k])){
+    const c = cells(corps[k]);
+    if(c.length >= 3) rows.push({ page:c[0], champ:c[1], saisie:c[2] });
+    k++;
+  }
+  const apres = corps.slice(k).filter(l=> !/^\s*---+\s*$/.test(l)).join('\n').trim();
+  return rows.length ? { rows:rows, apres:apres } : null;
+}
+
+function paintFmsVol(){
+  if(fmsSource === state.sheet) return;
+  fmsSource = state.sheet;
+  const s = saisieFms(state.sheet);
+  if(!s){
+    el.fmsVol.innerHTML = '<div class="empty-state">Aucune valeur FMS dans la feuille chargée.</div>';
+    return;
+  }
+  /* groupe par page FMS, dans l'ordre ou le tableau les donne */
+  const pages = [], parPage = {};
+  s.rows.forEach(r=>{
+    if(!parPage[r.page]){ parPage[r.page] = []; pages.push(r.page); }
+    parPage[r.page].push(r);
+  });
+  el.fmsVol.innerHTML =
+    '<div class="fms-vol-t">À taper pour ce vol</div>'+
+    pages.map(p=>
+      '<div class="fms-page"><div class="fms-page-t">'+esc(p)+'</div><dl class="fms-lignes">'+
+      parPage[p].map(r=> '<dt>'+esc(r.champ)+'</dt><dd>'+esc(r.saisie)+'</dd>').join('')+
+      '</dl></div>').join('')+
+    (s.apres ? '<div class="md fms-note">'+md2html(s.apres)+'</div>' : '');
 }
 
 /* a l'ouverture de l'onglet (ui.js) : la page est demandee une seule fois.

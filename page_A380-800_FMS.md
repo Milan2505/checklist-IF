@@ -150,4 +150,4 @@ Relevés pour référence, rien à y remplir avant le départ.
 
 ## 12. Point relevé au vol test
 
-ZFW importé à 324.9 t, alors que le SD affichait GW 344.3 t et FOB 27.8 t, soit 316.5 t sans carburant côté simulateur. Écart d'environ 8.4 t, du même type que l'écart A318 d'août (profil d'airframe SimBrief contre masse IF). Pour la masse à vide A388, un relevé à l'écran Poids et centrage (tous postes à 0) réglerait la question.
+ZFW importé à 324.9 t, alors que le SD affichait GW 344.3 t et FOB 27.8 t, soit 316.5 t sans carburant côté simulateur. Écart d'environ 8.4 t, du même type que l'écart A318 d'août (profil d'airframe SimBrief contre masse IF). Masse à vide IF relevée le 31/10/2026 : 276 630 kg. Le ZFW se force désormais sur cette valeur.

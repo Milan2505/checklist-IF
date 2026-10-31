@@ -165,7 +165,7 @@ Tous exécutés dans Chrome headless sur la page réelle (runner greffé dans un
 | B.12.4 · LF | **passé** : aucun retour chariot dans `briefing.md`. Index git en LF pour tous les fichiers des trois commits |
 | Règle 7 · tiret long | **passé** : aucun tiret long dans les lignes ajoutées par ces consignes |
 
-Remarque hors périmètre : à 420 px de large, le bloc des portes déborde à droite. Le défaut existe déjà à la REV 32 (capture comparée), il n'a pas été touché.
+~~Remarque hors périmètre : à 420 px de large, le bloc des portes déborde à droite.~~ **Rectifié le 31/10/2026 : ce débordement n'existe pas.** Chrome headless impose une largeur minimale de 500 px : à `--window-size=420` la page est mise en page sur 500 px, puis la capture est coupée à 420. Mesure faite : `scrollWidth` égal à `clientWidth`, aucun élément au-delà du bord.
 
 **Non poussé à ce stade.** Deux contrôles de B.12 ne passent pas à la lettre, et le renvoi du §6.7 reste à trancher par Milan. Voir la section suivante.
 
@@ -261,3 +261,28 @@ Tous les contrôles passent : les quatre commits sont poussés.
 Puis six allers-retours A380-800 FMS / Valeurs du vol : à chaque clic un seul onglet surligné, et le bon contenu (12 tableaux FMS, ou 64 cases). Un second clic sur Valeurs du vol ouvert le laisse ouvert, focus sur la première case. Aucune erreur.
 
 **Autres changements du même commit.** Jeton de cache passé à `?v=35` (18 références). `briefing.md` §7.A, corrections en place sans nouvelle REV : le paragraphe « CONDITION D'ENTRÉE » devient « La page en ligne affiche l'onglet A380-800 FMS en permanence ; son contenu ne s'applique qu'aux vols sur A388. », et « affichée par la page en ligne quand `Type` vaut `A388` » devient « affichée par la page en ligne dans l'onglet A380-800 FMS ».
+
+## Onglet A380-800 FMS · valeurs du vol chargé en tête
+
+Corrections en place, pas de nouvelle REV. Jeton de cache passé à `?v=36` (18 références).
+
+**Ce qui change.** En tête de l'onglet, sous le titre « À taper pour ce vol », le tableau de la section `## SAISIE FMS A388` de la feuille chargée, groupé par page FMS dans l'ordre du tableau, la saisie en gros à droite. Dessous, tout le texte qui suit le tableau jusqu'à la fin de la section : sur la feuille QFA7 ce sont deux paragraphes, « Centrage : … » et « **Chargement dans IF.** … », affichés tous les deux. Sans feuille, ou sans cette section : « Aucune valeur FMS dans la feuille chargée. » La page de méthode passe dessous, repliée par défaut sous « Méthode, champ par champ » (élément `details` natif, dépliable au clic et au clavier).
+
+**Où.** `js/fms.js` : `saisieFms()` lit la section dans le texte brut de la feuille, `paintFmsVol()` l'affiche ; appelée par `paintFms()`, donc à chaque chargement de feuille et au démarrage, sans relire la feuille à chaque frappe. `index.html` : bloc `#fmsVol` et `details.fms-methode` dans `#fmsSheet`. `js/dom.js` : nœud `fmsVol`. `css/style.css` : règles `.fms-*`.
+
+**Le parseur n'y touche pas.** Aucune clé au registre ni dans `FIELDS`, aucune validation. Le parseur des cartouches ignorait déjà ce tableau avant la modification (« tableau ignoré (3 colonnes) », sans bandeau) : mesuré sur la feuille QFA7 avant et après, lecture identique.
+
+**`page_A380-800_FMS.md` §12** : dernière phrase remplacée par « Masse à vide IF relevée le 31/10/2026 : 276 630 kg. Le ZFW se force désormais sur cette valeur. »
+
+### Contrôles
+
+| Contrôle | Résultat |
+|---|---|
+| Feuille `feuille_QFA7_YSSY-KDFW_REV33.md` chargée | **passé** : 28 lignes, de « INIT · ALTN · KIAH » à « GA · TRANS / EO ACCEL · 18000 / 3700 », identiques une à une au tableau de la feuille ; huit pages dans l'ordre INIT, FUEL&LOAD, DEPARTURE, T.O, CLB, DES, APPR, GA ; les deux paragraphes affichés ; méthode repliée |
+| Sans feuille | **passé** : « Aucune valeur FMS dans la feuille chargée. », méthode repliée puis dépliée au clic |
+| Feuille sans la section (U21703) | **passé** : même message |
+| Cartouches et bandeaux | **passé** : QFA7 lue à l'identique avant et après (49/49, 64 valeurs, aucun bandeau) ; suite complète sur le dossier et les feuilles du dépôt identique au commit précédent ; dossier REV 33 reconnu, aucun bandeau, aucune erreur |
+| Rendu | capture à 500 px : valeurs lisibles, aucun débordement mesuré |
+| LF, tiret long | **passé** |
+
+La feuille QFA7 a servi de test depuis `Downloads` ; elle n'est pas ajoutée au dépôt.
