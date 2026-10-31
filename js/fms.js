@@ -22,19 +22,13 @@ function fmsActif(){ return true; }
 function paintFms(){
   const on = fmsActif();
   el.btnFms.hidden = !on;
-  if(!on && !el.fmsSheet.hidden) fmsFermer();
+  if(!on) fermerOnglet(el.btnFms);
 }
 
-function fmsFermer(){
-  el.fmsSheet.hidden = true;
-  el.btnFms.classList.remove('on');
-  el.btnFms.setAttribute('aria-expanded','false');
-}
-
-async function fmsOuvrir(){
-  el.fmsSheet.hidden = false;
-  el.btnFms.classList.add('on');
-  el.btnFms.setAttribute('aria-expanded','true');
+/* a l'ouverture de l'onglet (ui.js) : la page est demandee une seule fois.
+   L'ouverture, la fermeture et la surbrillance passent par ONGLETS, comme
+   pour Valeurs du vol : aucun etat propre a cet onglet. */
+async function fmsOuvert(){
   if(fmsTexte !== null) return;
   el.fmsBody.innerHTML = '<div class="empty-state">Chargement de la page A380-800…</div>';
   try{
@@ -48,7 +42,3 @@ async function fmsOuvrir(){
       ' introuvable à côté de la page. Il se lit quand la page est servie en ligne.</div>';
   }
 }
-
-el.btnFms.addEventListener('click', ()=>{
-  if(el.fmsSheet.hidden) fmsOuvrir(); else fmsFermer();
-});

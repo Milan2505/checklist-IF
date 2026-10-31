@@ -118,9 +118,11 @@ Aucune. Aucune clé ne servait qu'à la checklist (voir A.1).
 
 ## A.3 · Onglet A380-800 (commit `eac87e6`)
 
+⚠ **État actuel : l'onglet est visible en permanence**, quel que soit le type et même sans feuille chargée (commit `56ee405`, décision de Milan du 31/10/2026). `fmsActif()` renvoie toujours vrai. La condition A388 décrite ci-dessous et les contrôles A.3.5 plus bas sont ceux du commit `eac87e6` ; ils ne s'appliquent plus. Depuis la correction du bug d'onglets (dernière section), son ouverture et sa fermeture passent par le mécanisme commun `ONGLETS` de `js/ui.js`.
+
 - `page_A380-800_FMS.md` ajouté à la racine, tel que fourni.
-- `js/fms.js` (nouveau) : condition `normType(state.values.type) === 'A388'`, une égalité, aucune clé. `normType` est celui du bloc A21N : casse, tirets et espaces ne comptent pas (`a388`, `A-388` ouvrent l'onglet, `A380` et `A388F` non).
-- `index.html` : bouton « A380-800 FMS » dans la barre (caché par défaut) et panneau `#fmsSheet`. `js/dom.js` : trois nœuds. `js/render.js` : `refreshValues()` appelle `paintFms()`. `js/main.js` : `paintFms()` au démarrage.
+- `js/fms.js` (nouveau) : condition `normType(state.values.type) === 'A388'`, une égalité, aucune clé, retirée depuis (voir ci-dessus). `normType` est celui du bloc A21N : casse, tirets et espaces ne comptaient pas (`a388`, `A-388` ouvraient l'onglet, `A380` et `A388F` non).
+- `index.html` : bouton « A380-800 FMS » dans la barre et panneau `#fmsSheet`. `js/dom.js` : trois nœuds. `js/render.js` : `refreshValues()` appelle `paintFms()`. `js/main.js` : `paintFms()` au démarrage.
 - Le fichier est demandé au serveur à la première ouverture et rendu par `md2html` (le rendu qui servait aux sections du dossier). Il ne passe ni par `applyDoc` ni par `extractValues`. Ouverte depuis le disque sans serveur, la page affiche « introuvable » au lieu de deviner.
 
 ## Partie B · `briefing.md`, REV 32 vers REV 33
@@ -218,3 +220,44 @@ Aucune n'est couverte par les points 3 à 5.
 | `js/data/fields.js:37` | `clair dans la ligne de checklist, pas ici. */` (commentaire) |
 
 Tous les contrôles passent : les quatre commits sont poussés.
+
+## Bug d'onglets · Valeurs du vol et A380-800 FMS surlignés ensemble
+
+**Constat en ligne (Milan)** : après un passage par « A380-800 FMS », un clic sur un autre onglet ne changeait pas de page, ou changeait la page sans retirer la surbrillance d'A380-800 FMS. Capture : « Valeurs du vol » et « A380-800 FMS » surlignés en même temps, contenu Valeurs du vol affiché.
+
+**Cause.** Les deux boutons étaient deux bascules indépendantes, chacune avec son propre état : `js/values.js` ouvrait ou fermait `#valuesSheet`, `js/fms.js` ouvrait ou fermait `#fmsSheet`, et aucun ne fermait l'autre. D'où deux défauts :
+- les deux panneaux pouvaient être ouverts et surlignés ensemble ; « Valeurs du vol », placé au-dessus, cachait alors le panneau A380 qu'on venait de demander, poussé plus bas hors de vue ;
+- un clic sur un bouton déjà ouvert le refermait : le clic n'affichait rien.
+
+**Reproduction en Chrome headless, code d'avant la correction.** Page réelle, dossier REV 33 chargé, aucun bandeau. « Surlignés » = boutons portant la classe `on` ; « vu en premier » = premier panneau ouvert dans l'ordre de la page.
+
+| Clic | Surlignés | Panneaux ouverts | Vu en premier |
+|---|---|---|---|
+| départ | aucun | aucun | aucun |
+| 1 · Valeurs du vol | Valeurs du vol | Valeurs du vol | Valeurs du vol |
+| 2 · A380-800 FMS | **Valeurs du vol + A380-800 FMS** | **les deux** | **Valeurs du vol** (le défaut de la capture) |
+| 3 · Valeurs du vol | A380-800 FMS | A380-800 FMS | A380-800 FMS (le clic sur Valeurs a **fermé** Valeurs) |
+| 4 · A380-800 FMS | aucun | aucun | **aucun** (le clic a fermé l'onglet demandé) |
+| 5 · Charger le briefing | aucun | aucun | aucun ; sélecteur de fichier ouvert |
+| 6 · A380-800 FMS | A380-800 FMS | A380-800 FMS | A380-800 FMS |
+| 7 · Nouveau vol (confirmé) | A380-800 FMS | A380-800 FMS | A380-800 FMS ; valeurs effacées |
+
+**Correction.** Un seul mécanisme pour les deux onglets, `ONGLETS` dans `js/ui.js` : un clic sur un onglet ferme tous les autres et ouvre le sien, toujours. L'onglet A380 n'a plus d'état propre : son ouverture, sa fermeture et sa surbrillance passent par ce mécanisme, comme Valeurs du vol. Ce qui reste propre à chaque onglet se limite à ce qu'il fait à l'ouverture : focus sur la première case (`valuesOuvert`, `js/values.js`), chargement unique de la page FMS (`fmsOuvert`, `js/fms.js`). « Charger le briefing » et « Nouveau vol » sont des actions sans panneau : inchangés.
+
+⚠ **Un changement de comportement en découle** : un second clic sur l'onglet déjà ouvert ne le referme plus. C'était la seconde cause du bug (clic 4 ci-dessus) ; la garder aurait laissé un clic sur un onglet ne rien afficher, contre la consigne « un clic sur n'importe quel onglet affiche toujours son contenu ». Conséquence : une fois un onglet ouvert, l'un des deux panneaux reste toujours affiché.
+
+**Même séquence après correction.**
+
+| Clic | Surlignés | Panneaux ouverts |
+|---|---|---|
+| 1 · Valeurs du vol | Valeurs du vol | Valeurs du vol |
+| 2 · A380-800 FMS | A380-800 FMS | A380-800 FMS |
+| 3 · Valeurs du vol | Valeurs du vol | Valeurs du vol |
+| 4 · A380-800 FMS | A380-800 FMS | A380-800 FMS |
+| 5 · Charger le briefing | A380-800 FMS | A380-800 FMS ; sélecteur de fichier ouvert |
+| 6 · A380-800 FMS | A380-800 FMS | A380-800 FMS |
+| 7 · Nouveau vol (confirmé) | A380-800 FMS | A380-800 FMS ; valeurs effacées |
+
+Puis six allers-retours A380-800 FMS / Valeurs du vol : à chaque clic un seul onglet surligné, et le bon contenu (12 tableaux FMS, ou 64 cases). Un second clic sur Valeurs du vol ouvert le laisse ouvert, focus sur la première case. Aucune erreur.
+
+**Autres changements du même commit.** Jeton de cache passé à `?v=35` (18 références). `briefing.md` §7.A, corrections en place sans nouvelle REV : le paragraphe « CONDITION D'ENTRÉE » devient « La page en ligne affiche l'onglet A380-800 FMS en permanence ; son contenu ne s'applique qu'aux vols sur A388. », et « affichée par la page en ligne quand `Type` vaut `A388` » devient « affichée par la page en ligne dans l'onglet A380-800 FMS ».

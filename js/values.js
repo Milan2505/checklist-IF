@@ -54,13 +54,8 @@ function buildValues(){
   el.valGrid.appendChild(frag);
 }
 
-el.btnValues.addEventListener('click', ()=>{
-  const shown = el.valuesSheet.hidden;
-  el.valuesSheet.hidden = !shown;
-  el.btnValues.classList.toggle('on', shown);
-  el.btnValues.setAttribute('aria-expanded', shown ? 'true':'false');
-  if(shown){
-    const first = el.valGrid.querySelector('input');
-    if(first) first.focus({preventScroll:true});
-  }
-});
+/* a l'ouverture de l'onglet (ui.js) : le curseur va a la premiere case */
+function valuesOuvert(){
+  const first = el.valGrid.querySelector('input');
+  if(first) first.focus({preventScroll:true});
+}

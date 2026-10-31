@@ -1350,9 +1350,9 @@ Carburant restant relevé · AIDS FLIGHT REPORT et LANDING REPORT relevés (§9)
 
 ### 7.A · A380-800 (`A388`) · SAISIE FMS
 
-⚠ **CONDITION D'ENTRÉE : la cellule `Type` du cartouche ① vaut `A388`.** Pour tout autre type, cette section est inerte.
+La page en ligne affiche l'onglet A380-800 FMS en permanence ; son contenu ne s'applique qu'aux vols sur A388.
 
-La saisie complète, onglet par onglet, vit dans `page_A380-800_FMS.md`, affichée par la page en ligne quand `Type` vaut `A388`. Elle n'est pas lue par le parseur et n'ajoute aucune clé au registre. Relevée sur 23 captures du FMS 1, vol test LFBO vers LFPO, N388SB, 29/10/2026 `[SIM]`.
+La saisie complète, onglet par onglet, vit dans `page_A380-800_FMS.md`, affichée par la page en ligne dans l'onglet A380-800 FMS. Elle n'est pas lue par le parseur et n'ajoute aucune clé au registre. Relevée sur 23 captures du FMS 1, vol test LFBO vers LFPO, N388SB, 29/10/2026 `[SIM]`.
 
 **Ce qui distingue ce FMS du MCDU A320 (§2)**
 
