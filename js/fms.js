@@ -73,6 +73,28 @@ function saisieDd(v){
   return '<dd>'+esc(v)+'</dd>';
 }
 
+/* REV 34 · nombre de lignes attendu, lu dans la phrase du §15 de la page de
+   methode (« 79 lignes »), jamais ecrit ici. Page pas encore chargee, ou
+   phrase introuvable : null, et aucun ecart n'est signale faute de reference. */
+function fmsAttendu(){
+  if(!fmsTexte) return null;
+  const l = fmsTexte.split('\n');
+  const d = l.findIndex(x=> /^##\s+15\./.test(x));
+  if(d < 0) return null;
+  for(let k = d+1; k < l.length && !/^#{1,2}\s/.test(l[k]); k++){
+    const m = l[k].match(/(\d+)\s+lignes/);
+    if(m) return +m[1];
+  }
+  return null;
+}
+
+function compteFms(n){
+  const att = fmsAttendu();
+  return '<div class="fms-compte">'+n+' ligne'+(n > 1 ? 's' : '')+
+    (att !== null && n !== att ? ' <span class="fms-ecart">attendu : '+att+' (gabarit §15)</span>' : '')+
+    '</div>';
+}
+
 function paintFmsVol(){
   if(fmsSource === state.sheet) return;
   fmsSource = state.sheet;
@@ -89,6 +111,7 @@ function paintFmsVol(){
   });
   el.fmsVol.innerHTML =
     '<div class="fms-vol-t">À taper pour ce vol</div>'+
+    compteFms(s.rows.length)+
     pages.map(p=>
       '<div class="fms-page"><div class="fms-page-t">'+esc(p)+'</div><dl class="fms-lignes">'+
       parPage[p].map(r=> '<dt>'+esc(r.champ)+'</dt>'+saisieDd(r.saisie)).join('')+
@@ -107,6 +130,7 @@ async function fmsOuvert(){
     if(!r.ok) throw new Error('HTTP '+r.status);
     fmsTexte = await r.text();
     el.fmsBody.innerHTML = md2html(fmsTexte);
+    fmsSource = undefined; paintFmsVol();   /* le compte attendu est maintenant connu */
   }catch(e){
     /* page ouverte hors serveur, ou fichier absent : le dire, ne rien inventer */
     el.fmsBody.innerHTML = '<div class="empty-state">Fichier '+esc(FMS_FICHIER.slice(2))+

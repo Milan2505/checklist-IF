@@ -63,8 +63,8 @@ Non rempli par l'import : ALTN (NONE), CPNY RTE et ALTN RTE (NONE), ZFWCG, BLOCK
 | FLT NBR | Importé, à contrôler contre l'indicatif de la feuille |
 | FROM / TO | Importés |
 | ALTN | Dégagement de l'OFP (code OACI) |
-| CPNY RTE | Laisser NONE |
-| ALTN RTE | Laisser NONE sauf route de dégagement fournie |
+| CPNY RTE | NONE, la route étant chargée par SIMBRIEF REQUEST ; nom de route compagnie si RTE SEL en propose une liste |
+| ALTN RTE | Route de dégagement de l'OFP, via ALTN RTE SEL |
 | CRZ FL | Niveau initial de l'OFP |
 | CRZ TEMP | Température au niveau initial, OFP |
 | CI | Cost index de l'OFP |
@@ -222,4 +222,91 @@ Au vol test, le ZFW importé était de 324.9 t, alors que le SD affichait GW 344
 | Effet de CPNY T.O REQUEST | Capture de la page T.O après appui |
 | Page ARRIVAL | Captures de la page et de ses listes |
 | Contenu des pages DATA | Captures de STATUS et AIRPORT |
+| Contenu des listes RTE SEL et ALTN RTE SEL | Capture de chaque liste ouverte |
 | Capacité carburant totale | Capture de l'écran Poids et centrage au plein ; la barre du bas indique environ 250 t (27 784 kg pour 11 %), arrondi |
+
+## 15. Gabarit de la section SAISIE FMS A388
+
+Liste de référence pour toute feuille A388 : 79 lignes, dans cet ordre, sans en retirer ni en ajouter (§A.6 du dossier). La colonne de droite dit ce qu'on écrit dans la cellule Saisie de la feuille.
+
+| Page FMS | Champ | Contenu de la cellule Saisie |
+|---|---|---|
+| INIT | Première action | texte fixe : appuyer sur SIMBRIEF REQUEST |
+| INIT | FLT NBR | contrôle : indicatif ATC de la feuille |
+| INIT | FROM | contrôle : OACI départ |
+| INIT | TO | contrôle : OACI arrivée |
+| INIT | ALTN | dégagement de la feuille |
+| INIT | CPNY RTE | contrôle : NONE, sauf nom de route proposé par RTE SEL |
+| INIT | ALTN RTE | route de dégagement de l'OFP |
+| INIT | CRZ FL | niveau initial |
+| INIT | CRZ TEMP | température au niveau initial |
+| INIT | CI | contrôle : cost index de l'OFP |
+| INIT | TROPO | contrôle : valeur importée, sinon 36090 |
+| INIT | TRIP WIND | composante moyenne, HD ou TL suivi de 3 chiffres |
+| FUEL&LOAD | ZFW | masse à vide IF plus charge utile, en tonnes |
+| FUEL&LOAD | ZFWCG | %MAC |
+| FUEL&LOAD | BLOCK | BLOC du cartouche ④ en tonnes |
+| FUEL&LOAD | TAXI | carburant roulage en tonnes |
+| FUEL&LOAD | PAX NBR | passagers de la feuille |
+| FUEL&LOAD | CI | contrôle : même valeur qu'en INIT |
+| FUEL&LOAD | RTE RSV | carburant de secours en tonnes |
+| FUEL&LOAD | RTE RSV % | contrôle : pourcentage calculé |
+| FUEL&LOAD | JTSN GW | vide |
+| FUEL&LOAD | ALTN | carburant et temps de dégagement |
+| FUEL&LOAD | FINAL | réserve finale et 00:30 |
+| FUEL&LOAD | MIN FUEL AT DEST | MIN DIV du cartouche ④ en tonnes |
+| FUEL&LOAD | TRIP | contrôle : Trip du cartouche ⑤ |
+| FUEL&LOAD | TOW | contrôle : TOW du cartouche ⑤ |
+| FUEL&LOAD | LW | contrôle : LW du cartouche ⑤ |
+| FUEL&LOAD | EXTRA | contrôle : EXTRA du cartouche ④ |
+| DEPARTURE | RWY | piste départ |
+| DEPARTURE | SID | SID de l'OFP |
+| DEPARTURE | TRANS | transition de l'OFP, sinon NONE |
+| DEPARTURE | EOSID | contrôle : valeur affichée |
+| DEPARTURE | Validation | texte fixe : TMPY F-PLN |
+| ARRIVAL | APPR | approche de la feuille (page non relevée) |
+| ARRIVAL | STAR | STAR de l'OFP (page non relevée) |
+| T.O | CRZ FL (haut de page PERF) | contrôle : même valeur qu'en INIT |
+| T.O | T.O SHIFT | 0 sauf intersection |
+| T.O | V1 | contrôle : V1 du cartouche ③ |
+| T.O | VR | contrôle : VR du cartouche ③ |
+| T.O | V2 | contrôle : V2 du cartouche ③ |
+| T.O | Poussée | TOGA, FLEX ou DERATED |
+| T.O | Température FLEX | Flex du cartouche ③ |
+| T.O | FLAPS | Volets du cartouche ③ |
+| T.O | THS FOR | %MAC |
+| T.O | PACKS | ON ou OFF/APU |
+| T.O | ANTI-ICE | OFF, ENG ONLY ou ENG + WING |
+| T.O | THR RED | Réduction du cartouche ③ |
+| T.O | ACCEL | Accélération du cartouche ③ |
+| T.O | TRANS | Transition du cartouche ③ |
+| T.O | EO ACCEL | même valeur qu'ACCEL |
+| CLB | CI | contrôle : même valeur qu'en INIT |
+| CLB | DERATED CLB | NONE sauf demande |
+| CLB | PRESEL SPD | vide |
+| CLB | CLB SPD LIM | contrôle : 250 / 10000 |
+| CLB | TRANS | même valeur qu'en T.O |
+| CLB | PRED TO | vide |
+| CRZ | CI | contrôle : même valeur qu'en INIT |
+| CRZ | PRESEL MACH | vide |
+| CRZ | PRESEL SPD | vide |
+| CRZ | STEP ALTS | paliers de l'OFP |
+| DES | CI | contrôle : même valeur qu'en INIT |
+| DES | DES CABIN RATE | -350 |
+| DES | Mode | MANAGED ECON |
+| DES | MACH | vide |
+| DES | SPD | vide |
+| DES | PRED TO | vide |
+| DES | TRANS | niveau de transition de l'arrivée |
+| APPR | MAG WIND | vent de destination, direction magnétique / force |
+| APPR | OAT | température de destination |
+| APPR | QNH | QNH de destination |
+| APPR | BARO | DA du cartouche ③ |
+| APPR | RADIO | vide sauf CAT II ou III |
+| APPR | CONF | FULL sauf choix CONF3 |
+| APPR | VAPP | contrôle : Vapp du cartouche ③ |
+| APPR | TRANS | contrôle : même valeur qu'en DES |
+| GA | THR RED | élévation destination + 1 500 ft |
+| GA | ACCEL | élévation destination + 3 000 ft |
+| GA | TRANS | altitude de transition de la destination |
+| GA | EO ACCEL | même valeur qu'ACCEL |

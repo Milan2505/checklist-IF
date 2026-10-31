@@ -325,3 +325,22 @@ Jeton de cache passé à `?v=37` (18 références). Convention lue seulement dan
 | Préfixe résiduel | **passé** : aucune valeur affichée ne contient encore « contrôle » |
 | Page rechargée | **passé** : dossier REV 33 reconnu, aucun bandeau, feuille QFA7 à 49/49, suite complète et séquence d'onglets identiques au commit précédent, aucune erreur |
 | LF | **passé** |
+
+## REV 34 · consignes du 31/10/2026
+
+Consignes `consignes_claude_code_REV34.md`. Feuille de test `feuille_QFA7_YSSY-KDFW_REV33_v4.md`, prise dans `Downloads`, non ajoutée au dépôt.
+
+### A · Page en ligne (premier commit)
+
+- `page_A380-800_FMS.md` remplacé par la version fournie, copié tel quel (`cmp` identique, LF, aucun tiret long). Nouveau §15 : gabarit de 79 lignes de la section SAISIE FMS A388.
+- Sous « À taper pour ce vol » : le compte des lignes lues (« 79 lignes »). Si ce compte diffère du nombre attendu, à côté en orange : « attendu : 79 (gabarit §15) ».
+- Le nombre attendu n'est pas écrit dans le code : `fmsAttendu()` (`js/fms.js`) le lit dans la phrase « N lignes » de la section `## 15.` de la page de méthode. Cette page se charge à la première ouverture de l'onglet ; tant qu'elle n'est pas chargée, ou si elle est introuvable (page ouverte hors serveur), aucun écart n'est signalé, faute de référence.
+- Aucune clé au registre ni dans `FIELDS`. Règles `.fms-compte` et `.fms-ecart` dans `css/style.css`. Jeton de cache passé à `?v=38` (18 références).
+
+| Contrôle | Résultat |
+|---|---|
+| C.2 · feuille v4 | **passé** : « 79 lignes », aucune alerte ; « INIT · CPNY RTE » en style contrôle, valeur NONE ; « INIT · ALTN RTE » en grand cyan (20 px), valeur « route de dégagement de l'OFP, via ALTN RTE SEL » ; cartouches 49/49, aucun bandeau |
+| C.3 · feuille v2 (`feuille_QFA7_YSSY-KDFW_REV33_v2.md`, 33 lignes) | **passé** : « 33 lignes », alerte « attendu : 79 (gabarit §15) » en orange |
+| Nombre attendu lu dans la page | **passé** : la phrase du §15 modifiée en mémoire à « 33 lignes », l'alerte disparaît sur la même feuille v2 |
+| Onglets, page rechargée | **passé** : séquence de clics inchangée, un seul onglet actif ; suite complète identique au commit précédent, hors nouvelle page (17 titres, 16 tableaux) |
+| LF | **passé** |

@@ -140,6 +140,8 @@ header{
 .fms-vol .empty-state{padding:8px 0 12px}
 .fms-vol-t{font-family:var(--display);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--amber);font-weight:600;margin:0 0 12px}
+.fms-compte{font-family:var(--mono);font-size:11px;color:var(--muted);margin:-6px 0 12px}
+.fms-ecart{color:var(--amber);margin-left:6px}
 .fms-page{margin:0 0 14px}
 .fms-page-t{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);border-bottom:1px solid var(--line);padding:0 0 4px;margin:0 0 6px}
