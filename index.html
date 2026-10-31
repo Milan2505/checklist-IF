@@ -32,6 +32,8 @@
   <div class="tools">
     <button type="button" class="btn" id="btnLoad">Charger le briefing</button>
     <button type="button" class="btn ghost" id="btnValues" aria-expanded="false" aria-controls="valuesSheet">Valeurs du vol</button>
+    <!-- visible seulement quand Type vaut A388 : voir js/fms.js -->
+    <button type="button" class="btn ghost" id="btnFms" aria-expanded="false" aria-controls="fmsSheet" hidden>A380-800 FMS</button>
     <button type="button" class="btn ghost danger" id="btnReset">Nouveau vol</button>
     <input type="file" id="file" accept=".md,.markdown,.txt" hidden>
   </div>
@@ -79,6 +81,12 @@
     <p class="hint">Ces valeurs s'affichent dans les lignes de la checklist là où elles servent. Elles viennent de SimBrief, de l'OFP et du MCDU — tapez-les une fois, elles suivent tout le vol.</p>
   </section>
 
+  <!-- Page A380-800 en lecture : affichée telle quelle, jamais lue par le parseur. -->
+  <section class="sheet" id="fmsSheet" hidden>
+    <h2>A380-800 FMS</h2>
+    <div class="md" id="fmsBody" style="padding:2px 14px 14px"></div>
+  </section>
+
   <div class="legend">
     <span><i style="background:var(--cyan)"></i>valeur saisie</span>
     <!-- NIL n'est pas une couleur mais un état : la légende le montre tel qu'il
@@ -114,6 +122,7 @@
 <script src="js/alert.js?v=33"></script>
 <script src="js/ports.js?v=33"></script>
 <script src="js/refs.js?v=33"></script>
+<script src="js/fms.js?v=33"></script>
 <script src="js/ui.js?v=33"></script>
 <script src="js/main.js?v=33"></script>
 </body>

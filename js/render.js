@@ -2,7 +2,7 @@
    OUTILS D'AFFICHAGE DES VALEURS
    Echappement, marque NIL, normalisation du Type, rafraichissement
    des blocs qui suivent les valeurs. Depend de : state.js, dom.js.
-   Appelle paintPorts() (ports.js).
+   Appelle paintPorts() (ports.js) et paintFms() (fms.js).
    REV 33 · la checklist de vol est retiree : les phases, leurs cases et
    leur rendu ont quitte ce fichier. Il ne reste que ce que le panneau
    Valeurs et les blocs aeroport utilisent.
@@ -25,6 +25,7 @@ function estNil(v){ return /^nil$/i.test(String(v == null ? '' : v).trim()); }
 
 function refreshValues(){
   paintPorts();                    /* les blocs aéroport suivent les mêmes valeurs */
+  paintFms();                      /* l'onglet A380-800 suit le Type */
 }
 
 /* Valeur resolue de `Type` au cartouche ①, normalisee : c'est la seule

@@ -13,6 +13,10 @@ const el = {
   valuesSheet: document.getElementById('valuesSheet'),
   alert:    document.getElementById('alert'),
   btnValues:document.getElementById('btnValues'),
+  /* onglet A380-800 FMS (fms.js) */
+  btnFms:   document.getElementById('btnFms'),
+  fmsSheet: document.getElementById('fmsSheet'),
+  fmsBody:  document.getElementById('fmsBody'),
   btnLoad:  document.getElementById('btnLoad'),
   btnReset: document.getElementById('btnReset'),
   file:     document.getElementById('file'),

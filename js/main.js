@@ -34,6 +34,7 @@ async function autoLoad(){
   paintBadge();
   buildValues();
   paintPorts();
+  paintFms();
   validateSheet();          /* la feuille restaurée du stockage se revalide */
   await autoLoad();
 })();
