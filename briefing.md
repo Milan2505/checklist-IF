@@ -1366,7 +1366,7 @@ La saisie complète, onglet par onglet, vit dans `page_A380-800_FMS.md`, affich�
 
 **Ce que SIMBRIEF REQUEST a rempli sur le vol test** `[SIM]`, un seul vol, à reconfirmer : FLT NBR, FROM et TO, CRZ FL, CRZ TEMP, CI, TROPO, TRIP WIND, ZFW, V1, VR, V2, TRANS d'arrivée, VAPP, route et contraintes. Restés vides : ALTN, ZFWCG, BLOCK, PAX NBR, page T.O hors V1 VR V2, page APPR hors VAPP, page GA.
 
-⚠ **Écart de masse au vol test** : ZFW importé 324.9 t, GW 344.3 t et FOB 27.8 t lus au SD, soit 316.5 t sans carburant côté simulateur. Écart d'environ 8.4 t. Même défaut que l'A318 au §2.3. La masse à vide IF du type, relevée à l'écran Poids et centrage tous postes à zéro, le ferme (§9).
+⚠ **Écart de masse au vol test** : ZFW importé 324.9 t, GW 344.3 t et FOB 27.8 t lus au SD, soit 316.5 t sans carburant côté simulateur. Écart d'environ 8.4 t. Même défaut que l'A318 au §2.3. Masse à vide IF relevée le 31/10/2026 : 276 630 kg (§9). L'écart venait du ZFW importé de SimBrief : la charge réellement embarquée était d'environ 39,9 t. Le ZFW se force désormais sur la masse à vide IF.
 
 ⇒ Les valeurs d'une feuille A388 se calculent comme au §A.4 ; seules leur unité et leur place dans le FMS changent.
 
@@ -1402,7 +1402,7 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 | **Marqueurs — casse, crochet fermant, marqueur sur libellé** (§A.5) | correctif de code, trois retouches d'expression régulière. Le troisième cas est silencieux | REV 30 |
 | **`Altitude (Pieds)` rendue en niveau de vol** (§A.5) | décision, pas observation : ce rendu est voulu ou il ne l'est pas. S'il l'est, il s'écrit comme tel ; sinon il se retire | REV 30 |
 | **Cartouche ⑥ lu par la page** (§A.4, §A.5) | les consignes Claude Code REV 32 appliquées, puis une feuille chargée : dix cases remplies, aucun refus, `.78` accepté tel quel | REV 32 |
-| **A388 : champs remplis par l'import et masse à vide IF** (§7.A) | un deuxième vol A388 après import, et une lecture de l'écran Poids et centrage tous postes à zéro | REV 33 |
+| **A388 : champs remplis par l'import** (§7.A) | un deuxième vol A388 après import | REV 33 |
 
 ⚠ **Le §6.7 ne bloque rien non plus.** Une approche automatique qui n'existe pas dans le build ne bloque aucun départ : elle ne se briefe pas, voilà tout.
 ⚠ **Deux points du tableau se ferment sans voler** : une mise sous tension au parking suffit pour le mémo ADIRS et pour la lecture GW − FOB.
@@ -1438,7 +1438,7 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 | BCS3 (A220-300) | 37 154 kg | `[SIM]`, donné par Milan le 14/09/2026 | 70 900 / 60 600 |
 | C208 Caravan | 2 109 kg | `[SIM]`, donné par Milan le 12/09/2026, livrée TI-BDL | 3 969 / 3 856 |
 | CRJ-1000 (`CRJX`) | 21 069 kg | `[SIM]`, écran Poids et centrage tous postes à zéro, 23/10/2026 | 41 640 / 36 968 |
-| A380-800 (`A388`) | `[MANQUE]` | à relever à l'écran Poids et centrage, tous postes à zéro. Indice : GW − FOB au vol test 316.5 t avec charge à 23 % | ____ |
+| A380-800 (`A388`) | 276 630 kg | `[SIM]`, écran Poids et centrage tous postes à zéro, 31/10/2026 | 575 000 / 395 000 |
 | ____ | ____ | ____ | ____ |
 
 ⇒ Les limites du CRJX lues dans IF sont exactement celles du CRJ1000 réel `[TIERS]`, manuel Aerosoft CRJ : le type du sélecteur est donc bien le -1000.
