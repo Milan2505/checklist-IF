@@ -14,7 +14,7 @@
      navigateur qui a déjà ouvert la page resservait son ancien js/refs.js et
      ses anciennes règles, donc l’ancienne interface, sans rien dire. Ce jeton
      se bump à chaque révision livrée. -->
-<link rel="stylesheet" href="css/style.css?v=32">
+<link rel="stylesheet" href="css/style.css?v=33">
 </head>
 <body>
 
@@ -24,14 +24,6 @@
       <div class="brand">Checklist vol</div>
       <div class="rev" id="revTag"><span class="rev-chip vide">aucun briefing</span></div>
       <div class="spacer"></div>
-      <div class="count" id="hdrCount"><b>0</b>/0</div>
-    </div>
-    <div class="profile">
-      <svg id="pf" viewBox="0 0 1000 64" preserveAspectRatio="none" aria-hidden="true">
-        <path id="pfPath" class="pf-track" d="M 14 56 L 120 56 C 210 56 235 12 340 12 L 660 12 C 770 12 800 50 880 56 L 986 56"/>
-        <path id="pfDone" class="pf-done" d="M 14 56 L 120 56 C 210 56 235 12 340 12 L 660 12 C 770 12 800 50 880 56 L 986 56"/>
-        <g id="pfNodes"></g>
-      </svg>
     </div>
   </div>
 </header>
@@ -40,7 +32,6 @@
   <div class="tools">
     <button type="button" class="btn" id="btnLoad">Charger le briefing</button>
     <button type="button" class="btn ghost" id="btnValues" aria-expanded="false" aria-controls="valuesSheet">Valeurs du vol</button>
-    <button type="button" class="btn ghost" id="btnOpen" aria-pressed="false">Tout déplier</button>
     <button type="button" class="btn ghost danger" id="btnReset">Nouveau vol</button>
     <input type="file" id="file" accept=".md,.markdown,.txt" hidden>
   </div>
@@ -75,17 +66,21 @@
   <section class="sheet" id="valuesSheet" hidden>
     <h2>Valeurs du vol</h2>
     <div class="grid" id="valGrid"></div>
+    <!-- §0.2 bis · les quatre chaînes d'équipement sont invariantes : elles ne
+         se lisent pas dans la feuille, elles s'écrivent ici en dur. Aucune clé
+         au registre ni dans FIELDS, aucune saisie, rien gardé en mémoire. -->
+    <div class="grid">
+      <div class="grp">Chaînes d'équipement (§0.2 bis)</div>
+      <div class="fld wide"><label for="eq-oaci">Équipement OACI</label><input id="eq-oaci" value="SDFGHRWY" readonly></div>
+      <div class="fld wide"><label for="eq-xpdr">Transpondeur</label><input id="eq-xpdr" value="LB1" readonly></div>
+      <div class="fld wide"><label for="eq-pbn">Capacité PBN</label><input id="eq-pbn" value="A1B1C1D1L1O1S1" readonly></div>
+      <div class="fld wide"><label for="eq-art18">Article 18</label><input id="eq-art18" value="DAT/V RMK/SIMBRIEF" readonly></div>
+    </div>
     <p class="hint">Ces valeurs s'affichent dans les lignes de la checklist là où elles servent. Elles viennent de SimBrief, de l'OFP et du MCDU — tapez-les une fois, elles suivent tout le vol.</p>
   </section>
 
-  <div id="phases"></div>
-
   <div class="legend">
-    <span><i style="background:var(--green)"></i>fait</span>
-    <span><i style="background:var(--amber)"></i>limite ou piège</span>
-    <span><i style="background:var(--magenta)"></i>renvoi au dossier</span>
     <span><i style="background:var(--cyan)"></i>valeur saisie</span>
-    <span><i style="background:var(--violet)"></i>WIP, annoncé jamais vérifié</span>
     <!-- NIL n'est pas une couleur mais un état : la légende le montre tel qu'il
          s'affiche dans les cases, pour que l'œil fasse le lien sans traduire. -->
     <span><b class="lg-nil">NIL</b>donnée non relevée, jamais estimée</span>
@@ -93,26 +88,7 @@
          n'existe que par défaut de la porte, il vit donc à sa place. -->
     <span><b class="lg-term">T…</b>porte non publiée, terminal relevé</span>
   </div>
-
-  <!-- Source des lignes de séquence : le §A.5 distingue ce qui a été vu à
-       l'écran de ce qui a été emprunté à l'appareil réel. La checklist le
-       porte ligne par ligne, comme le dossier le porte en colonne. -->
-  <div class="legend legend-src">
-    <span><b class="it-tag t-sim">SIM</b>relevé à l'écran</span>
-    <span><b class="it-tag t-wip">WIP</b>montré par le studio, jamais vérifié</span>
-    <span><b class="it-tag t-reel">RÉEL</b>repère de l'appareil réel, jamais un critère</span>
-    <span><b class="it-tag t-manque">MANQUE</b>non fourni</span>
-  </div>
 </main>
-
-<div class="foot">
-  <div class="foot-in">
-    <span class="lbl" id="footPhase">Vol</span>
-    <div class="bar" role="progressbar" aria-label="Avancement du vol" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="footBar"></span></div>
-    <span class="pct" id="footPct">0%</span>
-  </div>
-</div>
-
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -124,23 +100,21 @@
      ouvrable directement depuis le disque (file://), où les modules
      seraient bloqués par le navigateur.
 ============================================================ -->
-<script src="js/data/fields.js?v=32"></script>
-<script src="js/data/phases.js?v=32"></script>
-<script src="js/state.js?v=32"></script>
-<script src="js/dom.js?v=32"></script>
-<script src="js/render.js?v=32"></script>
-<script src="js/progress.js?v=32"></script>
-<script src="js/values.js?v=32"></script>
-<script src="js/briefing.js?v=32"></script>
-<script src="js/parser/registre.js?v=32"></script>
-<script src="js/parser/labels.js?v=32"></script>
-<script src="js/parser/validate.js?v=32"></script>
-<script src="js/parser/tables.js?v=32"></script>
-<script src="js/parser/extract.js?v=32"></script>
-<script src="js/alert.js?v=32"></script>
-<script src="js/ports.js?v=32"></script>
-<script src="js/refs.js?v=32"></script>
-<script src="js/ui.js?v=32"></script>
-<script src="js/main.js?v=32"></script>
+<script src="js/data/fields.js?v=33"></script>
+<script src="js/state.js?v=33"></script>
+<script src="js/dom.js?v=33"></script>
+<script src="js/render.js?v=33"></script>
+<script src="js/values.js?v=33"></script>
+<script src="js/briefing.js?v=33"></script>
+<script src="js/parser/registre.js?v=33"></script>
+<script src="js/parser/labels.js?v=33"></script>
+<script src="js/parser/validate.js?v=33"></script>
+<script src="js/parser/tables.js?v=33"></script>
+<script src="js/parser/extract.js?v=33"></script>
+<script src="js/alert.js?v=33"></script>
+<script src="js/ports.js?v=33"></script>
+<script src="js/refs.js?v=33"></script>
+<script src="js/ui.js?v=33"></script>
+<script src="js/main.js?v=33"></script>
 </body>
 </html>

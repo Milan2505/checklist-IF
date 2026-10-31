@@ -7,23 +7,12 @@
    ELEMENTS
 ============================================================ */
 const el = {
-  phases:   document.getElementById('phases'),
-  hdrCount: document.getElementById('hdrCount'),
-  header:   document.querySelector('header'),
-  footBar:  document.getElementById('footBar'),
-  footPct:  document.getElementById('footPct'),
-  footWrap: document.querySelector('.foot .bar'),
-  footPhase:document.getElementById('footPhase'),
   revTag:   document.getElementById('revTag'),
-  pfPath:   document.getElementById('pfPath'),
-  pfDone:   document.getElementById('pfDone'),
-  pfNodes:  document.getElementById('pfNodes'),
   toastEl:  document.getElementById('toast'),
   valGrid:  document.getElementById('valGrid'),
   valuesSheet: document.getElementById('valuesSheet'),
   alert:    document.getElementById('alert'),
   btnValues:document.getElementById('btnValues'),
-  btnOpen:  document.getElementById('btnOpen'),
   btnLoad:  document.getElementById('btnLoad'),
   btnReset: document.getElementById('btnReset'),
   file:     document.getElementById('file'),

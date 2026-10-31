@@ -150,7 +150,6 @@ function applyDoc(txt){
     paintAlert();
   }
   paintBadge();
-  markRefs();
   save();
   return { refs:availableRefs().length, vals:vals, dossier:dossier, gabarit:false, rev:rev,
            anomalies: cartouche ? (cartouche.bad.length + cartouche.unknown.length + cartouche.missing.length) : 0 };

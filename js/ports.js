@@ -33,8 +33,7 @@ function portTerrains(){
   return { dep:(parts[0]||'').trim(), arr:(parts[1]||'').trim() };
 }
 
-/* ___ et la classe empty : exactement ce que fait une pastille de valeur vide
-   dans la checklist (voir valSpan). Une case vide se voit, elle ne se cache pas. */
+/* ___ et la classe empty : une case vide se voit, elle ne se cache pas. */
 function portText(node, v){
   node.textContent = v || '___';
   node.classList.toggle('empty', !v);

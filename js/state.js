@@ -1,11 +1,11 @@
 /* ============================================================
    ETAT, STOCKAGE ET SAUVEGARDE
-   Definit KEY / DOC_KEY / SHEET_KEY, state, store, load(), save(),
-   flush() et id(). Utilise toast() (ui.js) au moment de l'appel.
+   Definit KEY / DOC_KEY / SHEET_KEY, state, store, load(), save()
+   et flush(). Utilise toast() (ui.js) au moment de l'appel.
 ============================================================ */
 /* ============================================================
    ETAT ET STOCKAGE
-   Progression et valeurs dans une cle, briefing dans une autre :
+   Valeurs dans une cle, briefing dans une autre :
    un dossier volumineux ne peut plus faire perdre le vol en cours.
    Repli automatique : hote -> localStorage -> memoire de session.
 ============================================================ */
@@ -13,10 +13,10 @@ const KEY = 'if-checklist-v1';
 const DOC_KEY = 'if-checklist-doc-v1';
 const SHEET_KEY = 'if-checklist-sheet-v1';
 
-let state = { done:{}, values:{}, auto:{}, open:0,
+let state = { values:{}, auto:{},
               doc:null, rev:null,          /* dossier de reference */
               sheet:null, sheetRev:null, sheetCallsign:null }; /* feuille du vol */
-let allOpen = false, memoryOnly = false, docDirty = false, sheetDirty = false;
+let memoryOnly = false, docDirty = false, sheetDirty = false;
 
 const store = (function(){
   const host = (window.storage && typeof window.storage.get === 'function') ? window.storage : null;
@@ -49,10 +49,8 @@ const store = (function(){
 /* on n'adopte que ce qui a le bon type : un stockage abime ne casse pas la page */
 function adopt(o){
   if(!o || typeof o !== 'object') return;
-  if(o.done   && typeof o.done   === 'object') state.done   = Object.assign({}, o.done);
   if(o.values && typeof o.values === 'object') state.values = Object.assign({}, o.values);
   if(o.auto   && typeof o.auto   === 'object') state.auto   = Object.assign({}, o.auto);
-  if(typeof o.open === 'number') state.open = o.open;
   if(typeof o.rev  === 'string') state.rev  = o.rev;
   if(typeof o.sheetRev === 'string') state.sheetRev = o.sheetRev;
   if(typeof o.sheetCallsign === 'string') state.sheetCallsign = o.sheetCallsign;
@@ -81,11 +79,11 @@ async function flush(){
   clearTimeout(saveTimer); saveTimer = null;
   try{
     await store.set(KEY, JSON.stringify({
-      done:state.done, values:state.values, auto:state.auto, open:state.open,
+      values:state.values, auto:state.auto,
       rev:state.rev, sheetRev:state.sheetRev, sheetCallsign:state.sheetCallsign
     }));
   }catch(e){
-    if(!memoryOnly){ memoryOnly = true; toast("Progression gardée pour cette session seulement"); }
+    if(!memoryOnly){ memoryOnly = true; toast("Valeurs gardées pour cette session seulement"); }
     return;
   }
   if(docDirty){
@@ -112,9 +110,7 @@ async function flush(){
   }
 }
 
-/* une case cochee juste avant de fermer l'onglet ne se perd pas */
+/* une valeur saisie juste avant de fermer l'onglet ne se perd pas */
 function flushNow(){ if(saveTimer) flush(); }
 window.addEventListener('pagehide', flushNow);
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') flushNow(); });
-
-const id = (p,i)=> p+'-'+i;

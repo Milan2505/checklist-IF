@@ -1,13 +1,21 @@
 /* ============================================================
-   RENVOIS § ET LECTEUR DE SECTION
-   Disponibilite des renvois, extraction d'une section du markdown,
-   rendu markdown minimal, depliage en place sous la ligne qui cite la section.
-   Depend de : data/phases.js, state.js, dom.js, briefing.js, render.js (esc).
+   RENVOIS § ET RENDU MARKDOWN
+   Disponibilite des renvois, rendu markdown minimal.
+   Depend de : state.js, briefing.js, render.js (esc).
 ============================================================ */
-/* tous les renvois cites par la checklist, sans doublon */
-const ALL_REFS = Array.from(new Set(
-  PHASES.reduce((a,p)=> a.concat(p.items.map(it=>it.r).filter(Boolean)), [])
-));
+/* ------------------------------------------------------------
+   REV 33 · LA LISTE DES RENVOIS NE SORT PLUS DE LA CHECKLIST
+   Elle se calculait sur les lignes de data/phases.js, retire avec la
+   checklist. Elle ne sert plus a aucune pastille : elle sert a RECONNAITRE
+   LE DOSSIER (countRefs, seuil RENVOIS_DOSSIER dans briefing.js) et au
+   message de chargement. Elle est donc figee ici, dans l'ordre ou la
+   checklist les citait a la REV 32, moins les trois sections que la REV 33
+   retire du dossier : 7.0, 7.0.A et 7.0 bis. 32 renvois, le seuil est a 20.
+------------------------------------------------------------ */
+const ALL_REFS = ['7','6','0.1','0.2','0.2 bis','0.3','0.4','0.5','A.5','0.6',
+                  '0.7','0.8','0.9','0.10','A.4','8','6.2','1','3','2.1',
+                  '2.2','2.3','4','6.6','A.2','6.1','5','6.4','6.7','6.3',
+                  '6.5','9'];
 
 /* un renvoi est lisible s'il figure dans l'un des deux documents charges */
 function hasRef(ref){
@@ -17,41 +25,6 @@ function availableRefs(){
   const ok = [];
   ALL_REFS.forEach(r=>{ if(hasRef(r)) ok.push(r); });
   return ok;
-}
-function loaded(){ return !!(state.doc || state.sheet); }
-
-/* chaque pastille § annonce si sa section figure dans ce qui est charge :
-   c'est le retour visible qui manquait au chargement */
-function markRefs(){
-  const ok = availableRefs();
-  resetSections();                   /* le texte déplié suit le document, pas l'inverse */
-  el.phases.querySelectorAll('.ref').forEach(b=>{
-    if(!loaded()){ b.classList.remove('ok','miss'); b.removeAttribute('title'); return; }
-    const has = ok.indexOf(b.dataset.ref) >= 0;
-    b.classList.toggle('ok', has);
-    b.classList.toggle('miss', !has);
-    b.title = has ? 'Section présente dans les documents chargés'
-                  : 'Absente des documents chargés';
-  });
-}
-
-/* extrait une section du markdown a partir de son numero (0, 2.3, 6.6, A.4).
-   La feuille du vol passe avant le dossier : quand les deux portent la meme
-   section (§0, §A.4), c'est celle du vol du jour qui sert, chiffres compris. */
-function section(ref){
-  const sources = [idxSheet(), idxDoc()];
-  for(let s = 0; s < sources.length; s++){
-    const idx = sources[s];
-    const start = findHead(idx, ref);
-    if(start < 0) continue;
-    const h = idx.heads[start];
-    let end = idx.lines.length;
-    for(let k = start+1; k < idx.heads.length; k++){
-      if(idx.heads[k].lvl <= h.lvl){ end = idx.heads[k].i; break; }
-    }
-    return { title:h.txt, body:idx.lines.slice(h.i+1, end).join('\n').trim() };
-  }
-  return null;
 }
 
 /* rendu markdown minimal, suffisant pour ce dossier */
@@ -109,77 +82,3 @@ function md2html(src){
   if(inCode && code.length) out.push('<pre>'+esc(code.join('\n'))+'</pre>');
   return out.join('');
 }
-
-/* ------------------------------------------------------------
-   DEPLIAGE EN PLACE — REV 26
-   La section ne s'ouvre plus par-dessus la page : elle se deroule SOUS
-   la ligne qui la cite. Le tiroir modal a disparu, et avec lui le piege
-   qu'il portait — il masquait la checklist, donc il coupait le lien
-   entre l'etape et son texte au moment precis ou on le cherchait.
-
-   Le panneau est cree vide par render.js, juste apres sa ligne. Il se
-   remplit au premier depliage, et se vide des que les documents charges
-   changent (markRefs) : un texte de section ne survit pas au dossier qui
-   l'a produit.
------------------------------------------------------------- */
-function contenuSection(ref){
-  if(!loaded()){
-    return '<div class="empty-state">Le briefing n\'est pas chargé. Touchez « Charger le briefing » '+
-           'en haut et choisissez le fichier .md du dossier : le texte exact de chaque renvoi se dépliera ici.</div>';
-  }
-  const s = section(ref);
-  if(s) return '<h4 class="sec-t">'+esc(s.title)+'</h4>'+md2html(s.body);
-
-  const ok = availableRefs();
-  const liste = ok.length ? ok.map(r=>'§'+r).join(' · ') : 'aucun';
-  const chargés = [state.rev ? 'dossier '+state.rev : null,
-                   state.sheetRev ? 'feuille '+state.sheetRev : null].filter(Boolean).join(' + ');
-  return '<div class="empty-state">'+
-         '<p>La section <strong>§'+esc(ref)+'</strong> ne figure pas dans ce qui est chargé ('+esc(chargés)+').</p>'+
-         '<p>Renvois réellement disponibles : '+esc(liste)+' — soit <strong>'+ok.length+' sur '+ALL_REFS.length+'</strong>.</p>'+
-         '<p>Il manque le dossier complet, ou la section porte un autre titre.</p>'+
-         '</div>';
-}
-
-/* le panneau d'une ligne est son voisin immediat : aucun index a tenir */
-function panneauDe(btn){
-  const row = btn.closest('.item');
-  const p = row && row.nextElementSibling;
-  return (p && p.classList.contains('sec')) ? p : null;
-}
-
-function toggleRef(btn){
-  const p = panneauDe(btn); if(!p) return;
-  const ouvert = !p.hidden;
-  if(ouvert){
-    p.hidden = true;
-    btn.setAttribute('aria-expanded','false');
-    return;
-  }
-  if(!p.dataset.rempli){                       /* rendu une fois, pas a chaque clic */
-    p.innerHTML = contenuSection(btn.dataset.ref);
-    p.dataset.rempli = '1';
-  }
-  p.hidden = false;
-  btn.setAttribute('aria-expanded','true');
-}
-
-/* Un dossier qui change rend tous les textes deja deplies caducs : on les
-   vide et on les referme, plutot que de laisser lire la section d'hier. */
-function resetSections(){
-  el.phases.querySelectorAll('.sec').forEach(p=>{
-    p.hidden = true;
-    p.innerHTML = '';
-    delete p.dataset.rempli;
-  });
-  el.phases.querySelectorAll('.ref[aria-expanded]').forEach(b=> b.setAttribute('aria-expanded','false'));
-}
-
-/* Échap referme ce qui est ouvert, sans toucher aux phases dépliées */
-document.addEventListener('keydown', e=>{
-  if(e.key !== 'Escape') return;
-  const ouverts = el.phases.querySelectorAll('.sec:not([hidden])');
-  if(!ouverts.length) return;
-  ouverts.forEach(p=>{ p.hidden = true; });
-  el.phases.querySelectorAll('.ref[aria-expanded="true"]').forEach(b=> b.setAttribute('aria-expanded','false'));
-});
