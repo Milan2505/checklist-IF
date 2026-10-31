@@ -13,6 +13,7 @@ Ordre de la page : celui dans lequel on remplit le FMS, onglet par onglet. Les v
 | Tirets | Champ vide, calculé plus tard ou optionnel |
 | Bouton grisé | Présent à l'écran, inactif |
 | T | Masses et carburant en tonnes, une décimale |
+| FORMAT ERROR | Saisie refusée : effacer par CLR INFO, puis retaper une seule valeur dans la bonne case |
 | TMPY | Plan ou réglage temporaire, à valider |
 
 Les masses se tapent en tonnes au FMS, pas en kilos comme dans SimBrief. Exemple : 324 900 kg se tape 324.9.
@@ -91,17 +92,20 @@ En tête, lus seulement : GW, CG, FOB.
 
 | Champ | Méthode |
 |---|---|
-| ZFW | ZFW de la feuille en tonnes, contrôlé contre GW moins FOB au SD |
+| ZFW | GW moins FOB lus au SD une fois l'avion chargé dans IF, en tonnes ; remplace le ZFW importé |
 | ZFWCG | Centrage sans carburant en %MAC, case orange |
-| BLOCK | Carburant bloc de la feuille en tonnes, case orange |
+| BLOCK | Carburant bloc de la feuille en tonnes, case orange ; doit égaler le FOB chargé dans IF |
 | PAX NBR | Passagers de la feuille, case orange |
 | TAXI | Carburant roulage en tonnes |
 | RTE RSV | Réserve de route (secours) en tonnes ; la case en % se remplit seule |
-| FINAL | Réserve finale en tonnes |
+| ALTN | Carburant de dégagement en tonnes, une seule valeur ; la case de temps reste vide |
+| FINAL | Réserve finale en tonnes, une seule valeur ; la case de temps reste vide |
 | JTSN GW | Laisser vide |
 | MIN FUEL AT DEST | Dégagement plus réserve finale, en tonnes (MIN DIV du cartouche ④) |
 
-Lus seulement, calculés par le FMS : TRIP, ALTN, TOW, LW, UTC et EFOB à destination et au dégagement, EXTRA. Le bouton FUEL PLANNING est grisé au vol test.
+⚠ Une case, une valeur : ne jamais taper deux valeurs séparées par une barre. Le clavier KCCU n'a pas de deux-points, les temps ne se tapent pas. Toucher la case visée avant de taper : la saisie part dans la case surlignée (relevé du 31/10 : ALTN tapé dans JTSN GW, FORMAT ERROR).
+
+Lus seulement, calculés par le FMS : TRIP, TOW, LW, UTC et EFOB à destination et au dégagement, EXTRA. Le bouton FUEL PLANNING est grisé au vol test.
 
 ## 5. F-PLN / DEPARTURE
 
@@ -243,7 +247,7 @@ Liste de référence pour toute feuille A388 : 79 lignes, dans cet ordre, sans e
 | INIT | CI | contrôle : cost index de l'OFP |
 | INIT | TROPO | contrôle : valeur importée, sinon 36090 |
 | INIT | TRIP WIND | composante moyenne, HD ou TL suivi de 3 chiffres |
-| FUEL&LOAD | ZFW | masse à vide IF plus charge utile, en tonnes |
+| FUEL&LOAD | ZFW | GW moins FOB lus au SD après chargement ; la feuille donne la valeur attendue en prose |
 | FUEL&LOAD | ZFWCG | %MAC |
 | FUEL&LOAD | BLOCK | BLOC du cartouche ④ en tonnes |
 | FUEL&LOAD | TAXI | carburant roulage en tonnes |
@@ -252,8 +256,8 @@ Liste de référence pour toute feuille A388 : 79 lignes, dans cet ordre, sans e
 | FUEL&LOAD | RTE RSV | carburant de secours en tonnes |
 | FUEL&LOAD | RTE RSV % | contrôle : pourcentage calculé |
 | FUEL&LOAD | JTSN GW | vide |
-| FUEL&LOAD | ALTN | carburant et temps de dégagement |
-| FUEL&LOAD | FINAL | réserve finale et 00:30 |
+| FUEL&LOAD | ALTN | carburant de dégagement en tonnes, une seule valeur |
+| FUEL&LOAD | FINAL | réserve finale en tonnes, une seule valeur |
 | FUEL&LOAD | MIN FUEL AT DEST | MIN DIV du cartouche ④ en tonnes |
 | FUEL&LOAD | TRIP | contrôle : Trip du cartouche ⑤ |
 | FUEL&LOAD | TOW | contrôle : TOW du cartouche ⑤ |

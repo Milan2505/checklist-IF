@@ -366,3 +366,20 @@ Le diff complet contre l'archive ne retire que 11 lignes, toutes visées par B.1
 À signaler, hors consignes : le §7.A dit toujours « Relevée sur 23 captures du FMS 1 », alors que la page de méthode en annonce désormais 26. Non modifié (règle 3).
 
 Tous les contrôles passent : les deux commits sont poussés.
+
+## Format de saisie A380 · consignes du 31/10/2026
+
+Consignes `consignes_claude_code_A380_format.md`, sans nouvelle REV (`briefing.md` reste en REV 34). Motif : `6.5 / 00:40` et `5.5 / 00:30` ont produit FORMAT ERROR au FMS, ALTN et FINAL étant deux cases chacune et le clavier KCCU n'ayant pas de deux-points ; le ZFW importé ne correspondait pas à l'avion chargé.
+
+- `page_A380-800_FMS.md` remplacé par `page_A380-800_FMS_v2.md`, tel quel (`cmp` identique). Le gabarit §15 garde 79 lignes ; ALTN et FINAL y sont une seule valeur en tonnes, sans temps.
+- Une correction provisoire du gabarit, faite plus tôt dans la session (temps écrits « 0040 » / « 0030 ») et jamais commitée, est écrasée par cette version : elle était fausse, les cases de temps restent vides.
+- `briefing.md` §7.A : « Relevée sur 23 captures du FMS 1 » devient « Relevée sur 26 captures du FMS 1 ».
+- Jeton de cache passé à `?v=39` (18 références). Code, parseur, registre et `FIELDS` inchangés.
+
+| Contrôle | Résultat |
+|---|---|
+| 1 · feuille `feuille_QFA7_YSSY-KDFW_REV34_v2.md` | **passé** : « 79 lignes », aucune alerte ; FUEL&LOAD · ALTN « 6.5 », FUEL&LOAD · FINAL « 5.5 » ; aucune valeur avec une barre ou un deux-points dans la page FUEL&LOAD ; feuille REV 34 à 49/49, 64 valeurs, aucun bandeau |
+| 2 · méthode dépliée | **passé** : le §4 contient « Une case, une valeur » |
+| 3 · `grep -n "23 captures" briefing.md` | **passé** : aucun résultat |
+| 4 · page rechargée | **passé** : REV 34 reconnue, aucun bandeau, aucune erreur ; suite complète identique au commit précédent |
+| 5 · LF, tiret long | **passé** |
