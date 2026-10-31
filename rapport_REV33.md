@@ -302,3 +302,26 @@ Les points 3 et 4 de ces consignes (valeurs du vol en tête, méthode repliée, 
 | 3 · Méthode | **passé** : repliée à l'ouverture, dépliée au clic ; nouvelle page rendue (16 titres, 15 tableaux) |
 | 4 · Page rechargée | **passé** : dossier REV 33 reconnu, aucun bandeau, cartouches identiques au commit précédent, séquence de clics du bug d'onglets refaite : un seul onglet actif à chaque clic |
 | LF | **passé** |
+
+## Onglet A380-800 FMS · trois styles selon la cellule Saisie
+
+Jeton de cache passé à `?v=37` (18 références). Convention lue seulement dans le tableau « À taper pour ce vol », par `saisieDd()` dans `js/fms.js` ; rien dans le parseur des cartouches, aucune clé au registre ni dans `FIELDS`. Règles `dd.ctl`, `dd.vide` et `.fms-tag` dans `css/style.css`. Rien d'autre ne change dans l'onglet.
+
+| Cellule Saisie | Affichage |
+|---|---|
+| commence par « contrôle : » | préfixe retiré, étiquette « contrôle » à gauche, valeur en 14 px gris |
+| vaut exactement « vide » | « laisser vide », 12,5 px gris |
+| tout le reste | inchangé : 20 px, cyan, c'est ce qu'on tape |
+
+### Contrôles, feuille `feuille_QFA7_YSSY-KDFW_REV33_v3.md`
+
+| Contrôle | Résultat |
+|---|---|
+| Lignes affichées | **passé** : 79, identiques au tableau de la feuille |
+| Lignes par style | **48 à taper, 22 « contrôle », 9 « laisser vide »** ; décompte identique à celui de la feuille source (22 cellules « contrôle : », 9 cellules « vide ») |
+| `INIT · FLT NBR` | **passé** : style contrôle, étiquette « contrôle », valeur « QFA7 », 14 px gris |
+| `FUEL&LOAD · JTSN GW` | **passé** : « laisser vide », 12,5 px gris |
+| `FUEL&LOAD · ZFW · 317.8` | **passé** : inchangé, 20 px cyan |
+| Préfixe résiduel | **passé** : aucune valeur affichée ne contient encore « contrôle » |
+| Page rechargée | **passé** : dossier REV 33 reconnu, aucun bandeau, feuille QFA7 à 49/49, suite complète et séquence d'onglets identiques au commit précédent, aucune erreur |
+| LF | **passé** |

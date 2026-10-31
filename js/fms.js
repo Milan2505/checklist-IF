@@ -62,6 +62,17 @@ function saisieFms(txt){
   return rows.length ? { rows:rows, apres:apres } : null;
 }
 
+/* Trois styles, lus dans la cellule Saisie de CE tableau seulement :
+   « contrôle : X » se compare sans se retaper, « vide » se laisse vide,
+   tout le reste se tape et reste en evidence. */
+const FMS_CONTROLE = /^contrôle\s*:\s*/;
+function saisieDd(v){
+  if(FMS_CONTROLE.test(v))
+    return '<dd class="ctl"><span class="fms-tag">contrôle</span>'+esc(v.replace(FMS_CONTROLE,''))+'</dd>';
+  if(v === 'vide') return '<dd class="vide">laisser vide</dd>';
+  return '<dd>'+esc(v)+'</dd>';
+}
+
 function paintFmsVol(){
   if(fmsSource === state.sheet) return;
   fmsSource = state.sheet;
@@ -80,7 +91,7 @@ function paintFmsVol(){
     '<div class="fms-vol-t">À taper pour ce vol</div>'+
     pages.map(p=>
       '<div class="fms-page"><div class="fms-page-t">'+esc(p)+'</div><dl class="fms-lignes">'+
-      parPage[p].map(r=> '<dt>'+esc(r.champ)+'</dt><dd>'+esc(r.saisie)+'</dd>').join('')+
+      parPage[p].map(r=> '<dt>'+esc(r.champ)+'</dt>'+saisieDd(r.saisie)).join('')+
       '</dl></div>').join('')+
     (s.apres ? '<div class="md fms-note">'+md2html(s.apres)+'</div>' : '');
 }
