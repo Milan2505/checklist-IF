@@ -1,26 +1,24 @@
 /* ============================================================
    ONGLET A380-800 FMS · REV 33
-   Affiche page_A380-800_FMS.md en lecture, quand le Type du vol est A388.
-   Depend de : state.js, dom.js, render.js (esc, normType), refs.js (md2html).
+   Affiche page_A380-800_FMS.md en lecture, quel que soit le type du vol.
+   Depend de : state.js, dom.js, render.js (esc), refs.js (md2html).
 ============================================================ */
 /* ------------------------------------------------------------
-   LA CONDITION, A UN SEUL ENDROIT
-   Meme mecanisme que l'ancien bloc A21N : la valeur resolue de `Type` au
-   cartouche ①, normalisee, comparee par EGALITE a un seul code. Aucune cle
-   au registre, aucune autre source : Type non resolu = onglet absent.
+   REV 33 · L'ONGLET EST VISIBLE EN PERMANENCE
+   Il n'etait affiche que quand `Type` valait A388 ; il l'est desormais
+   pour tous les types, et meme sans feuille chargee. Aucune cle au registre.
 
    Le fichier n'est PAS lu par le parseur. Il ne passe ni par applyDoc ni
    par extractValues : il ne remplit aucune case, ne leve aucun bandeau et
    ne touche ni au badge, ni au dossier, ni a la feuille. Il est demande au
    serveur au premier affichage, puis garde en memoire pour la session.
 ------------------------------------------------------------ */
-const FMS_TYPE = 'A388';
 const FMS_FICHIER = './page_A380-800_FMS.md';
 let fmsTexte = null;
 
-function fmsActif(){ return normType(state.values.type) === FMS_TYPE; }
+function fmsActif(){ return true; }
 
-/* appele a chaque changement de valeur (refreshValues) : l'onglet suit le Type */
+/* appele a chaque changement de valeur (refreshValues) */
 function paintFms(){
   const on = fmsActif();
   el.btnFms.hidden = !on;
