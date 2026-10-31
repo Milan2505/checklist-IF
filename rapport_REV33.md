@@ -165,4 +165,56 @@ Tous exécutés dans Chrome headless sur la page réelle (runner greffé dans un
 
 Remarque hors périmètre : à 420 px de large, le bloc des portes déborde à droite. Le défaut existe déjà à la REV 32 (capture comparée), il n'a pas été touché.
 
-**Non poussé.** Deux contrôles de B.12 ne passent pas à la lettre, et le renvoi du §6.7 reste à trancher par Milan.
+**Non poussé à ce stade.** Deux contrôles de B.12 ne passent pas à la lettre, et le renvoi du §6.7 reste à trancher par Milan. Voir la section suivante.
+
+## Quatrième commit · corrections en place, décisions de Milan du 31/10/2026
+
+Aucune nouvelle REV : `briefing.md` reste en REV 33.
+
+1. **§6.7** : « … pas pour être suivie — sur le modèle du §7.0, dormant en REV 20 puis rempli en REV 21. » devient « … pas pour être suivie. »
+2. **§8** : le paragraphe qui mentionnait encore la checklist embarquée était bien celui qui commence par « ⚠ **Trois des quatre points ajoutés en REV 24 se ferment sans voler** ». Remplacé en entier par « ⚠ **Deux points du tableau se ferment sans voler** : une mise sous tension au parking suffit pour le mémo ADIRS et pour la lecture GW − FOB. »
+3. **Phrase d'aide du panneau Valeurs** : « Ces valeurs sont celles à taper dans SimBrief et au FMS : elles sont lues dans la feuille de vol chargée, et une case corrigée à la main le reste pour tout le vol. » Rien d'autre ne change dans le panneau.
+4. **CSS** : sélecteurs retirés de `css/style.css`, chacun vérifié absent d'`index.html` et de tous les scripts (recherche par nom de classe, puis contrôle à la main des noms ambigus : `done`, `ok`, `open`, `warn` n'apparaissent dans le code que comme attribut, propriété ou classe d'un autre élément) :
+   - en-tête : `.count`, `.count b`
+   - profil : `.profile`, `.profile svg`, `.pf-track`, `.pf-done`, `.node`, `.node circle`, `.node .ring`, `.node.done .ring`, `.node.active .ring`, `.node .num`, `.node.done .num`, `.node.active .num`, `.pf-label`
+   - barres : `.bar`, `.bar span`
+   - phases : `.phase`, `.phase.active`, `.ph-head`, `.ph-head:focus-visible`, `.ph-idx`, `.phase.complete .ph-idx`, `.ph-title`, `.ph-sub`, `.phase.complete .ph-title`, `.ph-count`, `.chev`, `.phase.open .chev`, `.ph-bar`, `.ph-body`, `.phase.open .ph-body`
+   - lignes : `.item`, `.item:last-child`, `.item:nth-last-child(2)`, `.item:focus-visible`, `.box`, `.item.warn .box`, `.item.done .box`, `.item.done .box::after`, `.it-txt`, `.it-t`, `.item.warn .it-t::before`, `.it-wip`, `.item.wip .box`, `.item.done .it-wip`, `.it-ord`, `.item.done .it-ord`, `.item.sub`, `.item.sub .it-ord`, `.item.sub .it-t`, `.it-tag`, `.it-tag.t-wip`, `.it-tag.t-manque`, `.it-tag.t-reel`, `.it-tag.t-sim`, `.item.done .it-tag`, `.item.done .it-t`, `.it-d`, `.item.done .it-d`
+   - pastilles : `.val`, `.val.empty`, `.val.nil`, `.ref`, `.ref:hover`, `.ref:focus-visible`, `.ref.ok`, `.ref.miss`, `.ref.miss:hover`, `.ref[aria-expanded="true"]`
+   - section dépliée : `.sec`, `.sec-t`
+   - pied : `.foot`, `.foot-in`, `.foot .lbl`, `.foot .bar`, `.foot .pct`
+   - légende : `.legend-src`, `.legend-src .it-tag`
+
+   Gardés parce qu'encore utilisés : `.md` et `.empty-state` (onglet A380), `.legend`, `.lg-nil`, `.lg-term`, `.ports.open`, `.btn.on`. En-tête de la feuille de style mis à jour. Après retrait, une nouvelle recherche ne trouve plus aucun sélecteur de classe sans usage. Les variables de couleur (`--green`, `--magenta`, `--violet`) et le `padding-bottom` du corps, prévu pour le pied, restent : ce ne sont pas des sélecteurs.
+5. **Meta description** : « Valeurs de saisie SimBrief et FMS pour Infinite Flight, lues dans la feuille de vol. »
+6. **Jeton de cache** : laissé à `?v=33`.
+
+### Contrôles du quatrième commit
+
+| Contrôle | Résultat |
+|---|---|
+| `grep -n "7\.0" briefing.md` | **passé** : deux résultats, lignes 14 et 17, le changelog REV 33 prescrit en B.2, qui nomme les sections retirées. Plus aucun renvoi vers une section supprimée |
+| `grep -n "7\.A" briefing.md` | **passé** : titre (ligne 1351), renvoi du §2 (752), plus le changelog (16) et le point ouvert du §8 (1405) |
+| Page rechargée en Chrome headless | **passé** : dossier REV 33 reconnu, 32 renvois sur 32, aucun bandeau, aucune erreur. Onglet A380 visible pour `A388` (saisi ou lu dans une feuille), absent pour A320, A380, A388F et type vide. Sortie identique à celle du troisième commit. Capture vérifiée : rendu intact |
+| LF | **passé** : aucun retour chariot dans les fichiers modifiés |
+| Tiret long dans le texte ajouté | **passé** : aucun |
+
+### Occurrences restantes de « checklist » (`grep -i`), non corrigées
+
+Aucune n'est couverte par les points 3 à 5.
+
+| Fichier:ligne | Texte |
+|---|---|
+| `index.html:9` | `<title>CHECKLIST VOL — Infinite Flight</title>` |
+| `index.html:24` | `<div class="brand">Checklist vol</div>` |
+| `css/style.css:2` | `CHECKLIST VOL — feuille de style unique` (commentaire) |
+| `js/refs.js:7` | `REV 33 · LA LISTE DES RENVOIS NE SORT PLUS DE LA CHECKLIST` (commentaire) |
+| `js/refs.js:9` | `checklist. Elle ne sert plus a aucune pastille : …` (commentaire) |
+| `js/refs.js:12` | `checklist les citait a la REV 32, …` (commentaire) |
+| `js/render.js:6` | `REV 33 · la checklist de vol est retiree : …` (commentaire) |
+| `js/state.js:12-14` | clés de stockage `if-checklist-v1`, `if-checklist-doc-v1`, `if-checklist-sheet-v1` |
+| `js/values.js:42` | `/* saisie : on rafraichit les pastilles, on ne reconstruit pas la checklist */` |
+| `js/data/fields.js:9` | `t : ligne de checklist · d : detail · r : renvoi · w : point de vigilance` (commentaire) |
+| `js/data/fields.js:37` | `clair dans la ligne de checklist, pas ici. */` (commentaire) |
+
+Tous les contrôles passent : les quatre commits sont poussés.

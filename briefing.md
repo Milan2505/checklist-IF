@@ -1232,7 +1232,7 @@ Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstr
 
 ### 6.7 · APPROCHE AUTOMATIQUE — SECTION DORMANTE
 
-⚠ **RIEN ICI NE S'APPLIQUE AUJOURD'HUI.** Le mode n'a été vu que sur une capture studio du 29/08/2026, sur un poste A320 famille dont le type n'est pas identifié. Il n'existe pas dans le build de Milan. La section est écrite pour être réveillée, pas pour être suivie — sur le modèle du §7.0, dormant en REV 20 puis rempli en REV 21.
+⚠ **RIEN ICI NE S'APPLIQUE AUJOURD'HUI.** Le mode n'a été vu que sur une capture studio du 29/08/2026, sur un poste A320 famille dont le type n'est pas identifié. Il n'existe pas dans le build de Milan. La section est écrite pour être réveillée, pas pour être suivie.
 
 ⚠ Numérotée **6.7** et non 6.4 : la stabilisation occupe déjà le 6.4. Le §6 va désormais jusqu'à 6.7.
 
@@ -1405,7 +1405,7 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 | **A388 : champs remplis par l'import et masse à vide IF** (§7.A) | un deuxième vol A388 après import, et une lecture de l'écran Poids et centrage tous postes à zéro | REV 33 |
 
 ⚠ **Le §6.7 ne bloque rien non plus.** Une approche automatique qui n'existe pas dans le build ne bloque aucun départ : elle ne se briefe pas, voilà tout.
-⚠ **Trois des quatre points ajoutés en REV 24 se ferment sans voler** : une mise sous tension au parking suffit pour le mémo ADIRS, la lecture `GW − FOB` et le contenu de la checklist embarquée. Ce sont les moins chers du tableau.
+⚠ **Deux points du tableau se ferment sans voler** : une mise sous tension au parking suffit pour le mémo ADIRS et pour la lecture GW − FOB.
 
 ⚠ Le premier de cette liste est le seul capable de faire **lire une valeur fausse sans rien afficher**. Les autres se voient ; celui-là se vole.
 

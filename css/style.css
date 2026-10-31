@@ -1,7 +1,7 @@
 /* ============================================================
    CHECKLIST VOL — feuille de style unique
-   Palette, entete, profil de vol, phases, panneau Valeurs,
-   lecteur de section, pied de page et toast.
+   Palette, entete, boutons, panneau Valeurs, rendu markdown,
+   toast, legende, blocs aeroport.
 ============================================================ */
 :root{
   --bg:#0A1117;
@@ -52,28 +52,6 @@ header{
 .rev-chip.vide{color:var(--muted);border-color:var(--line);background:transparent}
 .rev-note{font-family:var(--body);font-size:11px;color:var(--muted);letter-spacing:0}
 .hdr-top .spacer{flex:1}
-.count{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.count b{color:var(--green);font-weight:600}
-
-/* ---------- signature : profil de vol ---------- */
-.profile{position:relative;padding:2px 0 10px}
-.profile svg{display:block;width:100%;height:64px;overflow:visible}
-.pf-track{fill:none;stroke:var(--line);stroke-width:1.5}
-.pf-done{fill:none;stroke:var(--green);stroke-width:2.5;stroke-linecap:round;
-  filter:drop-shadow(0 0 5px rgba(51,214,122,.45));transition:stroke-dasharray .45s ease}
-.node{cursor:pointer}
-.node circle{transition:all .25s ease}
-.node .ring{fill:var(--bg);stroke:var(--line);stroke-width:1.5}
-.node.done .ring{stroke:var(--green);fill:#0d2418}
-.node.active .ring{stroke:var(--amber);fill:#241a05;r:7}
-.node .num{font-family:var(--mono);font-size:8px;fill:var(--muted);text-anchor:middle;dominant-baseline:middle}
-.node.done .num{fill:var(--green)}
-.node.active .num{fill:var(--amber);font-weight:700}
-.pf-label{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;fill:var(--amber);text-anchor:middle}
-
-/* ---------- barres ---------- */
-.bar{height:3px;background:var(--line-soft);border-radius:2px;overflow:hidden}
-.bar span{display:block;height:100%;background:var(--green);width:0;transition:width .3s ease}
 
 /* ---------- boutons outils ---------- */
 .tools{display:flex;gap:8px;padding:0 0 12px;flex-wrap:wrap}
@@ -138,129 +116,6 @@ header{
 .alert strong{color:var(--amber)}
 .alert-note{display:block;margin-top:6px;color:#b08a5e;font-size:12px}
 
-/* ---------- phases ---------- */
-.phase{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:10px;overflow:hidden}
-.phase.active{border-color:#2b4250}
-.ph-head{
-  display:flex;align-items:center;gap:11px;width:100%;
-  background:none;border:0;color:inherit;text-align:left;
-  padding:13px 14px;cursor:pointer;min-height:56px;
-}
-.ph-head:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
-.ph-idx{font-family:var(--mono);font-size:11px;color:var(--muted);width:20px;flex:none}
-.phase.complete .ph-idx{color:var(--green)}
-.ph-title{font-family:var(--display);font-size:17px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;flex:1;line-height:1.15}
-.ph-sub{display:block;margin-top:3px;font-family:var(--body);font-size:11.5px;letter-spacing:0;
-  text-transform:none;font-weight:400;color:var(--muted);line-height:1.35}
-.phase.complete .ph-title{color:var(--green)}
-.ph-count{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
-.chev{width:9px;height:9px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);
-  transform:rotate(45deg);margin-left:2px;flex:none;transition:transform .2s}
-.phase.open .chev{transform:rotate(-135deg)}
-.ph-bar{padding:0 14px 11px}
-.ph-body{display:none;padding:2px 0 6px;border-top:1px solid var(--line-soft)}
-.phase.open .ph-body{display:block}
-
-/* ---------- items ---------- */
-.item{
-  display:flex;gap:12px;align-items:flex-start;width:100%;
-  background:none;border:0;border-bottom:1px solid var(--line-soft);color:inherit;text-align:left;
-  padding:13px 14px;cursor:pointer;min-height:52px;font-family:var(--body);font-size:15px;
-}
-/* la derniere ligne d’une phase perd son filet — qu’elle soit suivie de rien,
-   ou de son propre panneau de section (nth-last-child(2)). */
-.item:last-child,
-.item:nth-last-child(2){border-bottom:0}
-.item:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
-.box{
-  width:21px;height:21px;flex:none;margin-top:1px;border-radius:5px;
-  border:1.5px solid #3b5060;position:relative;transition:all .18s;
-}
-.item.warn .box{border-color:#6a5316}
-.item.done .box{background:var(--green);border-color:var(--green)}
-.item.done .box::after{
-  content:"";position:absolute;left:6.5px;top:2.5px;width:5px;height:10px;
-  border:solid #06210f;border-width:0 2.2px 2.2px 0;transform:rotate(42deg);
-}
-.it-txt{flex:1;min-width:0}
-.it-t{display:block}
-.item.warn .it-t::before{content:"⚠ ";color:var(--amber)}
-/* REV 20 · une ligne dormante ne se confond pas avec une ligne verifiee :
-   elle porte son marqueur en clair, comme le dossier le fait en prose. */
-.it-wip{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
-  color:var(--violet);border:1px solid #3a3160;background:#191434;
-  border-radius:4px;padding:1px 5px;margin-left:7px;white-space:nowrap;
-}
-.item.wip .box{border-color:#3a3160}
-.item.done .it-wip{opacity:.5}
-
-/* REV 23 · sequence deroulee.
-   `it-ord` porte le rang de la ligne dans la sequence (1.1 ... 10.3) —
-   c'est lui qui rend l'ordre lisible sans lire le texte.
-   `item.sub` est une tete de phase : elle se coche comme les autres, mais
-   elle annonce un ETAT a obtenir, pas un bouton a pousser. */
-.it-ord{
-  display:inline-block;font-family:var(--mono);font-size:10.5px;
-  color:var(--muted);border:1px solid var(--line);background:var(--panel-2);
-  border-radius:4px;padding:1px 5px;margin-right:8px;white-space:nowrap;
-  vertical-align:1px;
-}
-.item.done .it-ord{opacity:.5}
-.item.sub{background:#0C161D}
-.item.sub .it-ord{color:var(--amber);border-color:#4a3a12;background:#221a08}
-.item.sub .it-t{font-family:var(--display);font-size:16px;letter-spacing:.06em;
-  text-transform:uppercase;font-weight:600}
-
-/* source d'une ligne, dans le vocabulaire du §A.5 : ce qui a ete vu a
-   l'ecran ne se confond pas avec ce qui a ete emprunte a l'avion reel */
-.it-tag{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
-  border-radius:4px;padding:1px 5px;margin-left:7px;white-space:nowrap;
-  color:var(--muted);border:1px solid var(--line);background:var(--panel-2);
-}
-.it-tag.t-wip{color:var(--violet);border-color:#3a3160;background:#191434}
-.it-tag.t-manque{color:var(--amber);border-color:#4a3a12;background:#221a08}
-.it-tag.t-reel{color:#8FA6B3;border-color:#2a3b45;background:#111c23}
-.it-tag.t-sim{color:var(--green);border-color:#13432a;background:#082016}
-.item.done .it-tag{opacity:.5}
-.item.done .it-t{color:var(--muted);text-decoration:line-through;text-decoration-color:#2c4a39}
-.it-d{display:block;font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
-.item.done .it-d{opacity:.5}
-.val{font-family:var(--mono);color:var(--cyan);font-size:13.5px}
-.val.empty{color:#5d7280}
-.val.nil{color:var(--muted);font-style:italic}
-.ref{
-  flex:none;font-family:var(--mono);font-size:10.5px;color:var(--magenta);
-  border:1px solid #43244a;background:#1c1022;border-radius:6px;padding:3px 6px;margin-top:1px;
-  cursor:pointer;-webkit-appearance:none;appearance:none;line-height:1.25;font-weight:500;
-}
-.ref:hover{border-color:var(--magenta)}
-.ref:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
-/* dossier charge : la pastille dit si sa section est dans le fichier */
-.ref.ok{border-color:var(--magenta)}
-.ref.miss{color:#4e5c66;border-color:#212d35;background:#0d151a}
-.ref.miss:hover{border-color:#2f3f4a}
-
-/* ---------- section du dossier, dépliée SOUS sa ligne ---------- */
-/* REV 26 · le tiroir modal a disparu. Il couvrait la checklist au moment
-   précis où on cherchait le lien entre une étape et son texte ; le panneau,
-   lui, reste au même endroit que la ligne qui l'appelle. */
-.sec{
-  border-left:2px solid var(--magenta);
-  background:#0C161D;
-  margin:0 14px 10px 47px;              /* aligné sur le texte de la ligne, pas sur la case */
-  padding:2px 13px 13px;
-  border-radius:0 8px 8px 0;
-  max-height:58vh;overflow:auto;overscroll-behavior:contain;
-}
-.sec-t{
-  position:sticky;top:0;z-index:1;margin:0;padding:11px 0 8px;
-  background:#0C161D;border-bottom:1px solid var(--line);
-  font-family:var(--display);font-size:14px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--magenta);font-weight:600;
-}
-.ref[aria-expanded="true"]{background:#3a1c43;border-color:var(--magenta);color:#f7c9ef}
 .md{font-size:14.5px;line-height:1.62}
 .md h1,.md h2,.md h3{font-family:var(--display);letter-spacing:.09em;text-transform:uppercase;margin:20px 0 8px;font-size:16px;color:var(--txt)}
 .md p{margin:9px 0}
@@ -278,17 +133,6 @@ header{
 .md strong{color:#fff}
 .empty-state{padding:26px 0 10px;color:var(--muted);font-size:14px}
 
-/* ---------- pied ---------- */
-.foot{
-  position:fixed;left:0;right:0;bottom:0;z-index:30;
-  background:linear-gradient(180deg,rgba(10,17,23,.5),rgba(10,17,23,.97) 40%);
-  border-top:1px solid var(--line);
-  padding:9px 14px calc(9px + env(safe-area-inset-bottom));
-}
-.foot-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.foot .lbl{font-family:var(--display);font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);flex:none}
-.foot .bar{flex:1}
-.foot .pct{font-family:var(--mono);font-size:13px;color:var(--green);flex:none;min-width:38px;text-align:right}
 .toast{
   position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:70;
   background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
@@ -297,8 +141,6 @@ header{
 .toast.show{opacity:1}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:2px 2px 16px}
 .legend i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
-.legend-src{padding-top:0;margin-top:-10px}
-.legend-src .it-tag{margin-left:0;margin-right:6px;font-weight:400}
 /* NIL en legende : le meme habillage que dans les cases, pas une pastille de couleur */
 /* le terminal est une valeur RELEVEE : meme cyan que les autres, jamais
    l’habillage grise de NIL. La legende le montre tel qu’il s’affiche. */
