@@ -1,8 +1,8 @@
 # PAGE A380-800 · SAISIE FMS
 
-Page dédiée à l'A380-800 d'Infinite Flight (26.5), à joindre à la feuille SimBrief du temps 1 quand le type volé est l'A388. Construite à partir de 23 captures du FMS 1 (vol test LFBO vers LFPO, N388SB, 29/10/2026). Ce n'est pas une REV du dossier : la page vit à côté.
+Page dédiée à l'A380-800 d'Infinite Flight (26.5), à joindre à la feuille SimBrief du temps 1 quand le type volé est l'A388. Construite à partir de 26 captures du FMS 1 (vol test LFBO vers LFPO, N388SB, 29/10/2026). Ce n'est pas une REV du dossier : la page vit à côté.
 
-Ordre de la page : celui dans lequel on remplit le FMS, onglet par onglet. Chaque feuille A380 sortira avec une valeur chiffrée en face de chaque champ à saisir, à la place de la colonne Méthode.
+Ordre de la page : celui dans lequel on remplit le FMS, onglet par onglet. Les valeurs du vol en cours sont dans la section « SAISIE FMS A388 » de la feuille ; cette page donne la méthode, champ par champ.
 
 ## 0. Repères de lecture
 
@@ -11,12 +11,29 @@ Ordre de la page : celui dans lequel on remplit le FMS, onglet par onglet. Chaqu
 | Case orange | Saisie obligatoire, le FMS ne la calcule pas |
 | Valeur cyan encadrée | Valeur saisie ou importée, modifiable |
 | Tirets | Champ vide, calculé plus tard ou optionnel |
+| Bouton grisé | Présent à l'écran, inactif |
 | T | Masses et carburant en tonnes, une décimale |
-| TMPY | Plan temporaire, à valider par TMPY F-PLN |
+| TMPY | Plan ou réglage temporaire, à valider |
 
 Les masses se tapent en tonnes au FMS, pas en kilos comme dans SimBrief. Exemple : 324 900 kg se tape 324.9.
 
-## 1. Ce que SIMBRIEF REQUEST a rempli sur le vol test
+## 1. Accès aux pages
+
+Deux chemins mènent aux mêmes pages : les onglets tactiles de l'écran, ou le clavier KCCU.
+
+**Bascule MFD / KCCU** : bouton en haut au centre de l'écran, il fait apparaître le clavier physique sous l'écran.
+
+| Rangée KCCU | Touches |
+|---|---|
+| Haut | ESC · DIR · PERF · INIT · NAV AID · MAIL BOX · flèches |
+| Milieu | CLR INFO · F-PLN · DEST · SEC INDEX · SERV · ATC COM · ND |
+| Bas | clavier QWERTY |
+
+**Pied de la page F-PLN** : INIT · F-PLN INFO · DIR TO · DEST · flèches de défilement · MSG LIST.
+
+**Pied des pages PERF et FUEL&LOAD** : RETURN · POS MONITOR (PERF seulement) · MSG LIST.
+
+## 2. Ce que SIMBRIEF REQUEST a rempli sur le vol test
 
 Lu à l'écran après import, sur un seul vol. À reconfirmer au prochain vol avant d'en faire une règle.
 
@@ -35,13 +52,18 @@ Lu à l'écran après import, sur un seul vol. À reconfirmer au prochain vol av
 | PERF APPR | VAPP | 155 |
 | F-PLN | Route et contraintes | AMB 280/FL240, CAD FL130, SOTIP 250/FL120, ODILO FL100 |
 
-Non rempli par l'import : ALTN (NONE), ZFWCG, BLOCK, PAX NBR, toute la page T.O sauf les V, la page APPR sauf VAPP, la page GA.
+Non rempli par l'import : ALTN (NONE), CPNY RTE et ALTN RTE (NONE), ZFWCG, BLOCK, PAX NBR, toute la page T.O sauf les V, la page APPR sauf VAPP, la page GA.
 
-## 2. ACTIVE/INIT
+## 3. ACTIVE/INIT
+
+**Première action : appuyer sur SIMBRIEF REQUEST**, puis relire ce que l'import a rempli.
 
 | Champ | Méthode |
 |---|---|
+| FLT NBR | Importé, à contrôler contre l'indicatif de la feuille |
+| FROM / TO | Importés |
 | ALTN | Dégagement de l'OFP (code OACI) |
+| CPNY RTE | Laisser NONE |
 | ALTN RTE | Laisser NONE sauf route de dégagement fournie |
 | CRZ FL | Niveau initial de l'OFP |
 | CRZ TEMP | Température au niveau initial, OFP |
@@ -49,56 +71,85 @@ Non rempli par l'import : ALTN (NONE), ZFWCG, BLOCK, PAX NBR, toute la page T.O 
 | TROPO | Valeur importée, sinon 36090 |
 | TRIP WIND | Composante moyenne de l'OFP, HD ou TL suivi de 3 chiffres |
 
-## 3. ACTIVE/FUEL&LOAD
+Boutons de la page :
+
+| Bouton | Rôle |
+|---|---|
+| SIMBRIEF REQUEST | Importe le plan SimBrief |
+| SIMBRIEF BRIEFING | Ouvre l'OFP |
+| ACFT STATUS | État de l'appareil |
+| RTE SEL · ALTN RTE SEL | Choix d'une route compagnie |
+| CPNY WIND REQUEST | Demande des vents compagnie |
+| WIND | Grisé au vol test |
+| IRS · DEPARTURE · NAVAIDS · FUEL&LOAD · T.O PERF | Raccourcis vers les pages correspondantes |
+| RTE SUMMARY | Résumé de la route |
+| CPNY T.O REQUEST | Demande des performances de décollage compagnie ; effet non vérifié, grisé sur la page T.O |
+
+## 4. ACTIVE/FUEL&LOAD
+
+En tête, lus seulement : GW, CG, FOB.
 
 | Champ | Méthode |
 |---|---|
-| ZFW | ZFW de l'OFP en tonnes, contrôlé contre GW moins FOB au SD |
+| ZFW | ZFW de la feuille en tonnes, contrôlé contre GW moins FOB au SD |
 | ZFWCG | Centrage sans carburant en %MAC, case orange |
-| BLOCK | Carburant bloc de l'OFP en tonnes, case orange |
-| PAX NBR | Passagers de l'OFP, case orange |
-| TAXI | Carburant roulage de l'OFP en tonnes |
-| RTE RSV | Réserve de route de l'OFP, en tonnes ou en % |
-| FINAL | Réserve finale de l'OFP en tonnes |
+| BLOCK | Carburant bloc de la feuille en tonnes, case orange |
+| PAX NBR | Passagers de la feuille, case orange |
+| TAXI | Carburant roulage en tonnes |
+| RTE RSV | Réserve de route (secours) en tonnes ; la case en % se remplit seule |
+| FINAL | Réserve finale en tonnes |
 | JTSN GW | Laisser vide |
+| MIN FUEL AT DEST | Dégagement plus réserve finale, en tonnes (MIN DIV du cartouche ④) |
 
-## 4. F-PLN / DEPARTURE
+Lus seulement, calculés par le FMS : TRIP, ALTN, TOW, LW, UTC et EFOB à destination et au dégagement, EXTRA. Le bouton FUEL PLANNING est grisé au vol test.
+
+## 5. F-PLN / DEPARTURE
 
 | Champ | Méthode |
 |---|---|
-| RWY | Piste de départ (liste : longueur et ILS affichés) |
-| SID | Procédure de départ de l'OFP |
+| RWY | Piste de départ ; la liste affiche longueur en mètres et ILS |
+| SID | Procédure de départ de l'OFP, liste déroulante |
 | TRANS | Transition de l'OFP, sinon NONE |
 | EOSID | Lu seulement, NONE au vol test |
 
-Valider par TMPY F-PLN une fois les trois champs choisis.
+Le cadre SELECTED DEPARTURE affiche aussi la fréquence ILS de la piste choisie. Valider par TMPY F-PLN une fois les trois champs choisis.
 
-## 5. PERF · T.O
+Page ARRIVAL (STAR, approche) : pas encore relevée.
+
+## 6. PERF · T.O
 
 | Champ | Méthode |
 |---|---|
+| RWY | Lu seulement |
+| V1 / VR / V2 | Importés ; contrôler contre le module Takeoff Performance |
 | T.O SHIFT | 0, sauf départ d'intersection (distance en mètres) |
 | Poussée | TOGA, FLEX ou DERATED selon le module Takeoff Performance |
-| FLEX | Température flexible du module, 2 chiffres (case orange quand FLEX est coché) |
-| FLAPS | Cran 1, 2 ou 3 du module Takeoff Performance |
+| FLEX | Température flexible, 2 chiffres ; la case orange apparaît quand FLEX est coché |
+| FLAPS | 1, 2 ou 3 (seuls choix de la liste) |
 | THS FOR | Centrage au décollage en %MAC, case orange |
-| PACKS | ON, ou OFF/APU si le module le demande |
-| ANTI-ICE | OFF, ENG ONLY si OAT inférieure ou égale à 10 °C avec humidité visible |
+| PACKS | ON ou OFF/APU (seuls choix de la liste) |
+| ANTI-ICE | OFF, ENG ONLY ou ENG + WING ; ENG ONLY si OAT inférieure ou égale à 10 °C avec humidité visible |
 | THR RED | Élévation départ + 1 500 ft, arrondie à la centaine |
 | ACCEL | Élévation départ + 3 000 ft, arrondie à la centaine |
 | TRANS | Altitude de transition du terrain de départ |
 | EO ACCEL | Même valeur qu'ACCEL |
 
-## 6. PERF · CLB
+Lus seulement : F, S et O (vitesses de rentrée des volets, à tirets au sol). Bouton NOISE grisé.
+
+⚠ Changer TOGA, FLEX ou DERATED fait apparaître TMPY dans le bandeau de la page. Le geste qui valide ce TMPY n'est pas visible sur les captures.
+
+## 7. PERF · CLB
 
 | Champ | Méthode |
 |---|---|
 | CI | Repris de l'INIT |
 | DERATED CLB | NONE (choix de 01 à 05 disponibles) |
 | PRESEL SPD | Laisser vide |
-| CLB SPD LIM | 250 / 10000, valeur par défaut |
+| TRANS | Altitude de transition du départ, même valeur qu'en T.O |
 
-## 7. PERF · CRZ
+Lus seulement : CLB SPD LIM 250 KT / 10000 FT, PRED TO, bouton SPD CSTR.
+
+## 8. PERF · CRZ
 
 | Champ | Méthode |
 |---|---|
@@ -106,27 +157,35 @@ Valider par TMPY F-PLN une fois les trois champs choisis.
 | PRESEL MACH / SPD | Laisser vide |
 | STEP ALTS | Paliers de l'OFP s'il y en a |
 
-## 8. PERF · DES
+Lus seulement : PRED TO T/D, heure et carburant à destination. Bouton CMS grisé.
+
+## 9. PERF · DES
 
 | Champ | Méthode |
 |---|---|
+| CI | Repris de l'INIT |
 | DES CABIN RATE | -350, valeur par défaut |
 | Mode | MANAGED ECON |
-| TRANS | Niveau de transition de l'arrivée (FL060 importé au vol test) |
+| TRANS | Niveau de transition de l'arrivée |
 
-## 9. PERF · APPR
+Lus seulement : PRED TO, VERT DEV, heure et carburant à destination, bouton SPD CSTR.
+
+## 10. PERF · APPR
 
 | Champ | Méthode |
 |---|---|
-| MAG WIND | Vent METAR de destination, converti en magnétique |
-| OAT | Température METAR de destination |
-| QNH | QNH METAR de destination |
+| MAG WIND | Vent de destination, direction magnétique puis force |
+| OAT | Température de destination |
+| QNH | QNH de destination |
 | BARO | Altitude de décision de l'approche (ILS CAT I) |
 | RADIO | Laisser vide sauf CAT II ou III |
 | CONF | FULL, CONF3 seulement sur choix |
 | VAPP | Contrôler la valeur importée contre le module Landing Performance |
+| TRANS | Repris de la page DES |
 
-## 10. PERF · GA
+Lus seulement : APPR (approche choisie), LW, HD et CROSS (composantes de vent), O, S, F, VREF, VLS, VERT DEV.
+
+## 11. PERF · GA
 
 | Champ | Méthode |
 |---|---|
@@ -135,7 +194,7 @@ Valider par TMPY F-PLN une fois les trois champs choisis.
 | TRANS | Altitude de transition de la destination |
 | EO ACCEL | Même valeur qu'ACCEL |
 
-## 11. Menus sans saisie avant vol
+## 12. Menus sans saisie avant vol
 
 Relevés pour référence, rien à y remplir avant le départ.
 
@@ -144,10 +203,23 @@ Relevés pour référence, rien à y remplir avant le départ.
 | FMS 1 | FMS 1, ATCCOM, SURV, FCU BKUP |
 | POSITION | MONITOR, REPORT, NAVAIDS, IRS, GPS |
 | SEC INDEX | SEC 1, SEC 2, SEC 3 |
-| DATA | STATUS, WAYPOINT, NAVAID, ROUTE, AIRPORT, PRINTER |
+| DATA | STATUS, WAYPOINT, NAVAID, ROUTE, AIRPORT, PRINTER ; contenu des pages pas encore relevé |
 | CLOSEST AIRPORTS | DIST, BRG, UTC, EFOB, EFF WIND par terrain, plus un terrain libre |
-| PERF | Bouton POS MONITOR en pied de page |
 
-## 12. Point relevé au vol test
+## 13. Masses relevées
 
-ZFW importé à 324.9 t, alors que le SD affichait GW 344.3 t et FOB 27.8 t, soit 316.5 t sans carburant côté simulateur. Écart d'environ 8.4 t, du même type que l'écart A318 d'août (profil d'airframe SimBrief contre masse IF). Masse à vide IF relevée le 31/10/2026 : 276 630 kg. Le ZFW se force désormais sur cette valeur.
+Masse à vide IF relevée le 31/10/2026 à l'écran Poids et centrage, tous postes à zéro : **276 630 kg**, MTOW 575 000 kg, MLW 395 000 kg. Le ZFW se force sur cette valeur plus la charge utile.
+
+Au vol test, le ZFW importé était de 324.9 t, alors que le SD affichait GW 344.3 t et FOB 27.8 t, soit 316.5 t sans carburant. L'écart venait du ZFW importé de SimBrief : la charge réellement embarquée était d'environ 39.9 t.
+
+Écran Poids et centrage : carburant en cinq jauges (Tail Tank, Tank 1 à 4), passagers, soute en trois compartiments (Front, Aft, Rear Cargo).
+
+## 14. Points ouverts
+
+| Point | Ce qui le ferme |
+|---|---|
+| Geste de validation du TMPY sur PERF après changement de poussée | Capture de la page T.O juste après le geste |
+| Effet de CPNY T.O REQUEST | Capture de la page T.O après appui |
+| Page ARRIVAL | Captures de la page et de ses listes |
+| Contenu des pages DATA | Captures de STATUS et AIRPORT |
+| Capacité carburant totale | Capture de l'écran Poids et centrage au plein ; la barre du bas indique environ 250 t (27 784 kg pour 11 %), arrondi |

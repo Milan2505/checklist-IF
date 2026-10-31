@@ -286,3 +286,19 @@ Corrections en place, pas de nouvelle REV. Jeton de cache passé à `?v=36` (18 
 | LF, tiret long | **passé** |
 
 La feuille QFA7 a servi de test depuis `Downloads` ; elle n'est pas ajoutée au dépôt.
+
+## Consignes « onglet A380-800 FMS » du 31/10/2026 · nouvelle page de méthode
+
+Les points 3 et 4 de ces consignes (valeurs du vol en tête, méthode repliée, aucune lecture par le parseur) étaient déjà en place depuis le commit `94d484f` ; le mécanisme d'onglets du commit `ed63eb2` n'est pas touché, le jeton reste à `?v=36` (aucun script ni style modifié). `briefing.md` n'est pas modifié.
+
+**Seul changement : `page_A380-800_FMS.md` remplacé par la version fournie**, copiée telle quelle (`cmp` identique au fichier fourni, LF). 225 lignes : accès aux pages et clavier KCCU, boutons de l'INIT, MIN FUEL AT DEST, TRANS en CLB et APPR, masses relevées au §13, points ouverts au §14. Elle remplace la phrase du §12 modifiée au commit précédent, qui n'existe plus sous cette forme.
+
+### Contrôles
+
+| Contrôle | Résultat |
+|---|---|
+| 1 · Nouvelle feuille QFA7 chargée | **passé** : 33 lignes, de « INIT · Première action · appuyer sur SIMBRIEF REQUEST » à « GA · TRANS / EO ACCEL · 18000 / 3700 », identiques une à une au tableau de la feuille ; puis les deux paragraphes. Feuille lue à 49/49, 64 valeurs, aucun bandeau |
+| 2 · Sans feuille | **passé** : « Aucune valeur FMS dans la feuille chargée. » |
+| 3 · Méthode | **passé** : repliée à l'ouverture, dépliée au clic ; nouvelle page rendue (16 titres, 15 tableaux) |
+| 4 · Page rechargée | **passé** : dossier REV 33 reconnu, aucun bandeau, cartouches identiques au commit précédent, séquence de clics du bug d'onglets refaite : un seul onglet actif à chaque clic |
+| LF | **passé** |
