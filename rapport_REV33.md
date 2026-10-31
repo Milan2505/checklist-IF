@@ -344,3 +344,25 @@ Consignes `consignes_claude_code_REV34.md`. Feuille de test `feuille_QFA7_YSSY-K
 | Nombre attendu lu dans la page | **passé** : la phrase du §15 modifiée en mémoire à « 33 lignes », l'alerte disparaît sur la même feuille v2 |
 | Onglets, page rechargée | **passé** : séquence de clics inchangée, un seul onglet actif ; suite complète identique au commit précédent, hors nouvelle page (17 titres, 16 tableaux) |
 | LF | **passé** |
+
+### B · `briefing.md`, REV 33 vers REV 34 (second commit)
+
+Archive : `briefing_prevol_IF_REV33.md`, copie octet pour octet de `briefing.md` avant modification, corrections en place de la REV 33 comprises.
+
+- B.1 : en-tête `**REV 34**` et pied `**FIN · REV 34 · Simulation uniquement**`.
+- B.2 : bloc `## CE QUI CHANGE DEPUIS LA REV 32` remplacé jusqu'à `## RÈGLE DE NON-RÉPÉTITION` exclu, ligne vide gardée.
+- B.3 : §A.6 inséré après la fin du §A.5. Le §A.5 se termine par un `---`, suivi d'un second `---` qui ferme la partie A avant `# PARTIE B · DOSSIER` ; le §A.6 est placé entre les deux, comme le §A.5 suit le §A.4 : `---`, §A.6, `---`.
+- B.4 : phrase ajoutée à la fin du paragraphe « La saisie complète, onglet par onglet… » du §7.A.
+
+Le diff complet contre l'archive ne retire que 11 lignes, toutes visées par B.1, B.2 et B.4.
+
+| Contrôle | Résultat |
+|---|---|
+| C.1 · `grep -n "A.6" briefing.md` | **passé** : table des changements (lignes 14 et 15), titre du §A.6 (453), renvoi du §7.A (1373) |
+| Sections protégées | **passé** : §0, §A.4 et §A.5 identiques octet pour octet à la REV 33 ; 49 cellules inchangées ; parseur non modifié |
+| C.4 · page rechargée | **passé** : REV 34 reconnue (32 renvois sur 32), aucun bandeau, aucune erreur ; suite complète identique au premier commit sauf le libellé REV ; feuille QFA7 à 49/49 ; séquence d'onglets : un seul onglet actif à chaque clic |
+| C.5 · LF, tiret long | **passé** : aucun retour chariot, aucun tiret long dans les lignes ajoutées |
+
+À signaler, hors consignes : le §7.A dit toujours « Relevée sur 23 captures du FMS 1 », alors que la page de méthode en annonce désormais 26. Non modifié (règle 3).
+
+Tous les contrôles passent : les deux commits sont poussés.

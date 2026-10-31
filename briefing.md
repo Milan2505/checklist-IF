@@ -1,22 +1,18 @@
 # BRIEFING PRÉ-VOL — INFINITE FLIGHT
 
-**REV 33**
+**REV 34**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
 
-## CE QUI CHANGE DEPUIS LA REV 32
+## CE QUI CHANGE DEPUIS LA REV 33
 
-**Objet de la révision : le dossier ne porte plus de procédure de mise en route.** Depuis les versions 26.4 et 26.5, Infinite Flight tient les procédures par des checklists assistées propres à chaque appareil. Le dossier garde ce qu'IF ne fait pas : les valeurs à taper dans SimBrief et au FMS.
+**Objet de la révision : la section SAISIE FMS devient une partie standard de la feuille.**
 
 | # | Objet | Nature |
 |---|---|---|
-| 1 | Retrait du §7.0 (cadre générique), du §7.0.A (bloc A321neo) et du §7.0 bis (menu MISC) | retrait |
-| 2 | §7 · AVANT MISE EN ROUTE réduit au contrôle de masse au poste ; ROULAGE et APRÈS ATTERRISSAGE réduits à ce qui alimente le dossier | retrait |
-| 3 | Nouveau §7.A · saisie FMS de l'A380-800 (`A388`), page dédiée `page_A380-800_FMS.md` | ajout |
-| 4 | §8 : retrait des points ouverts et des vérifications liés au §7.0 et au §7.0.A ; ajout du point A388 | mise à jour |
-| 5 | §9 : retrait du relevé SYSTÈMES ; ligne A388 au registre des masses à vide | mise à jour |
-| 6 | Dans tout le dossier, « la checklist » ou « la checklist en ligne » désigne désormais la page en ligne, qui n'affiche plus que les valeurs de la feuille | précision |
+| 1 | Nouveau §A.6 : règles d'écriture de la section `## SAISIE FMS <type>` | ajout |
+| 2 | §7.A renvoie au §A.6 et au gabarit §15 de `page_A380-800_FMS.md` | précision |
 
 ⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni au §0, ni aux six cartouches, ni au §A.4, ni au §A.5. Les 49 cellules sont inchangées.
 
@@ -453,6 +449,28 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 ⇒ Les pistes attendues passent aussi par les remarques du répartiteur, au format `DEP RWY EXPECTED nn` et `ARR RWY EXPECTED nn` : c'est la seule valeur du §0 qui atteint la checklist sans passer par un tableau.
 
 ---
+
+## A.6 · SECTION SAISIE FMS
+
+**Quand.** Obligatoire dans toute feuille dont le type a une page de méthode FMS relevée sur captures. Au 31/10/2026 : `A388` seulement, page `page_A380-800_FMS.md`. Un type sans page de méthode n'a pas de section.
+
+**Titre.** `## SAISIE FMS <type> (§7.A)`, avec le code OACI du type.
+
+**Tableau.** Trois colonnes `Page FMS | Champ | Saisie`. Les lignes sont celles du gabarit de la page de méthode (§15 pour l'A388), dans le même ordre, toutes présentes : aucune ligne retirée, aucune ajoutée.
+
+**Cellule Saisie.**
+1. Valeur à taper : la valeur nue, au format de saisie du FMS (tonnes à une décimale sur l'A388).
+2. Valeur importée ou calculée par le FMS, à comparer sans la retaper : `contrôle : <valeur>`.
+3. Champ à laisser vide : `vide`.
+4. Valeur inconnue au temps 1 : la source qui la donnera (par exemple `route de dégagement de l'OFP`), jamais une case blanche ; elle est remplacée au temps 2.
+5. Première ligne : `INIT | Première action | appuyer sur SIMBRIEF REQUEST`.
+
+**Sous le tableau.** Un paragraphe des valeurs à confirmer à l'écran, avec leur marqueur de source, puis le paragraphe « Chargement dans IF » (fret à ajouter en soute).
+
+**Contrôle avant envoi.** Le nombre de lignes du tableau est égal à celui du gabarit (79 pour l'A388). La page en ligne affiche ce compte et signale un écart.
+
+⇒ Ce tableau n'est pas lu par le parseur des cartouches ; il n'ajoute aucune clé au registre.
+
 ---
 
 # PARTIE B · DOSSIER
@@ -1352,7 +1370,7 @@ Carburant restant relevé · AIDS FLIGHT REPORT et LANDING REPORT relevés (§9)
 
 La page en ligne affiche l'onglet A380-800 FMS en permanence ; son contenu ne s'applique qu'aux vols sur A388.
 
-La saisie complète, onglet par onglet, vit dans `page_A380-800_FMS.md`, affichée par la page en ligne dans l'onglet A380-800 FMS. Elle n'est pas lue par le parseur et n'ajoute aucune clé au registre. Relevée sur 23 captures du FMS 1, vol test LFBO vers LFPO, N388SB, 29/10/2026 `[SIM]`.
+La saisie complète, onglet par onglet, vit dans `page_A380-800_FMS.md`, affichée par la page en ligne dans l'onglet A380-800 FMS. Elle n'est pas lue par le parseur et n'ajoute aucune clé au registre. Relevée sur 23 captures du FMS 1, vol test LFBO vers LFPO, N388SB, 29/10/2026 `[SIM]`. Chaque feuille A388 porte la section décrite au §A.6, écrite à partir du gabarit de 79 lignes du §15 de cette page.
 
 **Ce qui distingue ce FMS du MCDU A320 (§2)**
 
@@ -1490,4 +1508,4 @@ TD IAS / GS ____ / ____ · Vz au toucher ____ fpm · G max ____ · écart d'axe 
 Comportement inattendu observé ____ · valeur affichée jugée fausse ____ · ligne du §2.3 à corriger ____
 Ligne de la liste « à revérifier » confirmée corrigée ____ ⇒ elle sort du dossier à la révision suivante.
 
-**FIN · REV 33 · Simulation uniquement**
+**FIN · REV 34 · Simulation uniquement**
