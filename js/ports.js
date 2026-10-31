@@ -1,7 +1,7 @@
 /* ============================================================
    BLOCS AEROPORT ET PANNEAU D'IDENTITE
    Les deux blocs — depart et arrivee — ouvrent chacun leur panneau
-   superpose : Type, Compagnie, et la porte du terrain concerne.
+   superpose : Type, Compagnie, Numero de vol, et la porte du terrain concerne.
    Deux panneaux distincts, jamais des onglets ; un seul ouvert a la fois.
 
    Le panneau n'a AUCUNE source de verite propre : il lit state.values,
@@ -9,8 +9,8 @@
    Il ne relit aucun fichier et ne declenche aucune requete.
    Depend de : data/fields.js (via state), state.js, dom.js, alert.js.
 ============================================================ */
-/* Trois valeurs par panneau. La porte change de cle selon le terrain ; Type et
-   Compagnie sont les MEMES cles des deux cotes — un libelle, une ligne, une
+/* Quatre valeurs par panneau. La porte change de cle selon le terrain ; Type,
+   Compagnie et Numero de vol sont les MEMES cles des deux cotes — un libelle, une ligne, une
    fois (§A.5 regle 3) : rien n'est duplique, c'est le meme champ affiche deux fois. */
 /* ⚠ La colonne de droite est un libelle d'AFFICHAGE, jamais un libelle de cellule.
    « Compagnie (OACI) » ne doit pas etre recopie dans une feuille : le parseur le
@@ -18,8 +18,8 @@
    point ouvert de la regle 4 du §A.5 n'a pas encore tranche. Dans un fichier, le
    libelle reste « Compagnie ». Les cles, elles, sont la seule source de verite. */
 const PORT_ROWS = {
-  dep: [['type','Type'], ['airline','Compagnie (OACI)'], ['portedep','Porte départ']],
-  arr: [['type','Type'], ['airline','Compagnie (OACI)'], ['portearr','Porte arrivée']]
+  dep: [['type','Type'], ['airline','Compagnie (OACI)'], ['fltnum','Numéro de vol'], ['portedep','Porte départ']],
+  arr: [['type','Type'], ['airline','Compagnie (OACI)'], ['fltnum','Numéro de vol'], ['portearr','Porte arrivée']]
 };
 const PORT_TITRE = { dep:'Identité · départ', arr:'Identité · arrivée' };
 
