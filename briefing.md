@@ -1,20 +1,22 @@
 # BRIEFING PRÉ-VOL — INFINITE FLIGHT
 
-**REV 34**
+**REV 35**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
 
-## CE QUI CHANGE DEPUIS LA REV 33
+## CE QUI CHANGE DEPUIS LA REV 34
 
-**Objet de la révision : la section SAISIE FMS devient une partie standard de la feuille.**
+**Objet de la révision : la route se laisse à SimBrief.** Constat du vol VY1158 du 12/11/2026 : la route de la feuille, tirée d'anciens plans publics, faisait 700 NM ; SimBrief en a retenu une autre, volée sur 854 NM. SimBrief construit sa route sur le cycle AIRAC en vigueur, avec les voies ouvertes et le vent du jour ; la feuille n'a pas de base de navigation.
 
 | # | Objet | Nature |
 |---|---|---|
-| 1 | Nouveau §A.6 : règles d'écriture de la section `## SAISIE FMS <type>` | ajout |
-| 2 | §7.A renvoie au §A.6 et au gabarit §15 de `page_A380-800_FMS.md` | précision |
+| 1 | §0.7 : `Selected Route` sort à `vide`, SimBrief génère la route ; la valeur attendue porte l'orthodromie et la distance de route estimée | règle d'écriture |
+| 2 | §0 règle de remplissage : `Selected Route` est la seule case du formulaire qui sort à `vide` | exception |
+| 3 | §A.4 méthode du `Trip` et §0.4 bloc horaire : ETE calculé sur la distance de route estimée, orthodromie × 1,20 | méthode |
+| 4 | §9 : nouveau registre « distance volée / orthodromie », premier relevé ; consommation A20N relevée | ajout |
 
-⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni au §0, ni aux six cartouches, ni au §A.4, ni au §A.5. Les 49 cellules sont inchangées.
+⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni aux six cartouches, ni à leurs libellés, ni au §A.5 hors une précision sur `Selected Route`, ni au §A.6. Les 49 cellules sont inchangées. Le registre des masses à vide garde la ligne A20N ajoutée sur la REV 34.
 
 ## RÈGLE DE NON-RÉPÉTITION
 
@@ -275,7 +277,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Masse à vide IF | donnée par Milan, ou registre du §9 `[SIM]` |
 | Charge utile | pax × 100 kg + fret, valeurs du §0 `[CALC]` |
 | Poids zéro carburant | masse à vide IF + charge utile `[CALC]` |
-| Trip | consommation horaire du type × ETE estimé `[CALC]` |
+| Trip | consommation horaire du type × ETE estimé ; ETE sur la distance de route estimée, orthodromie × 1,20 (§0.7) `[CALC]` |
 | TOW | ZFW + bloc − taxi `[CALC]` |
 | LW | TOW − trip `[CALC]` |
 | Autobrake départ | MAX, sauf motif écrit `[CALC]` |
@@ -393,7 +395,7 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 | Montée initiale · Montée basse · Montée IAS · Montée Mach | montée | cartouche ⑥ |
 | Croisière Mach · Descente Mach · Descente IAS | croisière et descente | cartouche ⑥ |
 | Approche lisse · Vitesse FAF · Plancher finale | approche et finale | cartouche ⑥ |
-| Selected Route | route ATC | §0 Itinéraire |
+| Selected Route | route ATC ; porte `vide` depuis la REV 35, SimBrief génère la route | §0 Itinéraire |
 | Bloc horaire prévu · Cycle AIRAC · Passagers · Fret · Identifiant du pilote · Altitude (Pieds) | formulaire, colonne « à taper » | §0 |
 
 ⚠ **Les dix libellés du cartouche ⑥ ne sont lus qu'une fois inscrits au registre et à la liste des champs** (§A.3 règle 10). Avant l'application des consignes Claude Code REV 32, une feuille qui les porte ne fait rien remonter, et rien ne le dit.
@@ -506,6 +508,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 3. Une largeur de fenêtre différente peut réarranger l'affichage : **le tableau ci-dessus l'emporte sur ce qu'un écran plus étroit montre ce jour-là.** Seul un changement réel de SimBrief ouvre une révision.
 
 ⚠ **RÈGLE DE REMPLISSAGE.** Aucune ligne ne sort sans valeur. Ni « AUTO » seul, ni « laisser vide ».
+⇒ **Une seule exception depuis la REV 35 : `Selected Route` (§0.7) sort à `vide`.** SimBrief génère alors sa route, et la colonne « Valeur attendue » porte quand même mes chiffres de distance.
 - **À TAPER** — ce qui va dans la case, littéralement. C'est **la colonne lue par la checklist** (§A.5).
 - **VALEUR ATTENDUE** — mon chiffre, pour comparer ce que SimBrief a calculé à ce que j'annonçais. Elle ne se saisit pas et **n'est pas lue par la page**.
 
@@ -607,7 +610,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Bloc horaire prévu (Sched Block Time) | `h : mm` | ETE estimé + 28 min de roulage, arrondi à 5 min |
+| Bloc horaire prévu (Sched Block Time) | `h : mm` | ETE estimé sur la distance de route estimée (§0.7) + 28 min de roulage, arrondi à 5 min |
 | Départ Runway (Depart Rwy) | AUTO | piste attendue au vent du METAR départ |
 | Arrivée Runway (Arrival Rwy) | AUTO | piste attendue au vent prévu à l'ETA |
 | Altitude (Pieds) | le FL retenu, chiffré | conforme à la règle semi-circulaire |
@@ -661,11 +664,14 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Selected Route | la route en format ATC, sans les terrains | route complète SID → airways → STAR |
+| Selected Route | vide | orthodromie `nnn NM` · route estimée `nnn NM` (orthodromie × 1,20) |
 
+⚠ **Depuis la REV 35, je ne fournis plus de route.** Le champ reste vide et SimBrief génère la sienne à la création de l'OFP. Ma source de route, des plans publics parfois vieux de plusieurs années, ne connaît ni le cycle AIRAC en vigueur, ni les voies fermées, ni le vent du jour : sur VY1158 du 12/11/2026, elle annonçait 700 NM pour 854 NM volés.
+⇒ La valeur attendue garde deux chiffres que je sais calculer : l'orthodromie, exacte, et une distance de route estimée à l'orthodromie × 1,20. C'est cette distance estimée qui sert à l'ETE, au délestage et au bloc de la feuille (§A.4).
+⇒ Le coefficient 1,20 se recale sur le registre « distance volée / orthodromie » du §9 : il change quand trois vols au moins s'en écartent dans le même sens.
+⇒ Au temps 2, la distance et la route de l'OFP font foi `[OFP]`. Un écart de plus de 10 % entre la distance de l'OFP et ma distance estimée se relève au §9.
 ⚠ **Position déclarée, non recontrôlée le 24/08/2026** `[FORM]`. Sa place entre Entrées de texte et Aéroports alternatifs vient de la déclaration existante, pas des captures de ce jour-là. Elle se revérifie à la prochaine capture qui descend la page en entier.
-⇒ Six raccourcis externes sur la barre de section : FlightAware, SkyVector, RouteFinder, GRD, EDI-GLA, Eurocontrol. La route obtenue se colle dans `Selected Route`.
-⚠ Je fournis la route au temps 1, avec au moins un repli. Si elle est refusée à la génération, SimBrief a raison sur sa propre base et je reprends sur ce qu'il a retenu.
+⇒ Six raccourcis externes sur la barre de section : FlightAware, SkyVector, RouteFinder, GRD, EDI-GLA, Eurocontrol. Milan peut toujours y prendre une route et la coller dans `Selected Route` ; ce n'est plus la feuille qui la propose.
 ⇒ Depuis le build 18266, un changement de SID ou de STAR décidé après coup ne demande plus de regénérer l'OFP : il se fait au MCDU (§2.1). La route SimBrief reste la référence carburant, mais elle n'est plus une contrainte de navigation.
 
 ### §0.8 · AÉROPORTS ALTERNATIFS (Alternate Airports)
@@ -1468,6 +1474,16 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 **CAPACITÉ CARBURANT A21N** `[SIM]` : 31 202 kg au plein, dont 6 037 kg dans chaque aile, 6 437 kg au centre et 12 691 kg en AUX. MTOW de 101 t et réservoir AUX correspondent aux valeurs de l'A321XLR réel `[RÉEL]` : IF donne cette enveloppe à toutes les livrées, LR ou non. Un bloc de moins de 12 074 kg tient dans les ailes seules.
 
 **CONSOMMATION RELEVÉE PAR TYPE** : A21N, environ 1,9 t/h en moyenne montée comprise `[CALC]`, sur un seul vol (HV6867, 24/09/2026 : environ 5 450 kg de vol pour un temps affiché de 03:09). L'estimation de la feuille, 2,4 t/h, était trop forte d'environ 20 %. À recouper sur deux autres vols avant d'en faire une règle.
+A20N, environ 2,1 t/h en moyenne montée comprise `[CALC]`, sur un seul vol (VY1158, 12/11/2026 : 4,1 t pour 1 h 56 de vol). L'estimation de la feuille, 2,0 t/h, était juste à 6 % près. À recouper sur deux autres vols.
+
+**DISTANCE VOLÉE / ORTHODROMIE** *(REV 35)* : ce rapport recale le coefficient 1,20 du §0.7.
+
+| Vol | Date | Orthodromie | Distance volée | Rapport |
+|---|---|---|---|---|
+| VY1158 LEBL-LMML | 12/11/2026 | 666 NM | 854 NM | 1,28 |
+| ____ | ____ | ____ | ____ | ____ |
+
+⇒ Un seul relevé, sur une route que SimBrief a fait passer par Palma et la côte nord-africaine : il ne recale rien à lui seul.
 
 ⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0.4). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
 ⚠ Ne jamais déduire la masse à vide d'un type de celle d'un type voisin : l'écart constaté sur l'A321 était de 4 900 kg, soit 4,9 t d'erreur sur le ZFW, donc sur les vitesses et la flex.
@@ -1509,4 +1525,4 @@ TD IAS / GS ____ / ____ · Vz au toucher ____ fpm · G max ____ · écart d'axe 
 Comportement inattendu observé ____ · valeur affichée jugée fausse ____ · ligne du §2.3 à corriger ____
 Ligne de la liste « à revérifier » confirmée corrigée ____ ⇒ elle sort du dossier à la révision suivante.
 
-**FIN · REV 34 · Simulation uniquement**
+**FIN · REV 35 · Simulation uniquement**
