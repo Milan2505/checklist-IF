@@ -19,7 +19,9 @@
 const ONGLETS = [
   { btn:el.btnValues, panneau:el.valuesSheet, ouvert:valuesOuvert },
   { btn:el.btnFms,    panneau:el.fmsSheet,    ouvert:fmsOuvert },
-  { btn:el.btnRev,    panneau:el.revSheet,    ouvert:revOuvert }
+  { btn:el.btnRev,    panneau:el.revSheet,    ouvert:revOuvert },
+  /* Liens : panneau statique, rien a faire a l'ouverture */
+  { btn:el.btnLiens,  panneau:el.liensSheet,  ouvert:()=>{} }
 ];
 
 function montrerOnglet(o, on){

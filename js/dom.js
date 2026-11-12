@@ -26,6 +26,9 @@ const el = {
   revCopy:  document.getElementById('revCopy'),
   revDl:    document.getElementById('revDl'),
   revBody:  document.getElementById('revBody'),
+  /* onglet Liens : statique, rien a charger */
+  btnLiens:  document.getElementById('btnLiens'),
+  liensSheet:document.getElementById('liensSheet'),
   btnLoad:  document.getElementById('btnLoad'),
   btnReset: document.getElementById('btnReset'),
   file:     document.getElementById('file'),

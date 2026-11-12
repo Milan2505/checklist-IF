@@ -405,3 +405,11 @@ Ajout d'interface, sans nouvelle REV ; `briefing.md` reste en REV 34 et n'est pa
 - Deux actions : **Copier** (presse-papiers, avec repli `execCommand` hors https) et **Télécharger .md**, nommé `briefing_prevol_IF_REVnn.md` d'après le premier « REV nn » du document. Aperçu rendu, replié.
 - Le fichier n'est pas lu par le parseur : ni badge, ni dossier chargé, ni feuille, ni cases ne bougent. L'onglet entre dans `ONGLETS` (`js/ui.js`) : un seul onglet ouvert à la fois.
 - Jeton de cache passé à `?v=41` (19 références : `js/rev.js` s'ajoute avant `js/ui.js`). Parseur, registre et `FIELDS` inchangés.
+
+## Onglet « Liens »
+
+Ajout d'interface, sans nouvelle REV ; `briefing.md` n'est pas modifié.
+
+- Nouvel onglet `Liens`, statique (écrit en dur dans `index.html`) : Flightradar24, SimBrief Dispatch, Waypoint Live, Claude (nouvelle conversation). Chaque lien s'ouvre dans un nouvel onglet du navigateur (`target="_blank"`, `rel="noopener noreferrer"`) ; aucune donnée du vol n'est transmise.
+- L'onglet entre dans `ONGLETS` (`js/ui.js`) : un seul onglet ouvert à la fois.
+- Jeton de cache passé à `?v=42` (19 références). Parseur, registre et `FIELDS` inchangés.
