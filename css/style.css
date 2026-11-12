@@ -162,6 +162,12 @@ header{
 .fms-methode summary:hover,.fms-methode[open] summary{color:var(--txt)}
 .fms-methode summary:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
 
+/* ---------- onglet Dernière REV ---------- */
+.rev-outils{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 14px 14px}
+.rev-info{flex:1 1 100%;margin:0;font-family:var(--mono);font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
+.rev-info b{color:var(--txt);font-weight:500}
+.btn:disabled{opacity:.45;cursor:default}
+
 .toast{
   position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:70;
   background:var(--panel-2);border:1px solid var(--line);color:var(--txt);

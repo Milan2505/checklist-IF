@@ -2,7 +2,7 @@
    OUTILS DE LA BARRE ET TOAST
    Onglets, nouveau vol, message ephemere.
    Depend de : data/fields.js, state.js, dom.js, render.js,
-   values.js (valuesOuvert), fms.js (fmsOuvert).
+   values.js (valuesOuvert), fms.js (fmsOuvert), rev.js (revOuvert).
 ============================================================ */
 /* ------------------------------------------------------------
    ONGLETS · UN SEUL MECANISME, UN SEUL ONGLET ACTIF
@@ -18,7 +18,8 @@
 ------------------------------------------------------------ */
 const ONGLETS = [
   { btn:el.btnValues, panneau:el.valuesSheet, ouvert:valuesOuvert },
-  { btn:el.btnFms,    panneau:el.fmsSheet,    ouvert:fmsOuvert }
+  { btn:el.btnFms,    panneau:el.fmsSheet,    ouvert:fmsOuvert },
+  { btn:el.btnRev,    panneau:el.revSheet,    ouvert:revOuvert }
 ];
 
 function montrerOnglet(o, on){

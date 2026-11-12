@@ -396,3 +396,12 @@ Correction en place, sans nouvelle REV ; `briefing.md` reste en REV 34 et n'est 
 | Feuille `feuille_QFA7_YSSY-KDFW_REV34_v3.md` | **passé** : « 79 lignes », aucune alerte (attendu lu dans la page : 79) ; « INIT · ALTN RTE » affiche DARTZ9 TORNN GUSHR3 en 20 px cyan ; « INIT · CPNY RTE » en style contrôle, NONE ; feuille REV 34 à 49/49, 64 valeurs, aucun bandeau |
 | Page rechargée | **passé** : REV 34 reconnue, aucun bandeau, aucune erreur ; suite complète identique au commit précédent |
 | LF, tiret long | **passé** |
+
+## Onglet « Dernière REV » · briefing publié à copier ou télécharger
+
+Ajout d'interface, sans nouvelle REV ; `briefing.md` reste en REV 34 et n'est pas modifié.
+
+- Nouvel onglet `Dernière REV` (`js/rev.js`) : à chaque ouverture, `briefing.md` est redemandé au serveur (`cache: no-store`). Pousser un nouveau `briefing.md` sur `main` suffit donc pour que l'onglet montre la nouvelle REV, sans autre étape.
+- Deux actions : **Copier** (presse-papiers, avec repli `execCommand` hors https) et **Télécharger .md**, nommé `briefing_prevol_IF_REVnn.md` d'après le premier « REV nn » du document. Aperçu rendu, replié.
+- Le fichier n'est pas lu par le parseur : ni badge, ni dossier chargé, ni feuille, ni cases ne bougent. L'onglet entre dans `ONGLETS` (`js/ui.js`) : un seul onglet ouvert à la fois.
+- Jeton de cache passé à `?v=41` (19 références : `js/rev.js` s'ajoute avant `js/ui.js`). Parseur, registre et `FIELDS` inchangés.
