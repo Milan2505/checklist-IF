@@ -1457,6 +1457,7 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 | C208 Caravan | 2 109 kg | `[SIM]`, donné par Milan le 12/09/2026, livrée TI-BDL | 3 969 / 3 856 |
 | CRJ-1000 (`CRJX`) | 21 069 kg | `[SIM]`, écran Poids et centrage tous postes à zéro, 23/10/2026 | 41 640 / 36 968 |
 | A380-800 (`A388`) | 276 630 kg | `[SIM]`, écran Poids et centrage tous postes à zéro, 31/10/2026 | 575 000 / 395 000 |
+| A320neo (`A20N`) | 44 300 kg | `[SIM]`, écran Poids et centrage tous postes à zéro, 31/10/2026, reconfirmé le 12/11/2026 | 79 000 / 68 400 |
 | ____ | ____ | ____ | ____ |
 
 ⇒ Les limites du CRJX lues dans IF sont exactement celles du CRJ1000 réel `[TIERS]`, manuel Aerosoft CRJ : le type du sélecteur est donc bien le -1000.
