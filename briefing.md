@@ -1466,6 +1466,9 @@ Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des vale
 | A320neo (`A20N`) | 44 300 kg | `[SIM]`, écran Poids et centrage tous postes à zéro, 31/10/2026, reconfirmé le 12/11/2026 | 79 000 / 68 400 |
 | ____ | ____ | ____ | ____ |
 
+⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0.4). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
+⚠ Ne jamais déduire la masse à vide d'un type de celle d'un type voisin : l'écart constaté sur l'A321 était de 4 900 kg, soit 4,9 t d'erreur sur le ZFW, donc sur les vitesses et la flex.
+⚠ Deux variantes d'A330 partagent la même masse à vide pour des MTOW différents : le MTOW ne suffit donc pas à identifier la variante volée, et la ligne se choisit sur ce que Milan annonce.
 ⇒ Les limites du CRJX lues dans IF sont exactement celles du CRJ1000 réel `[TIERS]`, manuel Aerosoft CRJ : le type du sélecteur est donc bien le -1000.
 
 **MASSE PAR PASSAGER DANS IF** `[SIM]` : 76,5 kg sur A21N (138 passagers pour 10 557 kg), environ 77 kg sur A350-900 (441 pour 33 910 kg).
@@ -1484,10 +1487,6 @@ A20N, environ 2,1 t/h en moyenne montée comprise `[CALC]`, sur un seul vol (VY1
 | ____ | ____ | ____ | ____ | ____ |
 
 ⇒ Un seul relevé, sur une route que SimBrief a fait passer par Palma et la côte nord-africaine : il ne recale rien à lui seul.
-
-⇒ c'est cette valeur qui sert à forcer le ZFW au temps 1 (§0.4). Type déjà présent ici : je l'utilise sans rien redemander. Type absent : alerte du §A.2.
-⚠ Ne jamais déduire la masse à vide d'un type de celle d'un type voisin : l'écart constaté sur l'A321 était de 4 900 kg, soit 4,9 t d'erreur sur le ZFW, donc sur les vitesses et la flex.
-⚠ Deux variantes d'A330 partagent la même masse à vide pour des MTOW différents : le MTOW ne suffit donc pas à identifier la variante volée, et la ligne se choisit sur ce que Milan annonce.
 
 **IDENTIFICATION ET ÉQUIPEMENT — REGISTRE**
 
