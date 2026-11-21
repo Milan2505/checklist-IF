@@ -413,3 +413,26 @@ Ajout d'interface, sans nouvelle REV ; `briefing.md` n'est pas modifié.
 - Nouvel onglet `Liens`, statique (écrit en dur dans `index.html`) : Flightradar24, SimBrief Dispatch, Waypoint Live, Claude (nouvelle conversation). Chaque lien s'ouvre dans un nouvel onglet du navigateur (`target="_blank"`, `rel="noopener noreferrer"`) ; aucune donnée du vol n'est transmise.
 - L'onglet entre dans `ONGLETS` (`js/ui.js`) : un seul onglet ouvert à la fois.
 - Jeton de cache passé à `?v=42` (19 références). Parseur, registre et `FIELDS` inchangés.
+
+## Onglet « FMS Airbus » · tutoriel MCDU en 92 captures
+
+Consignes `consignes_claude_code_FMS_Airbus.md`. Ajout d'interface, sans nouvelle REV ; `briefing.md` reste en REV 35 et n'est pas modifié. Parseur, registre et `FIELDS` inchangés.
+
+- Fichiers fournis, ajoutés tels quels : `img/fms-airbus/fms-airbus-01.jpg` à `fms-airbus-92.jpg` (92 fichiers, 16 Mo, originaux non recompressés), `js/data/fms_airbus.js`, `js/fmsairbus.js`.
+- Nouvel onglet `FMS Airbus`, juste après `A380-800 FMS` dans la barre. Le contenu se construit une seule fois, à la première ouverture (`fmsAirbusOuvert()`) : 11 bandeaux `details`, fermés par défaut, une étape par capture, numérotées de 1 à 92. Les images sont en chargement différé (`loading="lazy"`) : aucune n'est téléchargée tant que son bandeau reste fermé.
+- Un clic sur une capture ouvre le fichier original dans un nouvel onglet (`target="_blank"`, `rel="noopener"`).
+- L'onglet entre dans `ONGLETS` (`js/ui.js`), après A380-800 FMS : un seul onglet ouvert à la fois. Nœuds `btnFmsAirbus`, `fmsAirbusSheet` et `fmsAirbusBody` dans `js/dom.js`, règles `.fa-*` dans `css/style.css`.
+- Jeton de cache passé à `?v=45` (21 références : `js/data/fms_airbus.js` après `js/data/fields.js`, `js/fmsairbus.js` après `js/rev.js`).
+
+Mesuré dans Chrome headless sur un export LF de l'index, identique à ce qui est poussé, puis la même mesure sur HEAD pour comparer.
+
+| Contrôle | Résultat |
+|---|---|
+| 1 · Ouverture | **passé** : 11 bandeaux, tous fermés ; aucune erreur ni avertissement console, erreurs de ressource comprises |
+| 2 · Étapes et images | **passé** : 92 étapes, `document.querySelectorAll('.fa-img img')` donne 92 éléments, `naturalWidth > 0` pour les 92, tous en 2576 × 1184 ; numéros 1 à 92 consécutifs, fichiers 01 à 92 dans l'ordre ; étapes par bandeau : 14, 7, 8, 4, 14, 4, 3, 4, 3, 15, 16 |
+| 3 · Clic sur une capture | **passé** : 92 liens dont le `href` est le fichier de l'image, tous en `target="_blank"` ; clic simulé sur la capture 45 : lien vers `fms-airbus-45.jpg`, non bloqué par la page. L'ouverture effective du nouvel onglet ne s'observe pas en headless |
+| 4 · Onglets, page rechargée | **passé** : séquence de 12 clics sur les cinq onglets, un seul actif à chaque clic ; contenu construit une seule fois ; dossier REV 35 reconnu (32 renvois sur 32), aucun bandeau ; `header` et `main`, hors nœuds FMS Airbus, identiques nœud pour nœud à HEAD |
+| Rendu | capture à 500 px : images en pleine largeur (427 px), aucun débordement mesuré (`scrollWidth` égal à `clientWidth`) |
+| 5 · LF, tiret long | **passé** : aucun retour chariot dans les fichiers modifiés ou ajoutés ; aucun tiret long dans les lignes ajoutées. Les 7 tirets longs déjà présents (`<title>` et un commentaire d'`index.html`, 5 commentaires de `style.css`) ne sont pas touchés |
+
+À signaler, hors consignes : dans la copie de travail, `briefing.md` est en CRLF depuis un checkout antérieur. Ouverte en local depuis le disque, la page ne reconnaîtrait pas le dossier. Le dépôt et le site servent du LF ; fichier non modifié.

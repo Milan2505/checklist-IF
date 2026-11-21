@@ -18,6 +18,10 @@ const el = {
   fmsSheet: document.getElementById('fmsSheet'),
   fmsBody:  document.getElementById('fmsBody'),
   fmsVol:   document.getElementById('fmsVol'),
+  /* onglet FMS Airbus (fmsairbus.js) : tutoriel en captures, statique */
+  btnFmsAirbus:  document.getElementById('btnFmsAirbus'),
+  fmsAirbusSheet:document.getElementById('fmsAirbusSheet'),
+  fmsAirbusBody: document.getElementById('fmsAirbusBody'),
   /* onglet Derniere REV (rev.js) */
   btnRev:   document.getElementById('btnRev'),
   revSheet: document.getElementById('revSheet'),
