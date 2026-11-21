@@ -25,6 +25,7 @@ function paintFms(){
   el.btnFms.hidden = !on;
   if(!on) fermerOnglet(el.btnFms);
   paintFmsVol();
+  paintFmsAirbusVol();               /* REV 37 : onglet FMS Airbus (fmsairbus.js) */
 }
 
 /* ------------------------------------------------------------
@@ -35,13 +36,14 @@ function paintFms(){
    FIELDS, ni validation, ni bandeau. Le parseur des cartouches ignore deja
    ce tableau a trois colonnes, sans rien signaler.
 ------------------------------------------------------------ */
-const FMS_SECTION = '## SAISIE FMS A388';
+const FMS_SECTION = /^## SAISIE FMS A388\b/;
 let fmsSource;                      /* feuille deja rendue : on ne relit pas a chaque frappe */
 
-function saisieFms(txt){
+function saisieFms(txt, motif){
+  motif = motif || FMS_SECTION;
   if(!txt) return null;
   const lignes = txt.split('\n').map(l=> l.replace(/\r$/,''));
-  const debut = lignes.findIndex(l=> l.indexOf(FMS_SECTION) === 0);
+  const debut = lignes.findIndex(l=> motif.test(l));
   if(debut < 0) return null;
   let fin = lignes.length;
   for(let k = debut+1; k < lignes.length; k++){
@@ -88,11 +90,26 @@ function fmsAttendu(){
   return null;
 }
 
-function compteFms(n){
-  const att = fmsAttendu();
+function compteFms(n, att, ref){
   return '<div class="fms-compte">'+n+' ligne'+(n > 1 ? 's' : '')+
-    (att !== null && n !== att ? ' <span class="fms-ecart">attendu : '+att+' (gabarit §15)</span>' : '')+
+    (att !== null && n !== att ? ' <span class="fms-ecart">attendu : '+att+' ('+ref+')</span>' : '')+
     '</div>';
+}
+
+/* REV 37 · rendu commun aux onglets A380-800 FMS et FMS Airbus */
+function htmlSaisie(s, att, ref){
+  const pages = [], parPage = {};
+  s.rows.forEach(r=>{
+    if(!parPage[r.page]){ parPage[r.page] = []; pages.push(r.page); }
+    parPage[r.page].push(r);
+  });
+  return '<div class="fms-vol-t">À taper pour ce vol</div>'+
+    compteFms(s.rows.length, att, ref)+
+    pages.map(p=>
+      '<div class="fms-page"><div class="fms-page-t">'+esc(p)+'</div><dl class="fms-lignes">'+
+      parPage[p].map(r=> '<dt>'+esc(r.champ)+'</dt>'+saisieDd(r.saisie)).join('')+
+      '</dl></div>').join('')+
+    (s.apres ? '<div class="md fms-note">'+md2html(s.apres)+'</div>' : '');
 }
 
 function paintFmsVol(){
@@ -103,20 +120,7 @@ function paintFmsVol(){
     el.fmsVol.innerHTML = '<div class="empty-state">Aucune valeur FMS dans la feuille chargée.</div>';
     return;
   }
-  /* groupe par page FMS, dans l'ordre ou le tableau les donne */
-  const pages = [], parPage = {};
-  s.rows.forEach(r=>{
-    if(!parPage[r.page]){ parPage[r.page] = []; pages.push(r.page); }
-    parPage[r.page].push(r);
-  });
-  el.fmsVol.innerHTML =
-    '<div class="fms-vol-t">À taper pour ce vol</div>'+
-    compteFms(s.rows.length)+
-    pages.map(p=>
-      '<div class="fms-page"><div class="fms-page-t">'+esc(p)+'</div><dl class="fms-lignes">'+
-      parPage[p].map(r=> '<dt>'+esc(r.champ)+'</dt>'+saisieDd(r.saisie)).join('')+
-      '</dl></div>').join('')+
-    (s.apres ? '<div class="md fms-note">'+md2html(s.apres)+'</div>' : '');
+  el.fmsVol.innerHTML = htmlSaisie(s, fmsAttendu(), 'gabarit §15');
 }
 
 /* a l'ouverture de l'onglet (ui.js) : la page est demandee une seule fois.

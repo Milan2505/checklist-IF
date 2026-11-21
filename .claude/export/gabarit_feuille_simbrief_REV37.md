@@ -3,11 +3,11 @@
 **GABARIT VIERGE**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
-Dossier de référence : REV 36. Six cartouches, 49 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
+Dossier de référence : REV 37. Six cartouches, 49 cellules. Les cellules porte suivent les trois niveaux du §A.4 : porte relevée, sinon terminal préfixé `T`, sinon `NIL`.
 
 Les cases déjà remplies sont les réglages permanents, identiques d'un vol à l'autre. Les cases vides se remplissent au vol. Aucune ne se laisse vide à la livraison : la méthode d'estimation de chacune est au §A.4 du dossier.
 
-⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 36, section par section. S'il contredit le dossier, c'est lui qui est périmé.
+⚠ Ce gabarit est un **dérivé du dossier**, jamais une source. La numérotation ci-dessous est celle du §0 de la REV 37, section par section. S'il contredit le dossier, c'est lui qui est périmé.
 
 ---
 
@@ -251,7 +251,7 @@ n/a, décidé et assumé.
 
 ## SAISIE FMS <type> (§7.A)
 
-⚠ Section présente seulement si le type volé a une page de méthode FMS relevée (§A.6). Au 05/11/2026 : `A388` seulement. Pour tout autre type, supprimer cette section. Une valeur par cellule, au format de saisie du FMS (tonnes à une décimale) ; `contrôle : <valeur>` pour ce qui est importé ou calculé ; `vide` pour ce qui reste vide. Les 79 lignes ci-dessous sont celles du gabarit §15 de `page_A380-800_FMS.md`, dans cet ordre.
+⚠ Section présente seulement pour un vol `A388` (§A.6). Vol famille A320 : supprimer cette section et garder la suivante. Tout autre type : supprimer les deux. Une valeur par cellule, au format de saisie du FMS (tonnes à une décimale) ; `contrôle : <valeur>` pour ce qui est importé ou calculé ; `vide` pour ce qui reste vide. Les 79 lignes ci-dessous sont celles du gabarit §15 de `page_A380-800_FMS.md`, dans cet ordre.
 
 | Page FMS | Champ | Saisie |
 |---|---|---|
@@ -339,6 +339,59 @@ Paragraphe des valeurs à confirmer à l'écran, avec leur marqueur de source.
 
 **Chargement dans IF.** Passagers à environ 77 kg chacun dans IF : fret à ajouter en soute pour retrouver la charge utile de SimBrief.
 
+
+---
+
+## SAISIE FMS <type> (§2.5)
+
+⚠ Section présente seulement pour un vol `A318` `A319` `A320` `A321` `A19N` `A20N` ou `A21N` (§A.6). Pour tout autre type, supprimer cette section. Une valeur par cellule ; tonnes à une décimale ; `contrôle : <valeur>` pour ce qui est importé ; `vide` pour ce qui reste vide. Les 39 lignes ci-dessous sont celles du gabarit §2.5 du dossier, dans cet ordre.
+
+| Page FMS | Champ | Saisie |
+|---|---|---|
+| INIT | Première action | |
+| INIT | FROM | |
+| INIT | TO | |
+| INIT | FLT NBR | |
+| INIT | ALTN | |
+| INIT | COST INDEX | |
+| INIT | CRZ FL | |
+| INIT | CRZ TEMP | |
+| INIT 2/2 | ZFW | |
+| INIT 2/2 | BLOCK | |
+| PERF TAKE OFF | RWY | |
+| PERF TAKE OFF | V1 | |
+| PERF TAKE OFF | VR | |
+| PERF TAKE OFF | V2 | |
+| PERF TAKE OFF | FLAPS/THS | |
+| PERF TAKE OFF | FLEX TO TEMP | |
+| DEPARTURE | RWY | |
+| DEPARTURE | SID | |
+| DEPARTURE | TRANS | |
+| DEPARTURE | Validation | |
+| AIRWAYS | Route | |
+| F-PLN | Points hors airway | |
+| F-PLN | Points en coordonnées | |
+| ARRIVAL | APPR | |
+| ARRIVAL | VIA | |
+| ARRIVAL | STAR | |
+| ARRIVAL | Validation | |
+| VERT REV | ALT CSTR | |
+| F-PLN | DIST | |
+| PERF APPR | ILS | |
+| PERF APPR | TRANS LVL | |
+| PERF APPR | VAPP | |
+| PERF APPR | LDG CONF | |
+| HOLD | Point | |
+| HOLD | INB CRS | |
+| HOLD | TURN | |
+| HOLD | TIME/DIST | |
+| RAD NAV | VOR1/ILS | |
+| RAD NAV | CRS | |
+
+Valeurs à confirmer à l'écran :
+
+**Chargement dans IF.** Passagers à environ 77 kg chacun dans IF : fret à ajouter en soute pour retrouver la charge utile de SimBrief.
+
 ---
 
 # SOURCES ET MÉTHODE
@@ -353,7 +406,7 @@ Un paragraphe par famille, à écrire au vol : identité, pistes, portes, dégag
 - [ ] **Aucun libellé du registre ne figure hors cartouche**, et aucun champ du §0 portant un libellé du registre n'est laissé sans valeur en colonne « À taper ».
 - [ ] **Aucune cellule ne porte de marqueur autre que les six retirés à la lecture** : `[OFP]` `[FORM]` `[NAV]` `[SIM]` `[RDR]` `[CALC]`. `[WIP]` disqualifie, `[MANQUE]` seul vaut « non fourni », `[DOC]` et `[TIERS]` vivent en prose, tout le reste est rejeté en étant nommé (§Conventions). *Ligne ajoutée en REV 21, en même temps que le contrôle correspondant dans le parseur.*
 - [ ] **Chaque vitesse des cartouches ③ et ⑥ a son rang de source nommé en prose (§5.1)**, et ni `Vapp` ni `Plancher finale` n'est sous un plancher observé du type. *Ligne ajoutée en REV 32.*
-- [ ] **Type à page FMS relevée (A388) : la section SAISIE FMS compte 79 lignes**, aucune cellule de temps, aucune valeur avec une barre (§A.6). *Ligne ajoutée en REV 34.*
+- [ ] **Section SAISIE FMS : 79 lignes pour l'A388, 39 pour la famille A320**, aucune cellule de temps, aucune valeur avec une barre (§A.6). *Ligne ajoutée en REV 34.*
 
 ---
 

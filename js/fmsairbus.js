@@ -32,3 +32,34 @@ function fmsAirbusOuvert(){
       '<ol class="fa-etapes">'+etapes+'</ol></details>';
   }).join('');
 }
+
+/* ------------------------------------------------------------
+   REV 37 · VALEURS FMS DE LA FEUILLE, FAMILLE A320
+   Section « ## SAISIE FMS <type> » d'un type A318 a A21N, lue dans le
+   texte brut de la feuille par saisieFms (fms.js), comme l'A388 :
+   ni registre, ni FIELDS, ni bandeau. Compte attendu lu dans le §2.5
+   du dossier charge (« 39 lignes »), jamais ecrit ici.
+------------------------------------------------------------ */
+const FA_SECTION = /^## SAISIE FMS (A318|A319|A320|A321|A19N|A20N|A21N)\b/;
+let faSource, faDoc;
+
+function faAttendu(){
+  if(!state.doc) return null;
+  const l = state.doc.split('\n');
+  const d = l.findIndex(x=> /^###\s+2\.5\b/.test(x));
+  if(d < 0) return null;
+  for(let k = d+1; k < l.length && !/^#{1,3}\s/.test(l[k]); k++){
+    const m = l[k].match(/(\d+)\s+lignes/);
+    if(m) return +m[1];
+  }
+  return null;
+}
+
+function paintFmsAirbusVol(){
+  if(faSource === state.sheet && faDoc === state.doc) return;
+  faSource = state.sheet; faDoc = state.doc;
+  const s = saisieFms(state.sheet, FA_SECTION);
+  el.fmsAirbusVol.innerHTML = s
+    ? htmlSaisie(s, faAttendu(), 'gabarit §2.5 du dossier')
+    : '<div class="empty-state">Aucune valeur FMS Airbus dans la feuille chargée.</div>';
+}

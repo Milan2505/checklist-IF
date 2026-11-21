@@ -22,6 +22,7 @@ const el = {
   btnFmsAirbus:  document.getElementById('btnFmsAirbus'),
   fmsAirbusSheet:document.getElementById('fmsAirbusSheet'),
   fmsAirbusBody: document.getElementById('fmsAirbusBody'),
+  fmsAirbusVol:  document.getElementById('fmsAirbusVol'),
   /* onglet Derniere REV (rev.js) */
   btnRev:   document.getElementById('btnRev'),
   revSheet: document.getElementById('revSheet'),

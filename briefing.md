@@ -1,25 +1,22 @@
 # BRIEFING PRÉ-VOL : INFINITE FLIGHT
 
-**REV 36**
+**REV 37**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
 
-## CE QUI CHANGE DEPUIS LA REV 35
+## CE QUI CHANGE DEPUIS LA REV 36
 
-**Objet de la révision : le §A.5 décrit enfin le code tel qu'il est, et l'onglet FMS Airbus entre au dossier.** Le parseur a été lu fichier par fichier et exécuté sur les feuilles du dépôt le 21/11/2026 : les défauts de lecture notés ouverts depuis la REV 30 sont corrigés dans le code, et le §A.5 les décrivait encore comme présents.
+**Objet de la révision : la famille A320 a sa section SAISIE FMS, comme l'A388.** La feuille d'un vol A318, A319, A320, A321, A19N, A20N ou A21N porte désormais ses valeurs MCDU, et l'onglet FMS Airbus de la page les affiche en tête, au-dessus du tutoriel.
 
 | # | Objet | Nature |
 |---|---|---|
-| 1 | §A.5 règles 1 et 2 : deux nombres séparés par un blanc sont refusés, plus soudés | correction |
-| 2 | §A.5 règle 4 : parenthèse de traduction tranchée par observation, les deux écritures sont lues | point fermé |
-| 3 | §A.5 genre des 49 clés : répartition lue dans le code ; Flex et FUEL FACTOR en `code`, Type et Point inbound en `text` | correction |
-| 4 | §A.5 marqueurs et borne du cap : casse, crochet fermant, marqueur sur libellé, prose après refus, tous tenus par le code | correction |
-| 5 | §8 : six points ouverts fermés ; un point ajouté pour les gestes de l'onglet FMS Airbus | mise à jour |
-| 6 | Nouveau §2.4 : onglet FMS Airbus de la page en ligne, tutoriel MCDU en 92 captures `[TIERS]` | ajout |
-| 7 | Gabarit vierge refait en REV 36 : `Selected Route` à `vide` (règle de la REV 35), notes du parseur mises à jour | dérivé |
+| 1 | Nouveau §2.5 : gabarit de la section `## SAISIE FMS <type>` de la famille A320, 39 lignes | ajout |
+| 2 | §A.6 : deux gabarits, A388 (79 lignes) et famille A320 (39 lignes) ; titre de section selon le type | précision |
+| 3 | §8 : noms de pages et de champs du gabarit §2.5 à confirmer sur un vol | ajout |
+| 4 | Gabarit vierge refait en REV 37 : section SAISIE FMS famille A320 ajoutée | dérivé |
 
-⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni au §0, ni aux six cartouches, ni à leurs libellés, ni au §A.6. Les 49 cellules sont inchangées. Aucune ligne de code n'est modifiée : c'est le dossier qui rattrape le code.
+⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni au §0, ni aux six cartouches, ni au §A.4, ni au §A.5. Les 49 cellules sont inchangées, aucune clé n'entre au registre.
 
 ## RÈGLE DE NON-RÉPÉTITION
 
@@ -452,22 +449,29 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 
 ## A.6 · SECTION SAISIE FMS
 
-**Quand.** Obligatoire dans toute feuille dont le type a une page de méthode FMS relevée sur captures. Au 31/10/2026 : `A388` seulement, page `page_A380-800_FMS.md`. Un type sans page de méthode n'a pas de section.
+**Quand.** Obligatoire dans toute feuille dont le type a un gabarit de saisie FMS. Au 21/11/2026, deux gabarits :
 
-**Titre.** `## SAISIE FMS <type> (§7.A)`, avec le code OACI du type.
+| Types | Titre de la section | Gabarit | Lignes | Onglet qui l'affiche |
+|---|---|---|---|---|
+| `A388` | `## SAISIE FMS A388 (§7.A)` | §15 de `page_A380-800_FMS.md` | 79 | A380-800 FMS |
+| `A318` `A319` `A320` `A321` `A19N` `A20N` `A21N` | `## SAISIE FMS <type> (§2.5)` | §2.5 de ce dossier | 39 | FMS Airbus |
 
-**Tableau.** Trois colonnes `Page FMS | Champ | Saisie`. Les lignes sont celles du gabarit de la page de méthode (§15 pour l'A388), dans le même ordre, toutes présentes : aucune ligne retirée, aucune ajoutée.
+Un type sans gabarit n'a pas de section.
+
+**Titre.** Celui du tableau ci-dessus, avec le code OACI exact du type volé. La page reconnaît la section à ce titre : un autre code n'est affiché par aucun onglet.
+
+**Tableau.** Trois colonnes `Page FMS | Champ | Saisie`. Les lignes sont celles du gabarit du type, dans le même ordre, toutes présentes : aucune ligne retirée, aucune ajoutée.
 
 **Cellule Saisie.**
-1. Valeur à taper : la valeur nue, au format de saisie du FMS (tonnes à une décimale sur l'A388).
+1. Valeur à taper : la valeur nue, au format de saisie du FMS (tonnes à une décimale sur l'A388 comme sur la famille A320).
 2. Valeur importée ou calculée par le FMS, à comparer sans la retaper : `contrôle : <valeur>`.
 3. Champ à laisser vide : `vide`.
 4. Valeur inconnue au temps 1 : la source qui la donnera (par exemple `route de dégagement de l'OFP`), jamais une case blanche ; elle est remplacée au temps 2.
-5. Première ligne : `INIT | Première action | appuyer sur SIMBRIEF REQUEST`.
+5. Première ligne : celle du gabarit du type (`appuyer sur SIMBRIEF REQUEST` sur l'A388).
 
 **Sous le tableau.** Un paragraphe des valeurs à confirmer à l'écran, avec leur marqueur de source, puis le paragraphe « Chargement dans IF » (fret à ajouter en soute).
 
-**Contrôle avant envoi.** Le nombre de lignes du tableau est égal à celui du gabarit (79 pour l'A388). La page en ligne affiche ce compte et signale un écart.
+**Contrôle avant envoi.** Le nombre de lignes du tableau est égal à celui du gabarit (79 pour l'A388, 39 pour la famille A320). La page en ligne affiche ce compte et signale un écart. Pour la famille A320, le compte attendu est lu dans le §2.5 du dossier chargé : sans dossier chargé, aucun écart n'est signalé.
 
 ⇒ Ce tableau n'est pas lu par le parseur des cartouches ; il n'ajoute aucune clé au registre.
 
@@ -883,6 +887,56 @@ La page en ligne porte un onglet **FMS Airbus** : un tutoriel communautaire du M
 
 ⚠ **Contradiction signalée, pas arbitrée (§A.3 règle 7).** Le §2.3 écrit que RAD NAV accorde seul l'ILS d'arrivée dès l'import ; le tutoriel saisit la fréquence à la main vers 10 NM, pour ne pas accrocher le localizer d'un autre terrain. Les deux se vérifient au prochain vol : la course affichée en RAD NAV doit être celle de la piste d'arrivée.
 ⚠ **Rang `[TIERS]` : rien de cet onglet ne remplace une observation `[SIM]`.** Les pages HOLD et AIRWAYS passent au §2.1 le jour où Milan les ouvre dans son build (§8). La méthode CRZ TEMP et la lecture du Runway Analysis rejoignent les règles déjà écrites au §2.2 ③ et au §A.4.
+
+### 2.5 · GABARIT DE LA SECTION SAISIE FMS · FAMILLE A320 *(REV 37)*
+
+Liste de référence pour toute feuille d'un type de la famille A320 (`A318` `A319` `A320` `A321` `A19N` `A20N` `A21N`) : 39 lignes, dans cet ordre, sans en retirer ni en ajouter (§A.6). La colonne de droite dit ce qu'on écrit dans la cellule Saisie de la feuille. Titre de la section dans la feuille : `## SAISIE FMS <type> (§2.5)`.
+
+| Page FMS | Champ | Contenu de la cellule Saisie |
+|---|---|---|
+| INIT | Première action | texte fixe : importer le vol SimBrief, puis relire la vue de briefing (§2.1) |
+| INIT | FROM | contrôle : OACI départ |
+| INIT | TO | contrôle : OACI arrivée |
+| INIT | FLT NBR | contrôle : indicatif ATC de la feuille |
+| INIT | ALTN | dégagement de la feuille ; l'import ne l'apporte pas (§2.1) |
+| INIT | COST INDEX | contrôle : cost index de l'OFP |
+| INIT | CRZ FL | niveau initial, format FL### |
+| INIT | CRZ TEMP | OAT de la ligne T O C du navlog, format -## (M38 s'écrit -38) |
+| INIT 2/2 | ZFW | contrôle : Poids zéro carburant du cartouche ⑤, en tonnes à une décimale ; l'import n'est pas fidèle (§2.3) |
+| INIT 2/2 | BLOCK | contrôle : BLOC du cartouche ④, en tonnes à une décimale |
+| PERF TAKE OFF | RWY | contrôle : Piste départ du cartouche ② |
+| PERF TAKE OFF | V1 | contrôle : V1 du cartouche ③ |
+| PERF TAKE OFF | VR | contrôle : VR du cartouche ③ |
+| PERF TAKE OFF | V2 | contrôle : V2 du cartouche ③ |
+| PERF TAKE OFF | FLAPS/THS | contrôle : Volets du cartouche ③ |
+| PERF TAKE OFF | FLEX TO TEMP | contrôle : Flex du cartouche ③ |
+| DEPARTURE | RWY | Piste départ du cartouche ② |
+| DEPARTURE | SID | SID de l'OFP |
+| DEPARTURE | TRANS | transition de l'OFP, sinon NONE |
+| DEPARTURE | Validation | texte fixe : INSERT* |
+| AIRWAYS | Route | Selected Route de l'OFP ; chaque airway par LAT REV, AIRWAYS, VIA puis TO |
+| F-PLN | Points hors airway | points de l'OFP à saisir un par un, sinon vide |
+| F-PLN | Points en coordonnées | format 0911N/12434, sinon vide |
+| ARRIVAL | APPR | approche de la Piste arrivée, format ILS24 |
+| ARRIVAL | VIA | transition d'approche, sinon NONE |
+| ARRIVAL | STAR | STAR de l'OFP |
+| ARRIVAL | Validation | texte fixe : INSERT* |
+| VERT REV | ALT CSTR | contraintes de la SID et de la STAR, point puis altitude au format 5000 ou FL350, sinon vide |
+| F-PLN | DIST | contrôle : distance de l'OFP, écart au plus 10 NM ou 2 % (§2.2 ①) |
+| PERF APPR | ILS | contrôle : ILS du cartouche ③ |
+| PERF APPR | TRANS LVL | contrôle : niveau de transition du terrain d'arrivée |
+| PERF APPR | VAPP | contrôle : Vapp du cartouche ③ ; écart supérieur à 5 kt, la feuille fait foi (§2.3) |
+| PERF APPR | LDG CONF | contrôle : configuration d'atterrissage retenue |
+| HOLD | Point | point de l'attente publiée de l'arrivée, sinon vide |
+| HOLD | INB CRS | course d'entrée publiée, sinon vide |
+| HOLD | TURN | L ou R, sinon vide |
+| HOLD | TIME/DIST | durée de branche en minutes, sinon vide |
+| RAD NAV | VOR1/ILS | ILS du cartouche ③, à taper vers 10 NM du terrain (§2.4) |
+| RAD NAV | CRS | contrôle : course de la Piste arrivée |
+
+⇒ L'ordre est celui du remplissage au MCDU, celui du tutoriel de l'onglet FMS Airbus (§2.4), complété des contrôles du §2.2 et de la page APPR du §2.1.
+⇒ THR RED, ACCEL ALT et l'altitude de transition n'ont pas de ligne : ils sont absents du MCDU et se tiennent à la main (§2.3), depuis le cartouche ③.
+⚠ **Noms de pages et de champs relevés sur le build 18266 et sur le tutoriel `[TIERS]`.** La page INIT 2/2, la page PERF APPR et la ligne LDG CONF n'ont pas été relevées à l'écran sous la 26.4 : point ouvert au §8. Un nom faux se corrige ici, en place ; le compte de 39 ne change que si une ligne entre ou sort.
 
 ---
 
@@ -1437,6 +1491,7 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 | **Approche automatique CAT3 DUAL** (§6.7) | un vol : le FMA l'affiche ou il ne l'affiche pas | REV 24 |
 | **`Altitude (Pieds)` rendue en niveau de vol** (§A.5) | décision, pas observation : ce rendu est voulu ou il ne l'est pas. S'il l'est, il s'écrit comme tel ; sinon il se retire | REV 30 |
 | **A388 : champs remplis par l'import** (§7.A) | un deuxième vol A388 après import | REV 33 |
+| **Gabarit SAISIE FMS famille A320** (§2.5) : pages INIT 2/2 et PERF APPR, champ LDG CONF | un vol famille A320 : chaque nom de page et de champ se lit à l'écran | REV 37 |
 | **Gestes de l'onglet FMS Airbus dans le build** (§2.4) : pages HOLD et AIRWAYS, RAD NAV saisi à la main | un vol : chaque page s'ouvre ou ne s'ouvre pas, et la course ILS affichée se compare à la piste | REV 36 |
 
 ⚠ **Le §6.7 ne bloque rien non plus.** Une approche automatique qui n'existe pas dans le build ne bloque aucun départ : elle ne se briefe pas, voilà tout.
@@ -1535,4 +1590,4 @@ TD IAS / GS ____ / ____ · Vz au toucher ____ fpm · G max ____ · écart d'axe 
 Comportement inattendu observé ____ · valeur affichée jugée fausse ____ · ligne du §2.3 à corriger ____
 Ligne de la liste « à revérifier » confirmée corrigée ____ ⇒ elle sort du dossier à la révision suivante.
 
-**FIN · REV 36 · Simulation uniquement**
+**FIN · REV 37 · Simulation uniquement**
