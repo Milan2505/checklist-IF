@@ -1,22 +1,25 @@
-# BRIEFING PRÉ-VOL — INFINITE FLIGHT
+# BRIEFING PRÉ-VOL : INFINITE FLIGHT
 
-**REV 35**
+**REV 36**
 Document de simulation. Aucune valeur opérationnelle réelle.
 
 ---
 
-## CE QUI CHANGE DEPUIS LA REV 34
+## CE QUI CHANGE DEPUIS LA REV 35
 
-**Objet de la révision : la route se laisse à SimBrief.** Constat du vol VY1158 du 12/11/2026 : la route de la feuille, tirée d'anciens plans publics, faisait 700 NM ; SimBrief en a retenu une autre, volée sur 854 NM. SimBrief construit sa route sur le cycle AIRAC en vigueur, avec les voies ouvertes et le vent du jour ; la feuille n'a pas de base de navigation.
+**Objet de la révision : le §A.5 décrit enfin le code tel qu'il est, et l'onglet FMS Airbus entre au dossier.** Le parseur a été lu fichier par fichier et exécuté sur les feuilles du dépôt le 21/11/2026 : les défauts de lecture notés ouverts depuis la REV 30 sont corrigés dans le code, et le §A.5 les décrivait encore comme présents.
 
 | # | Objet | Nature |
 |---|---|---|
-| 1 | §0.7 : `Selected Route` sort à `vide`, SimBrief génère la route ; la valeur attendue porte l'orthodromie et la distance de route estimée | règle d'écriture |
-| 2 | §0 règle de remplissage : `Selected Route` est la seule case du formulaire qui sort à `vide` | exception |
-| 3 | §A.4 méthode du `Trip` et §0.4 bloc horaire : ETE calculé sur la distance de route estimée, orthodromie × 1,20 | méthode |
-| 4 | §9 : nouveau registre « distance volée / orthodromie », premier relevé ; consommation A20N relevée | ajout |
+| 1 | §A.5 règles 1 et 2 : deux nombres séparés par un blanc sont refusés, plus soudés | correction |
+| 2 | §A.5 règle 4 : parenthèse de traduction tranchée par observation, les deux écritures sont lues | point fermé |
+| 3 | §A.5 genre des 49 clés : répartition lue dans le code ; Flex et FUEL FACTOR en `code`, Type et Point inbound en `text` | correction |
+| 4 | §A.5 marqueurs et borne du cap : casse, crochet fermant, marqueur sur libellé, prose après refus, tous tenus par le code | correction |
+| 5 | §8 : six points ouverts fermés ; un point ajouté pour les gestes de l'onglet FMS Airbus | mise à jour |
+| 6 | Nouveau §2.4 : onglet FMS Airbus de la page en ligne, tutoriel MCDU en 92 captures `[TIERS]` | ajout |
+| 7 | Gabarit vierge refait en REV 36 : `Selected Route` à `vide` (règle de la REV 35), notes du parseur mises à jour | dérivé |
 
-⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni aux six cartouches, ni à leurs libellés, ni au §A.5 hors une précision sur `Selected Route`, ni au §A.6. Les 49 cellules sont inchangées. Le registre des masses à vide garde la ligne A20N ajoutée sur la REV 34.
+⚠ **Ce que cette révision ne fait pas.** Elle ne touche ni au §0, ni aux six cartouches, ni à leurs libellés, ni au §A.6. Les 49 cellules sont inchangées. Aucune ligne de code n'est modifiée : c'est le dossier qui rattrape le code.
 
 ## RÈGLE DE NON-RÉPÉTITION
 
@@ -76,10 +79,10 @@ Ce qui est observé en sim prime sur ce que je déduis, toujours.
 
 ## A.2 · L'ÉCHANGE, EN DEUX TEMPS
 
-**TEMPS 1 — AVANT SIMBRIEF**
+**TEMPS 1 : AVANT SIMBRIEF**
 Milan annonce le vol. Une phrase, une capture d'un suivi de trafic `[RDR]`, ou les deux.
 Je réponds par la FEUILLE SIMBRIEF (§0) : chaque champ du formulaire avec sa valeur, dans l'ordre de la page. Il tape, il génère.
-Sortie dans le fil par défaut ; en fichier `.md` quand la feuille doit être chargée par la checklist en ligne — et alors le §A.5 s'applique intégralement.
+Sortie dans le fil par défaut ; en fichier `.md` quand la feuille doit être chargée par la checklist en ligne : et alors le §A.5 s'applique intégralement.
 La feuille se termine par les six cartouches du §A.4, **remplis d'estimations** : la checklist les réclame dès le temps 1 et n'accepte pas de cellule vide.
 
 ⚠ **DEUX CHOSES QUE MILAN SEUL PEUT DONNER** : le type exact volé dans IF, et sa masse à vide dans IF. Elles ne se déduisent pas, elles ne s'estiment pas, et je ne les relève pas moi-même.
@@ -87,7 +90,7 @@ La feuille se termine par les six cartouches du §A.4, **remplis d'estimations**
 **Si l'une des deux manque à l'annonce du vol, ma réponse s'ouvre par cette alerte, avant la feuille :**
 
 ```
-⚠ ALERTE — IL MANQUE :
+⚠ ALERTE : IL MANQUE :
    · le type exact volé
    · la masse à vide IF de ce type
 Sans ça, le ZFW n'est pas forçable et les vitesses seront calculées
@@ -97,7 +100,7 @@ pour une masse qui n'est pas celle du vol.
 ⇒ L'alerte sort en tête, jamais en bas de page ni noyée dans un paragraphe. Une seule des deux manque : l'alerte ne liste que celle-là.
 ⇒ Je sors quand même la feuille derrière, avec le ZFW et la chaîne des masses en `[MANQUE]`. Une feuille incomplète et signalée vaut mieux qu'une feuille complète et fausse.
 
-**TEMPS 2 — APRÈS SIMBRIEF**
+**TEMPS 2 : APRÈS SIMBRIEF**
 Milan colle l'OFP, ou sa capture. Je sors le briefing en six blocs (§A.4), cartouches en tête.
 
 **ENSUITE, À LA DEMANDE**
@@ -118,14 +121,14 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 5. Un écran ne se diagnostique pas sans son état. Au sol ou en vol ? Route construite ? Croisière saisie ? ADIRS aligné ? Champs vides, 999:59 et 0.0 NM sont normaux sans route ni profil ; PFD et ND noirs sont normaux sans alignement.
 6. Aucun report d'un vol à l'autre. Tout se régénère.
 7. Contradictions signalées, pas arbitrées. Les deux à l'écran, l'écart nommé, Milan tranche.
-8. **Ne jamais rendre une feuille avec des cases à remplir — sans exception, et « laisser vide » n'en est pas une.** Un champ que SimBrief remplit seul sort avec la valeur que SimBrief applique, écrite en clair, pour être comparée. Les 49 cellules des cartouches sortent estimées au temps 1, marquées `[CALC]` ou `[NAV]`, et se font écraser au temps 2.
-   ⇒ Une donnée qui **ne peut pas être estimée** — et, pour une porte, seulement après que le terminal a été cherché lui aussi (§A.4) — sort en `NIL`, valeur nue, motif en prose (§A.5 règle 7). Une case en `NIL` n'est pas une case à remplir : elle est remplie, et ce qu'elle dit est vrai.
-9. **Le type volé et sa masse à vide dans IF viennent de Milan.** Je ne les déduis pas d'un type voisin, je ne les estime pas, je ne les invente pas. S'ils manquent, je le signale par l'alerte du §A.2 en tête de réponse — le silence sur un manque est la faute, pas le manque lui-même.
+8. **Ne jamais rendre une feuille avec des cases à remplir : sans exception, et « laisser vide » n'en est pas une.** Un champ que SimBrief remplit seul sort avec la valeur que SimBrief applique, écrite en clair, pour être comparée. Les 49 cellules des cartouches sortent estimées au temps 1, marquées `[CALC]` ou `[NAV]`, et se font écraser au temps 2.
+   ⇒ Une donnée qui **ne peut pas être estimée**, et, pour une porte, seulement après que le terminal a été cherché lui aussi (§A.4), sort en `NIL`, valeur nue, motif en prose (§A.5 règle 7). Une case en `NIL` n'est pas une case à remplir : elle est remplie, et ce qu'elle dit est vrai.
+9. **Le type volé et sa masse à vide dans IF viennent de Milan.** Je ne les déduis pas d'un type voisin, je ne les estime pas, je ne les invente pas. S'ils manquent, je le signale par l'alerte du §A.2 en tête de réponse : le silence sur un manque est la faute, pas le manque lui-même.
 10. Un libellé ne s'ajoute à un cartouche qu'une fois inscrit **au registre du parseur ET à la liste des champs de la page**. Dans cet ordre, jamais l'inverse : un libellé écrit mais non déclaré ne fait pas remonter sa valeur, et rien ne le signale (§A.5).
    ⚠ **Une inscription à moitié ne vaut rien.** Une clé déclarée au registre mais absente de la liste des champs est bien lue dans la feuille, puis jetée : aucune case ne la reçoit, aucun bandeau ne le dit, et seul un contrôle de démarrage la signale en console. C'est le même défaut silencieux que la règle prétend empêcher, une marche plus bas. La règle ne disait « registre » qu'au singulier jusqu'à la REV 23.
 11. **Un libellé déclaré au registre ne se range jamais dans un bloc annoncé comme non lu.** Soit il est lu et il est dans un cartouche, soit il n'est pas au registre. Il n'y a pas de troisième cas.
 12. **Ce qui est montré par le studio n'est pas ce qui vole.** Une capture WIP, un post ou un changelog se marque `[WIP]` et reste dans une section dormante jusqu'à la vérification à l'écran. Un correctif de changelog ne retire pas une ligne du dossier : seule une observation le fait.
-    ⇒ Corollaire posé en REV 24 : **du matériel studio abondant n'est pas du matériel studio dirigé.** Deux captures d'un live peuvent ouvrir cinq sujets neufs sans fermer un seul point ouvert du dossier — c'est exactement ce qui s'est produit le 29/08/2026. Ce qu'on voit ne se choisit pas ; ce qu'on en tire, si.
+    ⇒ Corollaire posé en REV 24 : **du matériel studio abondant n'est pas du matériel studio dirigé.** Deux captures d'un live peuvent ouvrir cinq sujets neufs sans fermer un seul point ouvert du dossier : c'est exactement ce qui s'est produit le 29/08/2026. Ce qu'on voit ne se choisit pas ; ce qu'on en tire, si.
 13. **Toute vitesse sort avec le rang de sa source (§5.1), nommé en prose sous le cartouche.** Avant de descendre d'un rang, je cherche : recherche web multiple, sources primaires d'abord, fiche de certification et rapport d'évaluation opérationnelle du type. Un outil tiers ne fixe jamais une vitesse seul : il corrobore ou départage, et ne fait jamais baisser un plancher.
     ⇒ Origine, REV 32 : le 23/10/2026, une vitesse d'approche lue sur un outil tiers a amené le CRJX à une amorce de décrochage vers 600 ft (§6.2).
 
@@ -135,10 +138,10 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 
 ## A.4 · FORMAT DE SORTIE
 
-**TEMPS 1** : la feuille SimBrief, dans l'ordre du formulaire, en trois colonnes — champ, ce qui se tape, valeur attendue. Rien d'autre : pas de météo, pas de commentaire de vol. Elle se termine par les six cartouches ci-dessous, **49 cellules remplies d’estimations**, chacune avec sa source rangée en prose sous le tableau.
+**TEMPS 1** : la feuille SimBrief, dans l'ordre du formulaire, en trois colonnes : champ, ce qui se tape, valeur attendue. Rien d'autre : pas de météo, pas de commentaire de vol. Elle se termine par les six cartouches ci-dessous, **49 cellules remplies d’estimations**, chacune avec sa source rangée en prose sous le tableau.
 
-⚠ **La feuille reprend la numérotation du §0 du dossier, section par section.** `§0.1 Informations sur le vol`, `§0.2 Informations sur l'avion — partie visible`, `§0.2 bis` pour les neuf champs repliés, puis `§0.3` à `§0.10`. Aucune feuille ne renumérote, n'ajoute une section, ni ne remonte un bloc en tête sous prétexte de priorité : le titre « identification et équipement — priorité » est supprimé depuis la REV 22 et ne revient pas.
-⇒ Motif : la feuille se tape en descendant le formulaire à l'écran. Une numérotation qui ne suit pas celle du dossier n'est pas rejetée par la page — elle fait sauter des cases à l'œil, ce qui est exactement le défaut que l'ordre gelé du §0 ferme.
+⚠ **La feuille reprend la numérotation du §0 du dossier, section par section.** `§0.1 Informations sur le vol`, `§0.2 Informations sur l'avion, partie visible`, `§0.2 bis` pour les neuf champs repliés, puis `§0.3` à `§0.10`. Aucune feuille ne renumérote, n'ajoute une section, ni ne remonte un bloc en tête sous prétexte de priorité : le titre « identification et équipement, priorité » est supprimé depuis la REV 22 et ne revient pas.
+⇒ Motif : la feuille se tape en descendant le formulaire à l'écran. Une numérotation qui ne suit pas celle du dossier n'est pas rejetée par la page : elle fait sauter des cases à l'œil, ce qui est exactement le défaut que l'ordre gelé du §0 ferme.
 ⚠ **Le gabarit vierge est un dérivé du dossier, jamais une source.** Il se refait à chaque révision qui touche le §0, le §A.4 ou le §A.5, il porte le numéro de cette révision, et il n'énonce aucune règle qui ne soit pas déjà ici. Un gabarit qui contredit le dossier est périmé, pas concurrent.
 
 **TEMPS 2** : le briefing, six blocs, un écran chacun. La PARTIE B ne sort pas, sauf demande.
@@ -147,7 +150,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 
 ⚠ **Libellés figés, format figé.** Voir §A.5. Deux colonnes, `Champ | Valeur`, valeur nue, sans unité, **une seule valeur par cellule**.
 
-**① Identité — 3 cellules**
+**① Identité : 3 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -155,7 +158,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Compagnie | |
 | Type | |
 
-**② Pistes, portes, autobrake et dégagement — 10 cellules**
+**② Pistes, portes, autobrake et dégagement : 10 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -170,7 +173,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Cap dégagement | |
 | Distance dégagement | |
 
-**③ Vitesses et trajectoire — 15 cellules**
+**③ Vitesses et trajectoire : 15 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -190,7 +193,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Inbound | |
 | Point inbound | |
 
-**④ Carburant — 5 cellules**
+**④ Carburant : 5 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -200,7 +203,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | EXTRA | |
 | FUEL FACTOR | |
 
-**⑤ Masses — 6 cellules**
+**⑤ Masses : 6 cellules**
 
 | Champ | Valeur |
 |---|---|
@@ -230,7 +233,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 ⇒ Les vitesses de décollage et d'atterrissage déjà portées ne se répètent pas ici : `V1`, `VR`, `V2`, `Vref` et `Vapp` restent au cartouche ③.
 ⚠ **Les trois Mach s'écrivent sur deux décimales avec le point en tête** : `.78`, jamais `0.78`, jamais `M.78`, jamais `78`.
 
-**Repères non lus** — hors registre, pour l'œil seulement, une valeur par ligne quand même :
+**Repères non lus** : hors registre, pour l'œil seulement, une valeur par ligne quand même :
 
 | Repère | Valeur |
 |---|---|
@@ -239,11 +242,11 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Immatriculation | |
 | MANQUE | |
 
-⚠ Ce bloc ne contient **aucun libellé du registre** (§A.3 règle 11). La REV 26 en a sorti trois lignes : le parseur sait désormais lire `Autobrake départ`, `Autobrake arrivée` et `Altitude initiale`, elles sont donc montées aux cartouches ② et ③. C’était la sortie annoncée depuis la REV 23 — « il monte au cartouche ② le jour où la page sait le lire, pas avant ». Les quatre qui restent ne sont toujours lues par rien.
+⚠ Ce bloc ne contient **aucun libellé du registre** (§A.3 règle 11). La REV 26 en a sorti trois lignes : le parseur sait désormais lire `Autobrake départ`, `Autobrake arrivée` et `Altitude initiale`, elles sont donc montées aux cartouches ② et ③. C’était la sortie annoncée depuis la REV 23 : « il monte au cartouche ② le jour où la page sait le lire, pas avant ». Les quatre qui restent ne sont toujours lues par rien.
 
-⇒ Origine de chaque ligne **au temps 2** : V1, VR, V2, Flex et Volets du Runway Analysis `[OFP]` ; Réduction, Accélération et Transition posées à la main (§4) ; ILS, DA, Inbound et Point inbound des cartes `[NAV]` et de la STAR retenue (§6.6) ; Vref et Vapp calculées sur le LW `[CALC]` (§6.2) ; BLOC, EXTRA et FUEL FACTOR de l'OFP `[OFP]` ; BINGO et MIN DIV calculés (§3) ; les six masses de la page de garde `[OFP]`, sauf la masse à vide IF qui vient de Milan `[SIM]` ; les six lignes de pistes et de dégagement du cartouche ② de l'OFP et des cartes ; **les deux portes du cartouche ② restent `[RDR]` — poste, à défaut terminal préfixé `T`, à défaut `NIL`** — l’OFP n’en porte aucune des trois formes, et aucune ne devient `[OFP]` au temps 2 ; les deux crans d’autobrake et l’altitude initiale décidés au briefing (§4), désormais au cartouche ; **au cartouche ⑥, les six vitesses de montée, croisière et descente des profils retenus par l'OFP `[OFP]`, la montée initiale sur la V2 de l'OFP `[CALC]`, l'approche lisse, la vitesse au FAF et le plancher sur le LW de l'OFP `[CALC]`, chacune avec son rang de source (§5.1).**
+⇒ Origine de chaque ligne **au temps 2** : V1, VR, V2, Flex et Volets du Runway Analysis `[OFP]` ; Réduction, Accélération et Transition posées à la main (§4) ; ILS, DA, Inbound et Point inbound des cartes `[NAV]` et de la STAR retenue (§6.6) ; Vref et Vapp calculées sur le LW `[CALC]` (§6.2) ; BLOC, EXTRA et FUEL FACTOR de l'OFP `[OFP]` ; BINGO et MIN DIV calculés (§3) ; les six masses de la page de garde `[OFP]`, sauf la masse à vide IF qui vient de Milan `[SIM]` ; les six lignes de pistes et de dégagement du cartouche ② de l'OFP et des cartes ; **les deux portes du cartouche ② restent `[RDR]`, poste, à défaut terminal préfixé `T`, à défaut `NIL`**, l’OFP n’en porte aucune des trois formes, et aucune ne devient `[OFP]` au temps 2 ; les deux crans d’autobrake et l’altitude initiale décidés au briefing (§4), désormais au cartouche ; **au cartouche ⑥, les six vitesses de montée, croisière et descente des profils retenus par l'OFP `[OFP]`, la montée initiale sur la V2 de l'OFP `[CALC]`, l'approche lisse, la vitesse au FAF et le plancher sur le LW de l'OFP `[CALC]`, chacune avec son rang de source (§5.1).**
 
-**AU TEMPS 1 — comment j’estime les 49**
+**AU TEMPS 1 : comment j’estime les 49**
 
 | Champ | Méthode d'estimation avant l'OFP |
 |---|---|
@@ -291,7 +294,7 @@ Non demandé, sauf s'il change : le build, le serveur (Expert par défaut), le c
 | Vitesse FAF | 180, ou la VFE du cran sorti à l'interception moins 10 si elle est plus basse (§5.1) `[CALC]` |
 | Plancher finale | Vapp − 5, relevé au plancher observé du type au §5.1 s'il est plus haut `[CALC]` |
 
-⚠ **Une porte ne s’estime pas — et un terminal pas davantage.** Aucune méthode de calcul n’existe pour l’un ni pour l’autre : ce sont des données observées, ou rien. Pas de déduction depuis la compagnie, ni depuis l’habitude d’une ligne, ni depuis un autre vol du même exploitant — même au même terrain, le même jour.
+⚠ **Une porte ne s’estime pas, et un terminal pas davantage.** Aucune méthode de calcul n’existe pour l’un ni pour l’autre : ce sont des données observées, ou rien. Pas de déduction depuis la compagnie, ni depuis l’habitude d’une ligne, ni depuis un autre vol du même exploitant, même au même terrain, le même jour.
 ⚠ **TROIS NIVEAUX, dans cet ordre de préférence, dans la MÊME cellule.** Les bases de statut servent très souvent le terminal alors qu’elles ne servent pas encore le poste, et un terminal connu vaut mieux qu’une cellule qui dit « rien ».
 
 | Ce qui est relevé | Ce que porte la cellule | Exemples |
@@ -347,43 +350,41 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 **Les sept règles d'écriture d'une valeur**
 
 1. **Valeur nue.** `6250`, pas `6 250 kg`, pas `6250 kg (bloc)`. Ni unité, ni espace de milliers, ni commentaire.
-   ⚠ **Ce que le parseur tolère, et qui n'est pas une licence.** Sur une cellule numérique, il retire **tous les blancs** puis l'unité finale avant de valider : `6 250` et `250 kg` sont acceptés et ressortent `6250` et `250`. La règle n'en est pas assouplie — elle est écrite ici pour que le dossier dise ce que le code fait, plutôt que de promettre un refus qui n'arrive pas. Une feuille qui s'appuie sur cette tolérance est hors contrat, et rien ne le signalera.
-   ⚠ **Ce n'est pas « l'espace de milliers » qui est retiré, c'est tout blanc — et c'est fait avant le test d'atomicité.** Deux nombres séparés par un blanc seul ne sont donc pas refusés : ils sont **soudés et acceptés**. `1 100 1 050` ressort `11001050`, sans motif et sans bandeau. `cleanCell` retirant marqueurs et astérisques en premier, il peut lui-même créer l'adjacence : `64 460 [CALC] 77 800` devient `64 460 77 800`, donc `6446077800`. Seule `Altitude initiale` s'en protège, par son `max:5`, et sous un motif qui ne nomme pas la cause.
-   ⇒ Ce qui se refuse réellement avec motif : une cellule où survit autre chose qu'un chiffre — lettre, tiret, ponctuation, commentaire entre parenthèses — une décimale sur un champ entier, un marqueur hors des six retirés à la lecture, un dépassement de longueur maximale.
-   ⇒ Point ouvert du §8 jusqu'au correctif : tester l'atomicité **avant** d'écraser les blancs, ou ne retirer un blanc qu'entre deux chiffres d'un même nombre.
-   ⇒ **Les sept clés numériques du cartouche ⑥ portent un `max:3`** dès leur inscription (consignes Claude Code REV 32) : une vitesse soudée à une autre dépasse trois chiffres et part en refus, comme `Altitude initiale`.
+   ⚠ **Ce que le parseur tolère, et qui n'est pas une licence.** Sur une cellule numérique, un groupement de milliers régulier et une unité finale sont acceptés : `6 250` et `250 kg` ressortent `6250` et `250`. La règle n'en est pas assouplie : une feuille qui s'appuie sur cette tolérance est hors contrat.
+   ⇒ **L'atomicité se teste avant que les blancs ne soient retirés** (correctif REV 30 du code, constaté en REV 36). Deux nombres séparés par un blanc sont refusés sous le motif « cellule non atomique » : `1 100 1 050` est rejeté, `64 460 [CALC] 77 800` aussi. Seul reste indécidable un groupement régulier comme `1 100 800`, lu comme le nombre qu'il écrit.
+   ⇒ Ce qui se refuse avec motif : une cellule où survit autre chose qu'un chiffre, deux nombres, une décimale sur un champ entier, un marqueur hors des six retirés à la lecture, un dépassement de longueur maximale.
+   ⇒ **Les sept clés numériques du cartouche ⑥ portent un `max:3`** : une unité accolée (`290 kt`) y est refusée, comme sur `Altitude initiale` (`max:5`).
 
-2. **Une cellule, une valeur.** `64460`, et non `64 460 kg — MLW 77 800, marge 13 340`. Les marges vont en prose, sous le tableau.
-   ⚠ **Cette règle est tenue par celui qui écrit, pas par le parseur.** Une cellule à deux nombres n'est rejetée que si quelque chose d'autre qu'un chiffre y survit — c'est le cas de l'exemple ci-dessus, à cause des lettres et du tiret. Deux nombres nus séparés par un blanc passent, soudés (règle 1). Le refus promis par les révisions 19 à 29 n'existe pas pour ce cas-là.
+2. **Une cellule, une valeur.** `64460`, et non `64 460 kg : MLW 77 800, marge 13 340`. Les marges vont en prose, sous le tableau.
+   ⇒ Le parseur tient désormais cette règle aussi : deux nombres dans une cellule sont refusés avec motif (règle 1). Elle reste d'abord une règle d'écriture.
 3. **Un libellé, une ligne, une fois.** Un même libellé dans deux tableaux crée un conflit silencieux.
 4. **Libellés au caractère près.** Ceux du §A.4. Pas d'unité accolée, pas de reformulation, pas de ligne intercalée.
-   ⚠ **POINT OUVERT — le seul défaut du dossier capable de faire lire une valeur fausse sans rien afficher.** Les libellés du §0 portent une parenthèse de traduction — `Passagers (Passengers)`, `Poids zéro carburant (ZFW, KG)`. Le registre, lui, déclare `Passagers` et `Poids zéro carburant` nus, mais `Altitude (Pieds)` avec sa parenthèse. Ces deux formes ne peuvent pas être justes en même temps. À trancher au prochain `window.debugBriefing()` : soit le parseur tronque à la parenthèse et le registre se met au format nu partout, soit il exige la forme complète et le registre recopie le §0 caractère pour caractère. Tant que ce n'est pas tranché, les valeurs des cartouches font foi — elles, portent le libellé nu.
-   ⇒ Ce point est inscrit au §8 depuis la REV 20. Il ne se règle pas par déduction : une seule lecture de `window.debugBriefing()` le ferme définitivement.
+   ⇒ **Parenthèse de traduction : point fermé en REV 36, par observation.** Le parseur essaie le libellé complet, puis chaque moitié de la parenthèse, par égalité stricte. `Passagers (Passengers)` et `Passagers` résolvent tous les deux sur la même clé. Relevé sur les deux feuilles REV 27 du dépôt : 44 libellés résolus sous leur forme complète, 20 par la moitié avant la parenthèse, aucun libellé perdu. Aucune des deux écritures n'est fausse ; les cartouches gardent le libellé nu.
 5. **Aucune valeur chiffrée en prose à côté d'un libellé déclaré.** Écrire `MIN DIV = 1 100 + 1 050 = 2 150 kg · réserve finale = 1 100 kg` a fait lire 1100. La méthode s'écrit sans reprendre le libellé suivi d'un nombre : « le seuil de déroutement additionne le dégagement et la réserve finale, puis ajoute 5 % ».
    ⇒ Vaut pour les dix libellés du cartouche ⑥ : la prose écrit « le Mach de croisière vient du profil de l'OFP », jamais le libellé suivi de sa valeur.
 6. **La prose porte la méthode et les sources, le tableau porte la valeur.** Jamais l'inverse, jamais les deux.
-7. **Une valeur qui ne peut pas être estimée s'écrit `NIL`, jamais `[MANQUE]`.** `NIL` est une valeur nue : elle passe la lecture, elle s'affiche, et elle dit exactement une chose — la donnée n'a pas été observée. `[MANQUE]` dans une cellule lue la rend illisible : il ne fait pas partie des six marqueurs retirés à la lecture, et la cinquième ligne du contrôle ci-dessous la rejette. Le motif du `NIL` va **en prose, sous le tableau**, avec sa mention `[MANQUE]` si elle est utile.
+7. **Une valeur qui ne peut pas être estimée s'écrit `NIL`, jamais `[MANQUE]`.** `NIL` est une valeur nue : elle passe la lecture, elle s'affiche, et elle dit exactement une chose : la donnée n'a pas été observée. `[MANQUE]` dans une cellule lue la rend illisible : il ne fait pas partie des six marqueurs retirés à la lecture, et la cinquième ligne du contrôle ci-dessous la rejette. Le motif du `NIL` va **en prose, sous le tableau**, avec sa mention `[MANQUE]` si elle est utile.
    ⇒ **Règle générale, pas une exception aux portes.** Elle vaut pour toute cellule dont la valeur ne peut pas être estimée : le prochain champ non estimable rencontrera le même mur, et la réponse est déjà écrite.
-   ⇒ Elle referme le conflit avec la **règle 8 du §A.3** — « ne jamais rendre une feuille avec une case à remplir ». Une case en `NIL` n'est pas une case à remplir : elle est remplie, et ce qu'elle dit est vrai.
+   ⇒ Elle referme le conflit avec la **règle 8 du §A.3** : « ne jamais rendre une feuille avec une case à remplir ». Une case en `NIL` n'est pas une case à remplir : elle est remplie, et ce qu'elle dit est vrai.
 
-**Contrôle avant envoi** — six lignes, à passer sur toute feuille destinée au fichier :
+**Contrôle avant envoi** : six lignes, à passer sur toute feuille destinée au fichier :
 
 - [ ] Les 49 cellules des six cartouches sont remplies, valeurs nues.
 - [ ] Aucune cellule ne contient d'unité, d'espace de milliers, ni de second nombre.
 - [ ] Aucun libellé déclaré n'apparaît en prose suivi d'un chiffre.
 - [ ] **Aucun libellé du registre ne figure hors cartouche**, et aucun champ du §0 portant un libellé du registre n'est laissé sans valeur en colonne « À taper ».
-- [ ] **Aucune cellule ne porte de marqueur autre que les six retirés à la lecture** — `[OFP]` `[FORM]` `[NAV]` `[SIM]` `[RDR]` `[CALC]`. `[WIP]` disqualifie, `[MANQUE]` seul vaut « non fourni », tout le reste est rejeté en étant nommé (§Conventions). *Ligne ajoutée en REV 21, en même temps que le contrôle correspondant dans le parseur.*
+- [ ] **Aucune cellule ne porte de marqueur autre que les six retirés à la lecture** : `[OFP]` `[FORM]` `[NAV]` `[SIM]` `[RDR]` `[CALC]`. `[WIP]` disqualifie, `[MANQUE]` seul vaut « non fourni », tout le reste est rejeté en étant nommé (§Conventions). *Ligne ajoutée en REV 21, en même temps que le contrôle correspondant dans le parseur.*
 - [ ] **Chaque vitesse des cartouches ③ et ⑥ a son rang de source nommé en prose (§5.1)**, et ni `Vapp` ni `Plancher finale` n'est sous un plancher observé du type. *Ligne ajoutée en REV 32.*
 
-⚠ La quatrième ligne a changé de sens en REV 19. La REV 18 promettait de reprendre en deux colonnes « tout champ utile laissé en AUTO » — impossible à tenir : contingence, réserve, taxi et FOD n'ont pas de libellé au registre, aucune reprise ne les fera lire. Leur valeur attendue reste en colonne 3 du §0, pour l'œil, et le bloc carburant réellement lu est le cartouche ④.
+⚠ La quatrième ligne a changé de sens en REV 19. La REV 18 promettait de reprendre en deux colonnes « tout champ utile laissé en AUTO » : impossible à tenir : contingence, réserve, taxi et FOD n'ont pas de libellé au registre, aucune reprise ne les fera lire. Leur valeur attendue reste en colonne 3 du §0, pour l'œil, et le bloc carburant réellement lu est le cartouche ④.
 
 ⚠ Une valeur fausse lue en silence est pire qu'une case vide. Une case vide se voit ; une valeur fausse se vole.
 
-**Vocabulaire déclaré** — un libellé absent de cette liste n'atteint pas la checklist, même écrit dans un tableau parfait.
+**Vocabulaire déclaré** : un libellé absent de cette liste n'atteint pas la checklist, même écrit dans un tableau parfait.
 
 | Libellé à écrire | Ce qu'il alimente | Où il vit |
 |---|---|---|
-| Callsign · Compagnie · Type | identité — Compagnie porte le code OACI à trois lettres, jamais le nom commercial | cartouche ① |
+| Callsign · Compagnie · Type | identité : Compagnie porte le code OACI à trois lettres, jamais le nom commercial | cartouche ① |
 | Piste départ · Cap départ · Porte départ · Piste arrivée · Porte arrivée | pistes et portes | cartouche ② |
 | Autobrake départ · Autobrake arrivée | crans retenus | cartouche ② |
 | Dégagement · Cap dégagement · Distance dégagement | déroutement | cartouche ② |
@@ -398,49 +399,46 @@ La feuille du vol n'est pas seulement lue par Milan : elle est chargée par la c
 | Selected Route | route ATC ; porte `vide` depuis la REV 35, SimBrief génère la route | §0 Itinéraire |
 | Bloc horaire prévu · Cycle AIRAC · Passagers · Fret · Identifiant du pilote · Altitude (Pieds) | formulaire, colonne « à taper » | §0 |
 
-⚠ **Les dix libellés du cartouche ⑥ ne sont lus qu'une fois inscrits au registre et à la liste des champs** (§A.3 règle 10). Avant l'application des consignes Claude Code REV 32, une feuille qui les porte ne fait rien remonter, et rien ne le dit.
+⇒ **Les dix libellés du cartouche ⑥ sont inscrits au registre et à la liste des champs** (§A.3 règle 10). Constaté sur une feuille QFA7 chargée à 49/49 cellules, `.78` accepté tel quel, `0.78` refusé avec motif.
 
-**Genre des 49 clés** — ce que le parseur fait de la valeur, une fois le libellé résolu. Cette table décrit le code, pas la procédure : elle est ici pour que le dossier cesse de promettre ce que le code ne fait pas.
+**Genre des 49 clés** : ce que le parseur fait de la valeur, une fois le libellé résolu. Cette table décrit le code, pas la procédure : elle est ici pour que le dossier cesse de promettre ce que le code ne fait pas.
 
 | Genre | n | Ce qui sort | Clés |
 |---|---|---|---|
-| `cap` | 2 | rendu sur trois chiffres, refusé au-delà de 360 — `7` devient `007`, `043` reste `043`. Borne non tenue sur le chemin prose, voir ci-dessous | Cap départ · Cap dégagement |
-| `code` | 14 | tel quel, aucune réécriture | Callsign · Compagnie · Type · Piste départ · Piste arrivée · Porte départ · Porte arrivée · Dégagement · Volets · ILS · Point inbound · Montée Mach · Croisière Mach · Descente Mach |
-| `text` | 4 | tel quel, aucune réécriture | Autobrake départ · Autobrake arrivée · Flex · FUEL FACTOR |
-| numérique | 29 | l'espace de milliers et l'unité finale sont retirés avant validation (règle 1), aucune conversion d'unité | V1 · VR · V2 · Altitude initiale · Réduction · Accélération · Transition · DA · Vref · Vapp · Inbound · Distance dégagement · BLOC · BINGO · MIN DIV · EXTRA · Masse à vide IF · Charge utile · Poids zéro carburant · Trip · TOW · LW · Montée initiale · Montée basse · Montée IAS · Descente IAS · Approche lisse · Vitesse FAF · Plancher finale |
+| `cap` | 2 | rendu sur trois chiffres, refusé au-delà de 360 : `7` devient `007`, `043` reste `043` | Cap départ · Cap dégagement |
+| `code` | 14 | tel quel, aucune réécriture ; douze caractères au plus, lettres, chiffres et `+ . - /` | Callsign · Compagnie · Piste départ · Piste arrivée · Porte départ · Porte arrivée · Dégagement · Flex · Volets · ILS · FUEL FACTOR · Montée Mach · Croisière Mach · Descente Mach |
+| `text` | 4 | tel quel, aucune réécriture, longueur bornée | Type · Autobrake départ · Autobrake arrivée · Point inbound |
+| numérique | 29 | groupement de milliers et unité finale retirés après le test d'atomicité (règle 1), aucune conversion d'unité | V1 · VR · V2 · Altitude initiale · Réduction · Accélération · Transition · DA · Vref · Vapp · Inbound · Distance dégagement · BLOC · BINGO · MIN DIV · EXTRA · Masse à vide IF · Charge utile · Poids zéro carburant · Trip · TOW · LW · Montée initiale · Montée basse · Montée IAS · Descente IAS · Approche lisse · Vitesse FAF · Plancher finale |
 
-⚠ **Les comptes font foi, la répartition est reconstruite.** `11 / 4 / 2 / 22` venait de la revue des clés menée en REV 28, sur le code. L'affectation de chaque libellé à son genre, elle, a été reconstituée à partir de ce que la cellule porte — elle n'a pas été lue dans `js/data/fields.js`. Trois lignes sont des choix de reconstitution assumés et sont les premières à vérifier : `Flex`, qui peut porter une température comme une mention, `ILS`, qui porte une fréquence à décimale, et `Point inbound`, qui porte un repère nommé ou un DME.
-⇒ **REV 32 : les dix clés du cartouche ⑥ sont, elles, déclarées par les consignes Claude Code avec leur genre**, trois en `code`, sept en numérique. Leur genre sera donc lu, pas reconstitué. Les comptes passent à `14 / 4 / 2 / 29`.
-⇒ Une ligne fausse se corrige ici, en place. Si un compte ne tombe plus après correction, c'est la répartition qui est fausse — jamais le compte.
+⇒ **Répartition lue dans `js/parser/registre.js` en REV 36**, clé par clé, et non plus reconstituée. Quatre lignes de la reconstitution étaient fausses : Flex et FUEL FACTOR sont en `code`, Type et Point inbound en `text`. Les comptes `14 / 4 / 2 / 29` restent justes.
+⇒ Bornes de longueur à connaître : `Type` 12, portes 6, autobrakes 4, `Point inbound` 24, `Altitude initiale` 5, vitesses du cartouche ⑥ 3.
 ⚠ **Les trois Mach sont en `code` et non en numérique** : un champ numérique entier refuse la décimale (règle 1). `.78` traverse le genre `code` tel quel, et le format est tenu par un motif à la validation (consignes REV 32).
 ⚠ **Aucune des 49 cellules de cartouche ne sort convertie.** Ni tonnes, ni arrondi, ni reformatage : `TOW` et `LW` s'affichent en kilos, comme la feuille les écrit. La table Vref du §6.2 reste en tonnes parce qu'elle est lue par un humain, pas par la page.
-⚠ **Une clé convertit, et elle n'est pas dans les 49 : `Altitude (Pieds)`, au §0.** Elle est rendue en niveau de vol — `35000` s'affiche `350`, `33000` s'affiche `330`, relevé sur les deux feuilles du dépôt. La feuille continue de porter le niveau en pieds, chiffré, comme le §0.4 le demande : c'est l'affichage qui traduit, pas la saisie. Tant que ce comportement n'est pas tranché comme voulu ou non, la phrase ci-dessus ne s'étend pas à lui.
-⚠ **La borne 360 du cap ne protège que la cellule, pas la case.** `validate()` refuse bien un cap au-delà de 360 ; puis le balayage de la prose réécrit la clé, **parce qu'elle vient d'être refusée** — sa condition est « la clé est vide », et un refus laisse la clé vide. Le motif de prose capture trois chiffres sans borne et sans rendu sur trois chiffres, et la case une fois remplie n'est plus signalée comme non résolue. Conséquence pour qui écrit : **un cap faux dans la cellule et repris en prose s'affiche depuis la prose, sans un mot.** La prose ne doit jamais porter un cap qui contredit la cellule.
-⇒ Point ouvert du §8 jusqu'au correctif : le balayage de prose doit distinguer une clé **absente** d'une clé **refusée**, et ne jamais réécrire la seconde.
+⚠ **Une clé convertit, et elle n'est pas dans les 49 : `Altitude (Pieds)`, au §0.** Elle est rendue en niveau de vol : `35000` s'affiche `350`, `33000` s'affiche `330`, relevé sur les deux feuilles du dépôt. La feuille continue de porter le niveau en pieds, chiffré, comme le §0.4 le demande : c'est l'affichage qui traduit, pas la saisie. Tant que ce comportement n'est pas tranché comme voulu ou non, la phrase ci-dessus ne s'étend pas à lui.
+⇒ **La prose ne réécrit jamais une clé refusée** (correctif REV 30 du code, constaté en REV 36). Un `Cap dégagement` à 400 est refusé, et une prose « 400° / 29 NM » ne le remet pas dans la case : la case reste vide et marquée non résolue. La prose ne remplit qu'une clé absente du tableau.
 ⇒ `NIL` et un terminal préfixé `T` traversent tous les genres : ce sont des valeurs nues, pas des cas particuliers du parseur.
 
-**Marqueurs — ce que le retrait attrape vraiment**
+**Marqueurs : ce que le retrait attrape vraiment**
 
-⚠ Les six marqueurs retirés à la lecture ne le sont **qu'en majuscules et crochets collés**. `[ofp]` n'est pas reconnu : la cellule part en refus, nommé — donc pas silencieux, mais refusé quand même. Les marqueurs s'écrivent en majuscules, sans espace dans les crochets.
-⚠ Le filet des marqueurs inconnus **exige le crochet fermant**. `[RÉEL` sans fermeture, ou `(RÉEL)` entre parenthèses, traverse un champ `text` et s'affiche tel quel dans la case.
-⚠ **Un marqueur collé à un libellé empêche la résolution, sans rien afficher.** `Cap départ [NAV]` en colonne 1 n'est pas nettoyé : la clé n'est pas reconnue, la valeur n'atteint aucune case, et rien ne le dit. Les marqueurs vivent en colonne 2 ou en prose, jamais sur le libellé.
-⇒ Point ouvert du §8 jusqu'au correctif : insensibilité à la casse et aux espaces sur les six, fermeture non exigée sur le filet des inconnus, nettoyage du libellé avant résolution.
+⇒ Les six marqueurs retirés à la lecture le sont **quelle que soit la casse et avec des espaces dans les crochets** : `[ofp]` et `[ OFP ]` sont retirés comme `[OFP]`. L'usage reste les majuscules collées.
+⇒ Le filet des marqueurs inconnus **n'exige plus le crochet fermant**, et attrape une parenthèse en majuscules : `[RÉEL` et `(RÉEL)` font rejeter la cellule avec motif.
+⇒ **Un marqueur collé à un libellé est retiré avant la résolution** : `Cap départ [NAV]` en colonne 1 se lit comme `Cap départ`. Les marqueurs restent en colonne 2 ou en prose par convention.
 
 **Un dossier ne remplit aucune case**
 
-⚠ L'extraction n'est **jamais** appelée sur `briefing.md` : seule une feuille de vol alimente la checklist. Le dossier peut donc contenir un libellé du registre suivi d'un nombre sans qu'aucune case bouge — la règle 5 reste une règle de feuille, et les tables de méthode du §A.4 ne sont pas un danger de lecture.
-⇒ C'est ce qui corrige le récit du correctif `max:12` posé en REV 25. Le correctif est juste et fait son travail : sans lui, trois lignes du dossier résolvent sur la clé `Type`. Mais le gagnant de « la dernière l'emporte » serait le libellé du §0 `Type d'aéronef (Aircraft)`, pas la ligne de la table « AU TEMPS 1 » — et sur un dossier, aucun des deux ne remplit quoi que ce soit.
+⚠ L'extraction n'est **jamais** appelée sur `briefing.md` : seule une feuille de vol alimente la checklist. Le dossier peut donc contenir un libellé du registre suivi d'un nombre sans qu'aucune case bouge : la règle 5 reste une règle de feuille, et les tables de méthode du §A.4 ne sont pas un danger de lecture.
+⇒ C'est ce qui corrige le récit du correctif `max:12` posé en REV 25. Le correctif est juste et fait son travail : sans lui, trois lignes du dossier résolvent sur la clé `Type`. Mais le gagnant de « la dernière l'emporte » serait le libellé du §0 `Type d'aéronef (Aircraft)`, pas la ligne de la table « AU TEMPS 1 » : et sur un dossier, aucun des deux ne remplit quoi que ce soit.
 
-**Libellés déclarés ignorés** — écrits dans la feuille, volontairement non résolus :
+**Libellés déclarés ignorés** : écrits dans la feuille, volontairement non résolus :
 
 | Libellé | Pourquoi |
 |---|---|
 | Itinéraire (Route) | c'est la route du dégagement, pas celle du vol |
-| Altitude (Pieds) — ligne du dégagement | c'est l'élévation du terrain de dégagement, pas le FL de croisière |
+| Altitude (Pieds) : ligne du dégagement | c'est l'élévation du terrain de dégagement, pas le FL de croisière |
 
-⚠ **Correctif bloquant de la REV 19, toujours en vigueur.** `Altitude (Pieds)` était porté deux fois : au FL de croisière dans les Entrées facultatives, et à l'élévation du dégagement dans les Aéroports alternatifs. La règle « la dernière l'emporte » faisait donc remonter l'élévation du terrain à la place du niveau de croisière — silencieusement. La ligne du dégagement est **ignorée**, et un libellé ignoré l'emporte sur toute autre résolution.
+⚠ **Correctif bloquant de la REV 19, toujours en vigueur.** `Altitude (Pieds)` était porté deux fois : au FL de croisière dans les Entrées facultatives, et à l'élévation du dégagement dans les Aéroports alternatifs. La règle « la dernière l'emporte » faisait donc remonter l'élévation du terrain à la place du niveau de croisière : silencieusement. La ligne du dégagement est **ignorée**, et un libellé ignoré l'emporte sur toute autre résolution.
 
-**En attente d'inscription au registre** — écrits dans le dossier, pas encore lus par la page :
+**En attente d'inscription au registre** : écrits dans le dossier, pas encore lus par la page :
 
 | Libellé | Ce qu'il alimenterait |
 |---|---|
@@ -485,23 +483,23 @@ Référence. On y va chercher, on ne la lit pas d'un bout à l'autre.
 
 Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, affichage français `[FORM]`. Le libellé anglais suit entre parenthèses.
 
-⚠ **ORDRE GELÉ — 74 champs, relevés sur capture le 24/08/2026.** Le §0 se lit dans l'ordre de l'écran, section par section et champ par champ, **sans exception**. Une feuille de temps 1 se remplit en descendant la page : tout écart entre l'ordre du dossier et l'ordre de la page fait sauter des cases. **Ce tableau fait foi, pas la mémoire.**
+⚠ **ORDRE GELÉ : 74 champs, relevés sur capture le 24/08/2026.** Le §0 se lit dans l'ordre de l'écran, section par section et champ par champ, **sans exception**. Une feuille de temps 1 se remplit en descendant la page : tout écart entre l'ordre du dossier et l'ordre de la page fait sauter des cases. **Ce tableau fait foi, pas la mémoire.**
 
 | § | Section de la page | n | Champs, dans l'ordre de l'écran |
 |---|---|---|---|
 | §0.1 | Informations sur le vol | 6 | Compagnie aérienne · Numéro du vol · Partir · Arriver · Alterner · Heure de départ (EOBT) |
-| §0.2 | Informations sur l'avion — partie visible | 6 | Type d'aéronef · Variante ou cellule · Profil d'ascension · Profil de croisière · Profil de descente · Indicatif d'appel ATC — *puis le bouton* Plus d'options / Moins d'options |
-| §0.2 bis | Informations sur l'avion — sous « Plus d'options » | 9 | Facteur carburant · Inscription · Numéro Fin · SELCAL · Code Mode-S · Équipement de l'OACI · Transpondeur · Capacité PBN · Informations supplémentaires sur le FPL (Article 18) |
-| §0.3 | Sélections | 14 | *colonne gauche* Disposition OFP · Cycle AIRAC · Unités · Cartes de vol · Taxi Sortie / Entrée · Règles de vol · Type de vol · Compte alternatif — *puis interrupteurs* Journal de navigation détaillé · Planification ETOPS · Planifier les escaliers · Analyse de la piste · Inclure les NOTAM · NOTAM FIR |
+| §0.2 | Informations sur l'avion : partie visible | 6 | Type d'aéronef · Variante ou cellule · Profil d'ascension · Profil de croisière · Profil de descente · Indicatif d'appel ATC : *puis le bouton* Plus d'options / Moins d'options |
+| §0.2 bis | Informations sur l'avion : sous « Plus d'options » | 9 | Facteur carburant · Inscription · Numéro Fin · SELCAL · Code Mode-S · Équipement de l'OACI · Transpondeur · Capacité PBN · Informations supplémentaires sur le FPL (Article 18) |
+| §0.3 | Sélections | 14 | *colonne gauche* Disposition OFP · Cycle AIRAC · Unités · Cartes de vol · Taxi Sortie / Entrée · Règles de vol · Type de vol · Compte alternatif : *puis interrupteurs* Journal de navigation détaillé · Planification ETOPS · Planifier les escaliers · Analyse de la piste · Inclure les NOTAM · NOTAM FIR |
 | §0.4 | Entrées facultatives | 8 | Bloc horaire prévu · Départ Runway · Arrivée Runway · Altitude (Pieds) · Passagers · Fret · Charge utile · Poids zéro carburant |
 | §0.5 | Planification du carburant | 10 | Carburant de secours · Carburant de réserve · Carburant pour taxis · Bloc carburant · Carburant d'arrivée · Carburant MEL · Carburant ATC · Carburant WXX · EXTRA · Transport de pétrole |
 | §0.6 | Entrées de texte | 5 | Identifiant du pilote · Nom du capitaine · Nom du premier officier · Nom du distributeur · Remarques du répartiteur |
 | §0.7 | Itinéraire | 1 | Selected Route |
-| §0.8 | Aéroports alternatifs | 15 | *critères* Compte alternatif · Distance maximale · Plafond minimum · Visibilité minimale · Piste minimale · Évitez les aéroports · Avoid TS/FG — *dégagement 1* Aéroport · Piste · Altitude (Pieds) · Itinéraire — *puis* Décoller · En route — *bas de section* Gares en route · Aéroports sélectionnés |
-| §0.9 | Scénario ETOPS | n/a | inchangé — actif seulement sur survol maritime ou désertique |
-| §0.10 | Météo historique · Paramètres de débogage | n/a | inchangé — n/a, décidé et assumé |
+| §0.8 | Aéroports alternatifs | 15 | *critères* Compte alternatif · Distance maximale · Plafond minimum · Visibilité minimale · Piste minimale · Évitez les aéroports · Avoid TS/FG : *dégagement 1* Aéroport · Piste · Altitude (Pieds) · Itinéraire : *puis* Décoller · En route : *bas de section* Gares en route · Aéroports sélectionnés |
+| §0.9 | Scénario ETOPS | n/a | inchangé : actif seulement sur survol maritime ou désertique |
+| §0.10 | Météo historique · Paramètres de débogage | n/a | inchangé : n/a, décidé et assumé |
 
-**RÈGLE DE LECTURE D'UNE SECTION À PLUSIEURS COLONNES** — c'est l'ambiguïté qui a permis la dérive. Elle se tranche ici, définitivement :
+**RÈGLE DE LECTURE D'UNE SECTION À PLUSIEURS COLONNES** : c'est l'ambiguïté qui a permis la dérive. Elle se tranche ici, définitivement :
 
 1. Une section se lit **bloc de gauche d'abord**, ligne par ligne, de gauche à droite ; **puis** la colonne d'interrupteurs de droite, de haut en bas.
 2. **Un champ replié derrière un bouton se lit à la position du bouton**, jamais ailleurs.
@@ -509,8 +507,8 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 ⚠ **RÈGLE DE REMPLISSAGE.** Aucune ligne ne sort sans valeur. Ni « AUTO » seul, ni « laisser vide ».
 ⇒ **Une seule exception depuis la REV 35 : `Selected Route` (§0.7) sort à `vide`.** SimBrief génère alors sa route, et la colonne « Valeur attendue » porte quand même mes chiffres de distance.
-- **À TAPER** — ce qui va dans la case, littéralement. C'est **la colonne lue par la checklist** (§A.5).
-- **VALEUR ATTENDUE** — mon chiffre, pour comparer ce que SimBrief a calculé à ce que j'annonçais. Elle ne se saisit pas et **n'est pas lue par la page**.
+- **À TAPER** : ce qui va dans la case, littéralement. C'est **la colonne lue par la checklist** (§A.5).
+- **VALEUR ATTENDUE** : mon chiffre, pour comparer ce que SimBrief a calculé à ce que j'annonçais. Elle ne se saisit pas et **n'est pas lue par la page**.
 
 ⇒ Tout écart notable entre les deux colonnes se relève au §9 : c'est ma méthode qui se corrige, pas SimBrief.
 
@@ -521,8 +519,8 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Champ | À taper | Valeur attendue |
 |---|---|---|
 | Compagnie aérienne (Airline) | OACI 3 lettres | compagnie nommée |
-| Numéro du vol (Flight Number) | numéro réel de la ligne | — |
-| Partir (Depart) | OACI départ | — |
+| Numéro du vol (Flight Number) | numéro réel de la ligne | n/a |
+| Partir (Depart) | OACI départ | n/a |
 | Arriver (Arrive) | OACI arrivée | distance orthodromique |
 | Alterner (Alternate) | OACI du dégagement | terrain nommé + cap et distance depuis l'arrivée |
 | Heure de départ (EOBT) | `JJ Mmm AAAA - HH:MM` | heure UTC retenue |
@@ -531,7 +529,7 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 ⇒ La flèche entre les deux inverse le sens du vol. L'icône ⟳ à côté de l'EOBT remet l'heure courante.
 ⇒ Le dégagement se nomme, jamais AUTO : c'est le terrain à briefer, et il doit tenir la météo de l'ETA, pas seulement les critères de distance.
 
-### §0.2 · INFORMATIONS SUR L'AVION (Aircraft Info) — partie visible
+### §0.2 · INFORMATIONS SUR L'AVION (Aircraft Info) : partie visible
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -540,18 +538,18 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Profil d'ascension (Climb) | AUTO | profil retenu, à relire sur l'OFP |
 | Profil de croisière (Cruise) | AUTO | Mach de croisière attendu du type |
 | Profil de descente (Descent) | AUTO | profil retenu, à relire sur l'OFP |
-| Indicatif d'appel ATC (ATC Callsign) | celui qui sera tapé dans IF | — |
+| Indicatif d'appel ATC (ATC Callsign) | celui qui sera tapé dans IF | n/a |
 
 ⚠ Le type doit exister dans IF, et dans la même variante. Un A330-300 planifié pour un -200 volé fausse masses, moteurs et vitesses.
 ⇒ « 0 Airframes Available » en rouge est normal tant qu'aucun type n'est choisi : la liste se peuple après sélection.
-⇒ Le sélecteur `Sort: Registration` ordonne la liste des cellules ; le bouton **Éditeur de cellule** ouvre l'éditeur d'airframe — il affiche « Éditeur de cellule ouvert » une fois l'éditeur déplié. On n'y touche toujours pas.
-⇒ **Sous l'Indicatif d'appel ATC vient le bouton « Plus d'options »**, qui bascule en « Moins d'options » une fois déplié. Ce qu'il déplie est le §0.2 bis, juste en dessous — et nulle part ailleurs.
+⇒ Le sélecteur `Sort: Registration` ordonne la liste des cellules ; le bouton **Éditeur de cellule** ouvre l'éditeur d'airframe : il affiche « Éditeur de cellule ouvert » une fois l'éditeur déplié. On n'y touche toujours pas.
+⇒ **Sous l'Indicatif d'appel ATC vient le bouton « Plus d'options »**, qui bascule en « Moins d'options » une fois déplié. Ce qu'il déplie est le §0.2 bis, juste en dessous : et nulle part ailleurs.
 
-### §0.2 bis · INFORMATIONS SUR L'AVION — SOUS « PLUS D'OPTIONS »
+### §0.2 bis · INFORMATIONS SUR L'AVION : SOUS « PLUS D'OPTIONS »
 
 **Neuf champs, repliés derrière le bouton « Plus d'options », à l'intérieur d'Informations sur l'avion, sous l'Indicatif d'appel ATC.** Ils se lisent et se remplissent là, à la position du bouton.
 
-⚠ **Ces neuf champs figuraient en tête du §0 jusqu'à la REV 21**, sous le titre « identification et équipement — priorité », au motif qu'ils étaient les derniers du dossier livrés sans valeur. Ils en portent tous une depuis la REV 19 : le motif a expiré, et un ordre qui ne suit pas l'écran fait sauter des cases. Ils sont revenus à leur place réelle.
+⚠ **Ces neuf champs figuraient en tête du §0 jusqu'à la REV 21**, sous le titre « identification et équipement : priorité », au motif qu'ils étaient les derniers du dossier livrés sans valeur. Ils en portent tous une depuis la REV 19 : le motif a expiré, et un ordre qui ne suit pas l'écran fait sauter des cases. Ils sont revenus à leur place réelle.
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
@@ -563,45 +561,45 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Équipement de l'OACI (ICAO Equipment) | SDFGHRWY | chaîne appliquée par SimBrief |
 | Transpondeur (Transponder) | LB1 | chaîne appliquée par SimBrief |
 | Capacité PBN (PBN Capability) | A1B1C1D1L1O1S1 | chaîne appliquée par SimBrief |
-| Informations supplémentaires sur le FPL — Article 18 | DAT/V RMK/SIMBRIEF | chaîne appliquée par SimBrief |
+| Informations supplémentaires sur le FPL : Article 18 | DAT/V RMK/SIMBRIEF | chaîne appliquée par SimBrief |
 
-⚠ **Les quatre dernières lignes.** Le texte gris dans ces cases n'est pas un exemple : c'est la chaîne que SimBrief applique si la case reste vide. Elle se **tape explicitement**, à l'identique — même résultat sur le plan de vol, mais la valeur est écrite, donc vérifiable.
+⚠ **Les quatre dernières lignes.** Le texte gris dans ces cases n'est pas un exemple : c'est la chaîne que SimBrief applique si la case reste vide. Elle se **tape explicitement**, à l'identique : même résultat sur le plan de vol, mais la valeur est écrite, donc vérifiable.
 
 ⚠ **Les quatre premières lignes du bloc gris sont des exemples, pas des valeurs.** `N999SB`, `999`, `ABCD` et `ZZZZZZ` sont des amorces de démonstration : les laisser produit un plan de vol au nom d'un appareil qui n'existe pas. Elles se remplissent depuis l'immatriculation réelle.
 
 **Règles de dérivation** :
-- **Numéro Fin** — les trois derniers caractères de l'immatriculation, sans tiret.
-- **SELCAL** — quatre lettres prises entre A et S, **sans I, N ni O** ; deux paires, chaque paire en ordre alphabétique croissant, aucune lettre répétée. Se construit sur les lettres disponibles de l'immatriculation, complété si besoin.
-- **Code Mode-S** — l'adresse OACI 24 bits de l'appareil, six caractères hexadécimaux. Connue : elle se tape. Inconnue : une valeur cohérente avec le bloc du pays d'immatriculation, marquée `[CALC]` et jamais présentée comme réelle.
+- **Numéro Fin** : les trois derniers caractères de l'immatriculation, sans tiret.
+- **SELCAL** : quatre lettres prises entre A et S, **sans I, N ni O** ; deux paires, chaque paire en ordre alphabétique croissant, aucune lettre répétée. Se construit sur les lettres disponibles de l'immatriculation, complété si besoin.
+- **Code Mode-S** : l'adresse OACI 24 bits de l'appareil, six caractères hexadécimaux. Connue : elle se tape. Inconnue : une valeur cohérente avec le bloc du pays d'immatriculation, marquée `[CALC]` et jamais présentée comme réelle.
 
-**Les quatre boutons « Constructeur »** — présents à droite d'Équipement de l'OACI, Transpondeur, Capacité PBN et Article 18. Ils ouvrent un assistant à cases à cocher qui compose la chaîne à partir des équipements réellement embarqués.
+**Les quatre boutons « Constructeur »** : présents à droite d'Équipement de l'OACI, Transpondeur, Capacité PBN et Article 18. Ils ouvrent un assistant à cases à cocher qui compose la chaîne à partir des équipements réellement embarqués.
 
-⇒ Quand s'en servir : jamais par défaut. Uniquement si un vol exige une capacité que la chaîne standard ne déclare pas — RNP AR, CPDLC en zone océanique, MNPS. Sinon la chaîne standard passe partout, et l'assistant ne fait qu'introduire du risque de saisie.
+⇒ Quand s'en servir : jamais par défaut. Uniquement si un vol exige une capacité que la chaîne standard ne déclare pas : RNP AR, CPDLC en zone océanique, MNPS. Sinon la chaîne standard passe partout, et l'assistant ne fait qu'introduire du risque de saisie.
 ⚠ Une chaîne modifiée par l'assistant se recopie dans le dossier au §9, sinon elle est perdue au vol suivant.
 
-⚠ Aucun de ces neuf champs n'entre dans un calcul de masse, de carburant ou de vitesse. Ils s'impriment sur le plan de vol OACI. Une erreur ici n'empêche rien de voler — mais une case laissée à sa valeur de démonstration est une case oubliée, pas une case neutre.
+⚠ Aucun de ces neuf champs n'entre dans un calcul de masse, de carburant ou de vitesse. Ils s'impriment sur le plan de vol OACI. Une erreur ici n'empêche rien de voler : mais une case laissée à sa valeur de démonstration est une case oubliée, pas une case neutre.
 
-### §0.3 · SÉLECTIONS (Selections) — réglages permanents
+### §0.3 · SÉLECTIONS (Selections) : réglages permanents
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Disposition OFP (Layout) | LIDO | — |
+| Disposition OFP (Layout) | LIDO | n/a |
 | Cycle AIRAC | le cycle courant | fenêtre de validité |
-| Unités (Units) | Kilograms | — |
-| Cartes de vol (Flight Maps) | Detailed | — |
+| Unités (Units) | Kilograms | n/a |
+| Cartes de vol (Flight Maps) | Detailed | n/a |
 | Taxi Sortie / Entrée (Taxi Time) | 20 / 8 | départ / arrivée, en minutes |
-| Règles de vol (Flight Rules) | IFR | — |
-| Type de vol (Type of Flight) | Scheduled | — |
-| Compte alternatif (Alternates) | 1 | — |
-| Journal de navigation détaillé | ON | — |
-| Planification ETOPS | ON | — |
-| Planifier les escaliers (Stepclimbs) | ON | — |
-| Analyse de la piste (Runway Analysis) | ON | — |
-| Inclure les NOTAM | ON | — |
-| NOTAM FIR | ON | — |
+| Règles de vol (Flight Rules) | IFR | n/a |
+| Type de vol (Type of Flight) | Scheduled | n/a |
+| Compte alternatif (Alternates) | 1 | n/a |
+| Journal de navigation détaillé | ON | n/a |
+| Planification ETOPS | ON | n/a |
+| Planifier les escaliers (Stepclimbs) | ON | n/a |
+| Analyse de la piste (Runway Analysis) | ON | n/a |
+| Inclure les NOTAM | ON | n/a |
+| NOTAM FIR | ON | n/a |
 
 ⇒ **AIRAC actuel** remet le cycle en cours si la liste a dérivé. **Save Defaults** fige toute la section d'un vol à l'autre.
-⇒ Le cycle s'affiche avec sa fenêtre de validité, sur le modèle relevé le 24/08/2026 : `AIRAC 2608 — 06Aug26 to 02Sep26`. C'est un exemple de format, pas une valeur permanente — le cycle courant se relit à chaque vol.
+⇒ Le cycle s'affiche avec sa fenêtre de validité, sur le modèle relevé le 24/08/2026 : `AIRAC 2608, 06Aug26 to 02Sep26`. C'est un exemple de format, pas une valeur permanente, le cycle courant se relit à chaque vol.
 ⇒ Le libellé de la troisième bascule s'affiche « Planifier les escaliers » selon la largeur de la fenêtre ; c'est le même réglage que « Planifier les montées d'escalier ».
 ⚠ Ces six interrupteurs sont ce qui autorise ce dossier à être aussi court. Éteindre l'un d'eux rouvre un trou que rien ne comble.
 ⚠ Quand le cycle SimBrief prend de l'avance sur la base d'IF, un waypoint récent peut être refusé à l'import (§2.2 ①).
@@ -621,10 +619,10 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 ⇒ **Le ZFW est le champ qui compte le plus.** Il se force à la masse que l'avion aura RÉELLEMENT dans IF. C'est le seul moyen d'obtenir vitesses et flex calculées pour la masse volée.
 ⚠ Masse à vide du type absente du §9 : je la demande à Milan par l'alerte du §A.2, et le champ sort en `[MANQUE]` tant qu'elle n'est pas donnée. Une estimation sur un type voisin s'est écartée de 4 900 kg.
-⚠ **Les trois derniers champs sortent d'usine en `NONE`, `AUTO` et `AUTO`** — Fret, Charge utile, Poids zéro carburant, relevés le 24/08/2026. La règle ne bouge pas : **les trois se forcent.** Un AUTO laissé en place fait calculer les vitesses sur une masse que l'avion n'aura pas.
+⚠ **Les trois derniers champs sortent d'usine en `NONE`, `AUTO` et `AUTO`** : Fret, Charge utile, Poids zéro carburant, relevés le 24/08/2026. La règle ne bouge pas : **les trois se forcent.** Un AUTO laissé en place fait calculer les vitesses sur une masse que l'avion n'aura pas.
 ⇒ Le champ Fret affiche `NONE` par défaut : taper 0 revient au même, mais la case est alors traitée.
 ⚠ Notice « freight + custom payload » : normale, rien à corriger.
-⇒ **Pistes en AUTO** : AUTO choisit selon le vent réel, exactement comme IF. Ma piste attendue sort en face pour être comparée, pas tapée — et se retrouve au cartouche ② pour la checklist.
+⇒ **Pistes en AUTO** : AUTO choisit selon le vent réel, exactement comme IF. Ma piste attendue sort en face pour être comparée, pas tapée : et se retrouve au cartouche ② pour la checklist.
 ⚠ `Altitude (Pieds)` est ici le **FL de croisière**. Le champ homonyme du dégagement est déclaré ignoré (§A.5).
 
 ### §0.5 · PLANIFICATION DU CARBURANT (Fuel Planning)
@@ -636,11 +634,11 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Carburant pour taxis (Taxi Fuel) | AUTO | 20 min au débit roulage du type |
 | Bloc carburant (FOB) | AUTO | = bloc calculé |
 | Carburant d'arrivée (FOD) | AUTO | bloc − trip − taxi |
-| Carburant MEL (MEL Fuel) | 0 | — |
-| Carburant ATC (ATC Fuel) | 0 | — |
-| Carburant WXX (WXX Fuel) | 0 | — |
+| Carburant MEL (MEL Fuel) | 0 | n/a |
+| Carburant ATC (ATC Fuel) | 0 | n/a |
+| Carburant WXX (WXX Fuel) | 0 | n/a |
 | EXTRA | 0, ou un chiffre avec motif écrit | le motif |
-| Transport de pétrole (Tankering) | 0 | — |
+| Transport de pétrole (Tankering) | 0 | n/a |
 
 ⇒ Le sélecteur à gauche du champ EXTRA reste sur `EXTRA`. Toutes les unités restent en KG.
 ⇒ EXTRA non nul seulement avec un motif écrit ; le motif remonte dans les remarques du répartiteur.
@@ -650,15 +648,15 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Identifiant du pilote (Pilot ID) | 1312837 | — |
-| Nom du capitaine (Captain Name) | MILAN ELIAYAN | — |
-| Nom du premier officier (First Officer) | Random | — |
-| Nom du distributeur (Dispatcher Name) | Random | — |
+| Identifiant du pilote (Pilot ID) | 1312837 | n/a |
+| Nom du capitaine (Captain Name) | MILAN ELIAYAN | n/a |
+| Nom du premier officier (First Officer) | Random | n/a |
+| Nom du distributeur (Dispatcher Name) | Random | n/a |
 | Remarques du répartiteur | une ligne par remarque | piste attendue · seuil BINGO · dégagement · motif de l'EXTRA |
 
 ⇒ Les remarques remontent sur l'OFP : c'est le seul endroit où mes seuils s'impriment à côté des chiffres SimBrief.
 ⇒ Format retenu pour les pistes, lisible par la page : `DEP RWY EXPECTED nn` et `ARR RWY EXPECTED nn`.
-⇒ **Le quatrième champ porte deux traductions pour le même champ Dispatcher Name** : « Nom du distributeur », servi sur la capture du 24/08/2026 et retenu ici, et « Nom de l'expéditeur ». Les deux coexistent selon la traduction servie — c'est la même case.
+⇒ **Le quatrième champ porte deux traductions pour le même champ Dispatcher Name** : « Nom du distributeur », servi sur la capture du 24/08/2026 et retenu ici, et « Nom de l'expéditeur ». Les deux coexistent selon la traduction servie : c'est la même case.
 
 ### §0.7 · ITINÉRAIRE (Route)
 
@@ -676,19 +674,19 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 
 ### §0.8 · AÉROPORTS ALTERNATIFS (Alternate Airports)
 
-**Critères de recherche** — permanents :
+**Critères de recherche** : permanents :
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Compte alternatif (Alternates) | 1 | — |
-| Distance maximale (NM) | 400 | — |
-| Plafond minimum (Pieds) | 600 | — |
-| Visibilité minimale (Meters) | 3000 | — |
+| Compte alternatif (Alternates) | 1 | n/a |
+| Distance maximale (NM) | 400 | n/a |
+| Plafond minimum (Pieds) | 600 | n/a |
+| Visibilité minimale (Meters) | 3000 | n/a |
 | Piste minimale (Feet) | 7000 | 9000 pour un long-courrier lourd |
-| Évitez les aéroports (Avoid ICAOs) | vide | — |
+| Évitez les aéroports (Avoid ICAOs) | vide | n/a |
 | Avoid TS/FG | `Avoid TS/FG` | écarte les terrains annoncés en orage ou brouillard |
 
-⚠ `Compte alternatif` apparaît **deux fois** dans le formulaire : ici et en Sélections. C'est le même réglage miroir, pas un conflit — le libellé n'est pas au registre, rien ne le lit. Les deux lignes portent la même valeur, et c'est voulu.
+⚠ `Compte alternatif` apparaît **deux fois** dans le formulaire : ici et en Sélections. C'est le même réglage miroir, pas un conflit : le libellé n'est pas au registre, rien ne le lit. Les deux lignes portent la même valeur, et c'est voulu.
 ⇒ Le bouton de ces critères s'affiche **« Trouver des »**, libellé tronqué par la largeur de la fenêtre. Noté ici pour ne pas le chercher sous un autre nom.
 
 **Dégagement n° 1** :
@@ -710,11 +708,11 @@ Ordre, libellés et valeurs par défaut relevés sur `dispatch.simbrief.com`, af
 | Décoller (Takeoff altn) | NONE | terrain nommé si la météo départ est sous les minima de retour |
 | En route (Enroute altn) | NONE | terrain nommé sur survol maritime ou désertique |
 
-**Bas de section — terrains en route** :
+**Bas de section : terrains en route** :
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Gares en route (Enroute Stations) | Disabled | — |
+| Gares en route (Enroute Stations) | Disabled | n/a |
 | Aéroports sélectionnés (Selected Airports) | vide | terrains dont la météo mérite d'être imprimée |
 
 ⇒ Ce bloc ne choisit aucun dégagement : il ajoute des METAR et TAF au bloc météo de l'OFP.
@@ -725,9 +723,9 @@ Actif seulement sur survol maritime ou désertique. Sinon : n/a, ne pas y touche
 
 | Champ | À taper | Valeur attendue |
 |---|---|---|
-| Threshold | 60 min | — |
-| Scenario | Auto | — |
-| Exclude Airports | vide | — |
+| Threshold | 60 min | n/a |
+| Scenario | Auto | n/a |
+| Exclude Airports | vide | n/a |
 | Entry · Exit | AUTO · AUTO | points d'entrée et de sortie de zone |
 | Altn 1 à 6 | NONE | terrains attendus sur l'arc |
 
@@ -737,7 +735,7 @@ Actif seulement sur survol maritime ou désertique. Sinon : n/a, ne pas y touche
 
 n/a, décidé et assumé.
 
-⚠ Une fois l'OFP généré, c'est lui qui fait foi. Si SimBrief a retenu autre chose que ce que j'ai proposé — piste, FL, dégagement, masse — je reprends le briefing sur ses valeurs.
+⚠ Une fois l'OFP généré, c'est lui qui fait foi. Si SimBrief a retenu autre chose que ce que j'ai proposé, piste, FL, dégagement, masse, je reprends le briefing sur ses valeurs.
 
 ---
 
@@ -745,14 +743,14 @@ n/a, décidé et assumé.
 
 La carte anti-répétition. Rien de ce qui suit ne se redemande, ne se recopie, ni ne se recalcule.
 
-- **Page de garde** — callsign, compagnie, n° de vol, type, immat, terrains, dégagement, EOBT, FL, cost index, distance, ETE.
-- **Bloc masses** — payload, OEW, ZFW, TOW, LW, limites structurales et marges.
-- **Bloc carburant** — taxi, trip, contingence, dégagement, réserve finale, extra, total bloc.
-- **Navlog détaillé** — waypoints, airways, distances, temps, vent et température par segment, MORA, carburant prévu à chaque point.
-- **Runway analysis** — piste retenue, composantes de vent, V1/VR/V2, flex, facteur limitant, stop margin, longueurs disponibles.
-- **Bloc météo** — METAR et TAF des trois terrains, vents en altitude.
-- **NOTAM** — départ, arrivée, dégagement, FIR.
-- **Step climbs** — si le vol en comporte.
+- **Page de garde** : callsign, compagnie, n° de vol, type, immat, terrains, dégagement, EOBT, FL, cost index, distance, ETE.
+- **Bloc masses** : payload, OEW, ZFW, TOW, LW, limites structurales et marges.
+- **Bloc carburant** : taxi, trip, contingence, dégagement, réserve finale, extra, total bloc.
+- **Navlog détaillé** : waypoints, airways, distances, temps, vent et température par segment, MORA, carburant prévu à chaque point.
+- **Runway analysis** : piste retenue, composantes de vent, V1/VR/V2, flex, facteur limitant, stop margin, longueurs disponibles.
+- **Bloc météo** : METAR et TAF des trois terrains, vents en altitude.
+- **NOTAM** : départ, arrivée, dégagement, FIR.
+- **Step climbs** : si le vol en comporte.
 
 **CE QUE L'OFP NE PORTE PAS**
 - l'état du FMS d'IF (§2)
@@ -763,7 +761,7 @@ La carte anti-répétition. Rien de ce qui suit ne se redemande, ne se recopie, 
 - l'approche lisse, la vitesse au FAF et le plancher de finale (§5.1)
 - les distances d'annonce en arrivée (§6.6)
 - les limites de vent de travers du type
-- la masse à vide réelle du type dans IF — elle vient de Milan (§9)
+- la masse à vide réelle du type dans IF : elle vient de Milan (§9)
 - l'état d'usure de l'appareil en Live et sa puissance de freinage (§7)
 - tout ce qui est propre au simulateur : fréquences IF, absence de Clearance Delivery, unicom
 
@@ -801,7 +799,7 @@ Nouveau au build 18266 : **LAT REV, DEPARTURE et ARRIVAL**. La procédure choisi
 
 **RESTE À LA MAIN, DANS L'ORDRE :**
 
-1. **ALTN sur INIT 1/2** — l'import ne l'apporte pas, le champ reste à tirets et un NOT ALLOWED ambre s'affiche. Un appui LSK à scratchpad vide restaure la valeur SimBrief.
+1. **ALTN sur INIT 1/2** : l'import ne l'apporte pas, le champ reste à tirets et un NOT ALLOWED ambre s'affiche. Un appui LSK à scratchpad vide restaure la valeur SimBrief.
 2. **Contraintes d'altitude**, waypoint par waypoint, via VERT REV. Format `5000` ou `FL350`, CLR retire.
    ⚠ Le code couleur ne dit pas ce qui vient de toi : des niveaux apparaissent en magenta sans qu'aucune contrainte n'ait été saisie. Ouvrir VERT REV et regarder si ALT CSTR est renseigné.
 3. **Contraintes de vitesse** : inexistantes dans le MCDU. À tenir au sélecteur AP et à noter ici.
@@ -829,23 +827,23 @@ Puis, avant repoussage : scratchpad vide, aucun message ambre, mémo T.O tout ve
 
 ### 2.3 · CE QUI NE MARCHE PAS
 
-- **MASSES IMPORTÉES** — non fidèles. Le bloc carburant passe juste, le ZFW non. Observé sur l'A318 : GW 59,3 t avec 8,2 t à bord, soit un ZFW de 51,1 t contre 49,0 t à l'OFP, sans message.
+- **MASSES IMPORTÉES** : non fidèles. Le bloc carburant passe juste, le ZFW non. Observé sur l'A318 : GW 59,3 t avec 8,2 t à bord, soit un ZFW de 51,1 t contre 49,0 t à l'OFP, sans message.
   ⇒ On décolle plus lourd que la masse ayant servi au calcul des vitesses. Vérifier la marge au MTOW sur la masse RÉELLE.
-- **SEC F-PLN** — PAGE NOT YET AVAILABLE. Non cité par les builds 18266 ni 18308 : supposé toujours absent, à reconfirmer à l'écran.
-- **OPT / REC MAX (PROG)** — à tirets même en croisière.
-- **VNAV EN MONTÉE** — inexistant. TOD vide et 999:59 tant qu'on monte.
-- **THR RED / ACCEL ALT / ALT DE TRANSITION** — absents du MCDU. Ces trois altitudes se tiennent à la main.
-- **VAPP** — calculée, non modifiable. Observée 11 kt sous la valeur SimBrief à masse égale.
+- **SEC F-PLN** : PAGE NOT YET AVAILABLE. Non cité par les builds 18266 ni 18308 : supposé toujours absent, à reconfirmer à l'écran.
+- **OPT / REC MAX (PROG)** : à tirets même en croisière.
+- **VNAV EN MONTÉE** : inexistant. TOD vide et 999:59 tant qu'on monte.
+- **THR RED / ACCEL ALT / ALT DE TRANSITION** : absents du MCDU. Ces trois altitudes se tiennent à la main.
+- **VAPP** : calculée, non modifiable. Observée 11 kt sous la valeur SimBrief à masse égale.
   ⇒ Écart > 5 kt : la valeur SimBrief fait foi et se tient au sélecteur.
-- **FUEL PRED** — PREDICTION BASIS: PRESENT FUEL FLOW. Les relevés se prennent sur la jauge (§3).
+- **FUEL PRED** : PREDICTION BASIS: PRESENT FUEL FLOW. Les relevés se prennent sur la jauge (§3).
   ⚠ Même défaut sur l'autonomie affichée en bas d'écran : au parking, elle extrapole un débit qui n'a aucun sens. Elle ne devient lisible qu'une fois les deux moteurs stabilisés.
-- **ATC COMM** — lecture seule.
-- **TRANS LVL** — affiché sans préfixe FL. Recouper avec la carte.
-- **CRZ SPEED** — observée à .76 contre .77/.78 planifiés. Écart normal.
-- **CRZ sur PROG** — refusée au sol. Retentable en montée.
-- **TEMPÉRATURES D'HUILE MOTEUR** — négatives au spawn quelle que soit la température extérieure (−18 et −15 °C relevés à SAT +34 °C sur A330-900neo). Affichage seul, sans conséquence connue.
+- **ATC COMM** : lecture seule.
+- **TRANS LVL** : affiché sans préfixe FL. Recouper avec la carte.
+- **CRZ SPEED** : observée à .76 contre .77/.78 planifiés. Écart normal.
+- **CRZ sur PROG** : refusée au sol. Retentable en montée.
+- **TEMPÉRATURES D'HUILE MOTEUR** : négatives au spawn quelle que soit la température extérieure (−18 et −15 °C relevés à SAT +34 °C sur A330-900neo). Affichage seul, sans conséquence connue.
 
-**À REVÉRIFIER — annoncé corrigé par un changelog, pas encore recontrôlé à l'écran**
+**À REVÉRIFIER : annoncé corrigé par un changelog, pas encore recontrôlé à l'écran**
 
 | Ligne | Build qui l'annonce corrigée |
 |---|---|
@@ -865,8 +863,26 @@ RAD NAV accorde seul l'ILS d'ARRIVÉE dès l'import.
 ⚠ Une course qui ne colle pas à la piste de décollage est normale : c'est celle de l'arrivée.
 DIR TO · **BRG/DIST sur PROG, qui accepte désormais les points hors route : fixes, navaids, aéroports, pistes et coordonnées** · NEARBY AIRPORTS sur DATA INDEX.
 ⇒ C'est avec ces trois-là que se gère un déroutement, faute de SEC F-PLN. Le BRG/DIST étendu les rend enfin utilisables sur un terrain qui n'est pas sur la route : relèvement et distance en direct vers le dégagement, sans rien casser du plan actif.
-⇒ **La page racine `MCDU MENU` porte quatre entrées** : `<FMGC`, `<ATSU`, `<AIDS`, `<CFDS`, avec un `HELP HINTS` commutable. Le FMGC n'est donc pas la page d'ouverture : il se sélectionne. `[WIP]`, relevé sur capture studio du 29/08/2026 — sur un poste A320 famille dont le type exact n'est pas identifié.
-**AIDS FLIGHT REPORT et AIDS LANDING REPORT** — au MCDU MENU, à relever après le vol (§9).
+⇒ **La page racine `MCDU MENU` porte quatre entrées** : `<FMGC`, `<ATSU`, `<AIDS`, `<CFDS`, avec un `HELP HINTS` commutable. Le FMGC n'est donc pas la page d'ouverture : il se sélectionne. `[WIP]`, relevé sur capture studio du 29/08/2026 : sur un poste A320 famille dont le type exact n'est pas identifié.
+**AIDS FLIGHT REPORT et AIDS LANDING REPORT** : au MCDU MENU, à relever après le vol (§9).
+
+### 2.4 · ONGLET FMS AIRBUS · TUTORIEL EN CAPTURES *(REV 36)*
+
+La page en ligne porte un onglet **FMS Airbus** : un tutoriel communautaire du MCDU famille A320 d'Infinite Flight, 92 captures en 11 étapes déroulantes, sur un exemple RPMD vers RPLL `[TIERS]`. Il n'est pas lu par le parseur et n'ajoute aucune clé au registre. La version d'IF des captures n'est pas indiquée.
+
+**Ce qu'il montre et que ce dossier ne décrivait pas**
+
+| Geste | Où dans l'onglet |
+|---|---|
+| CRZ TEMP lue sur la ligne T O C du navlog de l'OFP, préfixe `M` pour moins | étape 1 · Page INIT |
+| V1, VR, V2 prises dans le tableau DRY RWY du Runway Analysis, ligne de la piste de départ | étape 2 · PERF |
+| airway saisie par LAT REV, AIRWAYS, VIA puis TO : le MCDU remplit les points | étape 5 |
+| point hors base saisi en coordonnées, format `0911N/12434` | étape 6 |
+| attente par LAT REV, HOLD : INB CRS, TURN, TIME/DIST, INSERT, sortie par IMM EXIT | étape 10 |
+| ILS saisi à la main en RAD NAV, VOR1/ILS, vers 10 NM du terrain | étape 11 |
+
+⚠ **Contradiction signalée, pas arbitrée (§A.3 règle 7).** Le §2.3 écrit que RAD NAV accorde seul l'ILS d'arrivée dès l'import ; le tutoriel saisit la fréquence à la main vers 10 NM, pour ne pas accrocher le localizer d'un autre terrain. Les deux se vérifient au prochain vol : la course affichée en RAD NAV doit être celle de la piste d'arrivée.
+⚠ **Rang `[TIERS]` : rien de cet onglet ne remplace une observation `[SIM]`.** Les pages HOLD et AIRWAYS passent au §2.1 le jour où Milan les ouvre dans son build (§8). La méthode CRZ TEMP et la lecture du Runway Analysis rejoignent les règles déjà écrites au §2.2 ③ et au §A.4.
 
 ---
 
@@ -906,9 +922,9 @@ Un écart qui grandit à chaque point est une tendance : elle se traite au point
 **À TENIR À LA MAIN**
 Réduction de poussée ____ ft · Accélération ____ ft · Altitude de transition ____ ft
 ⚠ Absentes du MCDU : rien ne les déclenchera.
-⇒ Valeurs par défaut, tenues dès le temps 1 : réduction = élévation + 1 500 ft, accélération = élévation + 3 000 ft, arrondies à la centaine supérieure. La transition se lit sur la carte du terrain de départ — elle n'a rien à voir avec celle de l'arrivée.
+⇒ Valeurs par défaut, tenues dès le temps 1 : réduction = élévation + 1 500 ft, accélération = élévation + 3 000 ft, arrondies à la centaine supérieure. La transition se lit sur la carte du terrain de départ : elle n'a rien à voir avec celle de l'arrivée.
 
-**AUTOBRAKE** — cran retenu au décollage : ____
+**AUTOBRAKE** : cran retenu au décollage : ____
 ⇒ MAX au décollage, c'est ce que le mémo T.O attend. Un autre cran est un choix, pas un oubli : il se dit au briefing.
 ⚠ Le cran se sélectionne avant l'alignement. Le mémo T.O ne passe pas au vert tant qu'il n'est pas mis.
 
@@ -953,7 +969,7 @@ OAT réelle contre OAT du navlog : un écart notable fausse le TOD.
 **À CHAQUE WAYPOINT MAJEUR**
 Carburant contre navlog (§3) · GS · ETA · météo destination au plus tard 1 h avant le TOD · dégagement toujours utilisable.
 
-**DESCENTE — TOD MANUEL**
+**DESCENTE : TOD MANUEL**
 ```
 (altitude à perdre en milliers de ft) × 3
 + 10 NM pour décélérer et configurer
@@ -966,8 +982,8 @@ Carburant contre navlog (§3) · GS · ETA · météo destination au plus tard 1
 Taux 1500–2000 fpm · 250 kt sous 10 000 ft · aérofreins jusqu'à 50 %
 ⚠ Ne pas combiner aérofreins et train pour rattraper un profil : demander un circuit d'attente.
 
-**DÉPRESSURISATION** — descente vers FL100, ou le MORA du secteur s'il est plus haut.
-**PANNE MOTEUR EN CROISIÈRE** — driftdown FL___ contre le MORA du segment. Terrain retenu ____
+**DÉPRESSURISATION** : descente vers FL100, ou le MORA du secteur s'il est plus haut.
+**PANNE MOTEUR EN CROISIÈRE** : driftdown FL___ contre le MORA du segment. Terrain retenu ____
 
 ---
 
@@ -1004,7 +1020,7 @@ Ce qui alimente le cartouche ⑥, et ce qui décide entre deux sources quand ell
 | Vitesse FAF | 180, ou la VFE du cran sorti à l'interception moins 10 si elle est plus basse `[CALC]` | idem ; une instruction ATC prime |
 | Plancher finale | Vapp − 5 (§6.4), relevé au plancher observé du type s'il est plus haut | idem, sur la Vapp retenue |
 
-**REGISTRE DES PROFILS PAR TYPE** — au temps 1 seulement ; au temps 2, l'OFP les remplace.
+**REGISTRE DES PROFILS PAR TYPE** : au temps 1 seulement ; au temps 2, l'OFP les remplace.
 
 | Type | Basse | Montée IAS | Montée Mach | Croisière Mach | Descente Mach | Descente IAS | Source |
 |---|---|---|---|---|---|---|---|
@@ -1028,7 +1044,7 @@ Ce qui alimente le cartouche ⑥, et ce qui décide entre deux sources quand ell
 
 Ce que le MCDU remplit seul (piste, ILS, fréquence, élévation, TRANS LVL, LDG CONF) ne se recopie pas ici.
 
-⚠ **CE QUI MANQUE ENCORE, PAR TYPE — à lire avant de choisir l'appareil du vol**
+⚠ **CE QUI MANQUE ENCORE, PAR TYPE : à lire avant de choisir l'appareil du vol**
 
 | Type | VFE §6.1 | Vref §6.2 | Tail strike §6.3 |
 |---|---|---|---|
@@ -1042,7 +1058,7 @@ Ce que le MCDU remplit seul (piste, ILS, fréquence, élévation, TRANS LVL, LDG
 ⚠ Un vol sur A321 ou A330-900neo part donc avec une Vref calculée sur une pente non vérifiée et sans marge d'assiette connue. C'est un point d'arrêt du §8, pas une réserve de bloc 5.
 ⚠ **Même statut pour le CRJX** : pas de point Vref relevé dans IF en configuration connue. Le plancher du §6.2 permet de le voler sans attendre ; la table reste à confirmer.
 
-**MINIMA — cartes**
+**MINIMA : cartes**
 DA / MDA ____ ft · DH ____ ft · RVR mini ____ m
 FAF ____ ft à ____ NM · course ___°
 ⇒ météo prévue à l'ETA au-dessus des minima, sinon dégagement.
@@ -1055,9 +1071,9 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 
 **AIRBUS A318 / A319 / A320** `[NAV]`
 
-| Config | VFE — limite | Sélection normale | Repère |
+| Config | VFE : limite | Sélection normale | Repère |
 |---|---|---|---|
-| Lisse | — | — | décélérer vers green dot |
+| Lisse | n/a | n/a | décélérer vers green dot |
 | 1 (slats) | 230 kt | ~205 kt | à green dot |
 | 1+F | 215 kt | ~200 kt | si sortie en approche |
 | 2 | 200 kt | ~190 kt | à S speed |
@@ -1097,7 +1113,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 ⇒ Volets 45 est la configuration normale d'atterrissage du CRJ1000 `[DOC]`, rapport EASA de l'Operational Evaluation Board sur la série CRJ.
 ⇒ Limites train : `[MANQUE]`, à lire au placard du cockpit.
 
-**AUTRES TYPES** — à remplir au premier vol sur le type, puis gardé.
+**AUTRES TYPES** : à remplir au premier vol sur le type, puis gardé.
 
 | Type | Conf 1 | Conf 2 | Conf 3 | FULL | Train |
 |---|---|---|---|---|---|
@@ -1112,9 +1128,9 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 
 ### 6.2 · VREF ET VAPP
 
-**VREF** `[CALC]` — conf FULL, par type. La formule A320 ne se transpose pas : à masse égale, un A321 se pose plus vite.
+**VREF** `[CALC]` : conf FULL, par type. La formule A320 ne se transpose pas : à masse égale, un A321 se pose plus vite.
 
-**A320** — `Vref ≈ masse d'atterrissage en tonnes + 73`, valable entre 50 et 73 t, précision ±3 kt.
+**A320** : `Vref ≈ masse d'atterrissage en tonnes + 73`, valable entre 50 et 73 t, précision ±3 kt.
 
 | LW | Vref conf FULL |
 |---|---|
@@ -1123,7 +1139,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 | 64,5 t (MLW) | 138 kt |
 | 70 t | 143 kt |
 
-**A321** — pente d'environ 1 kt par tonne, **non confirmée**. À recouper avec la Vapp du MCDU au premier vol sur le type, avant de s'en servir pour un briefing d'arrivée.
+**A321** : pente d'environ 1 kt par tonne, **non confirmée**. À recouper avec la Vapp du MCDU au premier vol sur le type, avant de s'en servir pour un briefing d'arrivée.
 
 | LW | Vref conf FULL |
 |---|---|
@@ -1142,7 +1158,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 ⇒ À cette masse, la table A321 donnait 148 kt en Vref + 5 : l'écart est de 2 kt, sous le seuil de 5 kt du §2.3. La Vapp du MCDU a été volée telle quelle.
 ⇒ **Deuxième point à prendre sur un vol dont la masse d'atterrissage s'écarte d'au moins 8 t de celle-ci.** Deux points donnent la pente, et ferment le point bloquant du §8 pour ce type.
 
-**A330-900neo** — `[MANQUE]`. Aucune table, aucune pente : la première Vapp du MCDU sur le type sert de point de départ, et deux vols à des masses différentes donnent la pente.
+**A330-900neo** : `[MANQUE]`. Aucune table, aucune pente : la première Vapp du MCDU sur le type sert de point de départ, et deux vols à des masses différentes donnent la pente.
 
 **CRJ-1000 (`CRJX`)** *(REV 32)* : volets 45. Trois sources de rang différent, et un plancher observé qui prime sur les trois.
 
@@ -1164,7 +1180,7 @@ La **VFE** est une limite structurale : la dépasser abîme. La **vitesse de sé
 ⇒ **Ce qui ferme le point** : une finale à 143 kt, volets 45 et train sortis confirmés, masse lue au PFD ou à l'écran Poids et centrage. Puis, sur un vol suivant, une approche réduite par paliers de 3 kt jusqu'à l'avertissement, en altitude, loin du sol. Les deux lectures donnent la vraie marge du modèle IF.
 ⚠ **Le rang 3 et le rang 1 ne se contredisent pas** : la catégorie C borne l'avion réel, le décrochage décrit le modèle IF. C'est le second qui se vole.
 
-**AUTRES TYPES** — à remplir au premier vol, puis gardé.
+**AUTRES TYPES** : à remplir au premier vol, puis gardé.
 
 | Type | LW | Vref |
 |---|---|---|
@@ -1201,7 +1217,7 @@ Il n'y a **pas de vitesse cible dans l'arrondi**. Chercher un chiffre au badin s
 
 - Ce qui se pilote là est **l'assiette**, pas la vitesse.
 - La décélération de l'arrondi est une observation, pas une consigne : TD IAS 128 kt relevé au LANDING REPORT à GW 60,2 t sur A320.
-- ⚠ **Limite de tail strike : 11,7° sur A320 train comprimé, moins sur A321 — fuselage plus long, marge réduite.** Ne pas dépasser 7,5° en arrondi sur A320 ; relever la limite du type avant le premier atterrissage sur A321 ou sur A330-900neo (§6, tableau des trous).
+- ⚠ **Limite de tail strike : 11,7° sur A320 train comprimé, moins sur A321 : fuselage plus long, marge réduite.** Ne pas dépasser 7,5° en arrondi sur A320 ; relever la limite du type avant le premier atterrissage sur A321 ou sur A330-900neo (§6, tableau des trous).
 - Assiette figée après le toucher : ne pas reposer le train avant brutalement.
 - ⚠ **Moteurs à l'arrière (CRJX)** *(REV 32)* : réduire les gaz cabre l'avion, les remettre le fait piquer. Ne pas réduire à 50 ft ni plus haut : le CRJ cabre et perd sa vitesse au-dessus de la piste `[TIERS]`, manuel Aerosoft CRJ. **Une vitesse d'arrondi donnée par un outil n'est pas une consigne** : la règle du premier tiret vaut pour tous les types.
 
@@ -1224,7 +1240,7 @@ configuration finale · Vapp +10 / −5 · dans l'axe et sur le plan · < 1000 f
 Après le toucher : spoilers vérifiés, inverseurs, autobrake, freinage manuel en fin de course. Dégagement complet avant d'annoncer piste dégagée.
 
 ⚠ **Puissance de freinage dégradée relevée à l'Aircraft Health (§7) : le cran d'autobrake se monte d'un cran et la distance disponible se regarde deux fois.** Une piste courte avec des freins usés est un motif de dégagement, pas un défi.
-⚠ **Les relevés d'usure antérieurs au 21/08/2026 sont périmés** — voir §7, Aircraft Health.
+⚠ **Les relevés d'usure antérieurs au 21/08/2026 sont périmés** : voir §7, Aircraft Health.
 
 ⚠ **REMISE DE GAZ OBLIGATOIRE** : non stabilisé · toucher au-delà de 2000 ft · piste non dégagée · Vapp > Vref + 15 kt en courte · doute sur le vent ou l'axe.
 
@@ -1238,9 +1254,9 @@ Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstr
 
 ---
 
-### 6.6 · ANNONCES D'ARRIVÉE — À QUELLE DISTANCE
+### 6.6 · ANNONCES D'ARRIVÉE : À QUELLE DISTANCE
 
-**Méthode** — les distances se cumulent à l'envers depuis le seuil, tronçon par tronçon : finale, intercepteur, base, vent arrière ou transition, IAF. La distance se construit sur la STAR du jour.
+**Méthode** : les distances se cumulent à l'envers depuis le seuil, tronçon par tronçon : finale, intercepteur, base, vent arrière ou transition, IAF. La distance se construit sur la STAR du jour.
 
 | Annonce | Avec ATC | Sans ATC (Unicom) |
 |---|---|---|
@@ -1254,7 +1270,7 @@ Pas de plan secondaire (§2.3). Cap direct ___° sur ___ NM, puis route reconstr
 
 ---
 
-### 6.7 · APPROCHE AUTOMATIQUE — SECTION DORMANTE
+### 6.7 · APPROCHE AUTOMATIQUE : SECTION DORMANTE
 
 ⚠ **RIEN ICI NE S'APPLIQUE AUJOURD'HUI.** Le mode n'a été vu que sur une capture studio du 29/08/2026, sur un poste A320 famille dont le type n'est pas identifié. Il n'existe pas dans le build de Milan. La section est écrite pour être réveillée, pas pour être suivie.
 
@@ -1271,13 +1287,13 @@ Paramètres au moment de l'image : 1 024 ft AGL · 144 kt · volets FULL · trai
 | Case | Attendu | Ce que ça veut dire |
 |---|---|---|
 | `LOC` puis `G/S` | en vert | axe et plan capturés, dans cet ordre |
-| `CAT3 DUAL` | affiché | double chaîne annoncée **par l'avion** — pas par la piste, pas par la météo |
+| `CAT3 DUAL` | affiché | double chaîne annoncée **par l'avion** : pas par la piste, pas par la météo |
 | `AP1+2` | affiché | les deux pilotes automatiques engagés. Un seul AP ne donne pas la CAT III |
 | `A/THR` | actif | sans lui, pas d'atterrissage automatique |
 
 ⚠ **Une capacité annoncée n'est pas une autorisation.** Le simulateur ne modélise ni les minima chartés de la piste, ni l'état des équipements sol. `CAT3 DUAL` affiché dans une visibilité de 200 m reste une manœuvre non couverte par une carte : le §6.4 et les minima du §6 continuent de s'appliquer tels quels.
 
-**EFFET SUR LE CARTOUCHE ③ — TRANCHÉ D'AVANCE**
+**EFFET SUR LE CARTOUCHE ③ : TRANCHÉ D'AVANCE**
 
 La cellule de décision d'atterrissage du cartouche ③ reste obligatoire et garde sa méthode du §A.4. Une approche automatique ne change pas cette cellule.
 ⇒ Motif : la CAT III réelle n'a pas de hauteur de décision mais une hauteur d'alerte, qu'aucune valeur observable du simulateur ne produit. Basculer la cellule sur une grandeur inexistante ferait lire un chiffre inventé à la checklist (§A.5).
@@ -1297,16 +1313,16 @@ La cellule de décision d'atterrissage du cartouche ③ reste obligatoire et gar
 
 ## 7 · PROPRE AU SIMULATEUR
 
-### ALIGNEMENT ADIRS — BLOQUANT, EN PREMIER
+### ALIGNEMENT ADIRS : BLOQUANT, EN PREMIER
 
-Sans alignement, **PFD et ND restent noirs** : drapeaux rouges ATT, ALT, SPD, VS et HDG, les deux ND en HDG MAP NOT AVAIL avec GPS PRIMARY LOST. L'E/WD et le SD, eux, fonctionnent — ils ne dépendent pas des centrales inertielles.
+Sans alignement, **PFD et ND restent noirs** : drapeaux rouges ATT, ALT, SPD, VS et HDG, les deux ND en HDG MAP NOT AVAIL avec GPS PRIMARY LOST. L'E/WD et le SD, eux, fonctionnent : ils ne dépendent pas des centrales inertielles.
 
-⇒ Ce n'est pas un bug, c'est la procédure. Une capture studio annonce désormais un mémo `IR IN ALIGN 2 MN` à l'E/WD (voir plus bas) ; tant qu'il n'a pas été vu en session, la règle reste celle de la REV 21 — aucun message ne dit que l'alignement manque, l'écran est simplement vide.
+⇒ Ce n'est pas un bug, c'est la procédure. Une capture studio annonce désormais un mémo `IR IN ALIGN 2 MN` à l'E/WD (voir plus bas) ; tant qu'il n'a pas été vu en session, la règle reste celle de la REV 21 : aucun message ne dit que l'alignement manque, l'écran est simplement vide.
 ⚠ Un décollage est impossible sans PFD. Ce point ne se rattrape pas au roulage.
 
 **CE QUI A CHANGÉ EN REV 24.** La REV 21 écrivait que rien ne rappelle l'alignement manquant et que l'écran est simplement vide. Une capture studio du 29/08/2026 montre un mémo `IR IN ALIGN 2 MN` à l'E/WD, avec le temps restant.
 ⇒ Si ce mémo est bien dans le build, l'alignement se surveille au décompte et non à l'œil, et la ligne « mémo d'alignement ADIRS » du §2.3 tient sa confirmation.
-⚠ `[WIP]` : matière studio, sur un appareil non identifié. **La phrase de la REV 21 reste vraie jusqu'à ce que le mémo soit vu en session** — c'est elle qui décrit ce que Milan a observé, et une image ne remplace pas une observation (§A.3 règle 12). La ligne du §2.3 ne sort donc pas du tableau « à revérifier ».
+⚠ `[WIP]` : matière studio, sur un appareil non identifié. **La phrase de la REV 21 reste vraie jusqu'à ce que le mémo soit vu en session** : c'est elle qui décrit ce que Milan a observé, et une image ne remplace pas une observation (§A.3 règle 12). La ligne du §2.3 ne sort donc pas du tableau « à revérifier ».
 
 ### ÉTAT DE L'APPAREIL (Live)
 
@@ -1350,19 +1366,19 @@ Un item satisfait passe au vert ; ce qui reste à faire s'affiche en cyan derri�
 - **Températures d'huile négatives au spawn** malgré une SAT positive (§2.3). Affichage seul.
 - **Autonomie aberrante au parking** : extrapolation du débit courant, sans valeur tant que les moteurs ne sont pas stabilisés.
 - **Mémos ambre SPEED BRK, NW STRG DISC, TCAS STBY, PARK BRK** au sol : états normaux, pas des alarmes.
-- **Mémos `IR IN ALIGN`, `EXT PWR` et `DOORS OPEN`** au sol : états normaux eux aussi. Ils décrivent la situation, ils ne la reprochent pas — et ils tombent d'eux-mêmes quand la situation change. `[WIP]`, relevés sur capture studio du 29/08/2026.
+- **Mémos `IR IN ALIGN`, `EXT PWR` et `DOORS OPEN`** au sol : états normaux eux aussi. Ils décrivent la situation, ils ne la reprochent pas : et ils tombent d'eux-mêmes quand la situation change. `[WIP]`, relevés sur capture studio du 29/08/2026.
 
 ### ROULAGE
 
 Durée comparée au taxi fuel de l'OFP · carte sol suivie en continu · QNH confirmé · piste confirmée à l'ATIS
 ⚠ Piste en service ≠ piste prévue : vitesses et flex à recalculer, pas à ajuster. La SID, elle, se refait au MCDU (§2.1).
-⚠ **Alertes de conflit de piste — leur portée a changé au build 18308.** Elles sont **supprimées dès qu'on est calé sur une Tower ou une Ground active** : l'ATC est censé assurer la séparation, l'alerte ne se déclenche plus. Elle ne subsiste donc que hors contrôle.
+⚠ **Alertes de conflit de piste : leur portée a changé au build 18308.** Elles sont **supprimées dès qu'on est calé sur une Tower ou une Ground active** : l'ATC est censé assurer la séparation, l'alerte ne se déclenche plus. Elle ne subsiste donc que hors contrôle.
 ⇒ Conséquence : sous ATC, aucun filet automatique à l'entrée de piste. La vérification visuelle de la finale avant d'aligner redevient la seule protection. Hors ATC, l'alerte se traite, elle ne se ferme pas.
 
 ### FRÉQUENCES ET ATC
 
 ⚠ IF n'a pas de position Clearance Delivery. Séquence : ATIS → Ground → Tower → Departure/Center → Approach → Tower → Ground. Le squawk est attribué automatiquement.
-Sans ATC : Unicom 122.800 — intentions, position, piste, aéroport nommé. Écouter avant d'émettre (§6.6).
+Sans ATC : Unicom 122.800 : intentions, position, piste, aéroport nommé. Écouter avant d'émettre (§6.6).
 ⇒ Avec ATC, un « direct to waypoint » peut désormais être donné en vectoring : il se lit comme une instruction, et se saisit en DIR TO.
 Détresse : 7500 capture · 7600 radio · 7700 général
 
@@ -1396,23 +1412,22 @@ La saisie complète, onglet par onglet, vit dans `page_A380-800_FMS.md`, affich�
 
 ## 8 · GO / NO-GO
 
-**BLOQUANT** — cinq points, pas un de plus :
+**BLOQUANT** : cinq points, pas un de plus :
 - masse hors MTOW ou MLW
 - vitesses calculées pour une autre piste que celle attribuée
 - dégagement inutilisable à l'ETA
 - bloc inférieur à la somme des postes
-- **table Vref absente ou non confirmée pour le type volé** (§6.2) — sans elle, la Vapp du briefing n'a pas de base
+- **table Vref absente ou non confirmée pour le type volé** (§6.2) : sans elle, la Vapp du briefing n'a pas de base
 
 ⚠ **Le cartouche ⑥ n'ajoute aucun point bloquant** (REV 32). Une vitesse de montée ou de croisière approximative se corrige en vol. Ce qui peut faire décrocher, `Vapp` et `Plancher finale`, est déjà tenu par le cinquième point ci-dessus et par la règle de plancher du §5.1 : un type dont la table n'est pas confirmée se vole avec un plancher observé, pas avec une valeur d'outil.
 
 **À VÉRIFIER, non bloquant** :
 OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OFP · briefing panne fait · schedule volets sorti pour le type · **49 cellules des six cartouches renseignées** · **rang de source nommé pour chaque vitesse, aucune `Vapp` ni `Plancher finale` sous un plancher observé** · **neuf champs du §0.2 bis renseignés, aucun laissé à sa valeur de démonstration** · type et masse à vide donnés par Milan, aucune alerte du §A.2 restée sans réponse · **ADIRS aligné, PFD et ND vivants** · **mémo T.O tout vert** · **`GW − FOB` comparé à l'EZFW** · Aircraft Health regardé, relevé postérieur au 21/08 · build inchangé depuis la dernière observation du FMS · contrôle §A.5 passé si la feuille part en fichier
 
-**POINTS OUVERTS — se ferment par une observation, jamais par déduction** :
+**POINTS OUVERTS : se ferment par une observation, jamais par déduction** :
 
 | Point | Comment il se ferme | Depuis |
 |---|---|---|
-| Parenthèse de traduction des libellés (§A.5 règle 4) | un `window.debugBriefing()` sur la prochaine feuille chargée | REV 19 |
 | VFE A321 classique et A330-900neo (§6.1). **A21N fermé le 24/09/2026**, placard du cockpit. **CRJX : volets 20 en désaccord entre deux sources tierces** | une descente, cran par cran, au ruban | REV 15 |
 | Vref A321 confirmée, A330-900neo à créer, **A21N : un point sur deux**, **CRJX : aucun point en configuration relevée** (§6.2) | deux vols à des masses différentes. Pour l'A21N, un seul vol de plus, à une masse d'atterrissage écartée d'au moins 8 t. Pour le CRJX, une finale à la Vapp plancher, volets 45 et masse relevés | REV 17 |
 | Limite de tail strike A321, A330-900neo et CRJX (§6.3) | fiche du type | REV 17 |
@@ -1420,18 +1435,14 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 | **Mémo `IR IN ALIGN` dans le build** (§7 · ADIRS) | une mise sous tension, ADIRS non aligné, regarder l'E/WD | REV 24 |
 | **Contrôle `GW − FOB` au poste** (§7) | une lecture au parking, comparée à l'EZFW de l'OFP | REV 24 |
 | **Approche automatique CAT3 DUAL** (§6.7) | un vol : le FMA l'affiche ou il ne l'affiche pas | REV 24 |
-| **Genre des 49 clés du §A.5 — répartition des 39 premières reconstruite, non lue** | une lecture de `js/data/fields.js`, clé par clé. Sans voler, sans capture. La même lecture ferme le point de la parenthèse de traduction | REV 29 |
-| **Atomicité — deux nombres séparés par un blanc sont soudés et acceptés** (§A.5 règle 1) | correctif de code : tester l'atomicité avant d'écraser les blancs. **Défaut silencieux** : aucune feuille n'est protégée en attendant, sauf `Altitude initiale` et, après les consignes REV 32, les sept vitesses numériques du cartouche ⑥ | REV 30 |
-| **Borne du cap contournée par la prose** (§A.5 genre `cap`) | correctif de code : le balayage de prose ne réécrit jamais une clé que la validation a refusée. **Défaut silencieux** | REV 30 |
-| **Marqueurs — casse, crochet fermant, marqueur sur libellé** (§A.5) | correctif de code, trois retouches d'expression régulière. Le troisième cas est silencieux | REV 30 |
 | **`Altitude (Pieds)` rendue en niveau de vol** (§A.5) | décision, pas observation : ce rendu est voulu ou il ne l'est pas. S'il l'est, il s'écrit comme tel ; sinon il se retire | REV 30 |
-| **Cartouche ⑥ lu par la page** (§A.4, §A.5) | les consignes Claude Code REV 32 appliquées, puis une feuille chargée : dix cases remplies, aucun refus, `.78` accepté tel quel | REV 32 |
 | **A388 : champs remplis par l'import** (§7.A) | un deuxième vol A388 après import | REV 33 |
+| **Gestes de l'onglet FMS Airbus dans le build** (§2.4) : pages HOLD et AIRWAYS, RAD NAV saisi à la main | un vol : chaque page s'ouvre ou ne s'ouvre pas, et la course ILS affichée se compare à la piste | REV 36 |
 
 ⚠ **Le §6.7 ne bloque rien non plus.** Une approche automatique qui n'existe pas dans le build ne bloque aucun départ : elle ne se briefe pas, voilà tout.
 ⚠ **Deux points du tableau se ferment sans voler** : une mise sous tension au parking suffit pour le mémo ADIRS et pour la lecture GW − FOB.
 
-⚠ Le premier de cette liste est le seul capable de faire **lire une valeur fausse sans rien afficher**. Les autres se voient ; celui-là se vole.
+⇒ **Depuis la REV 36, aucun point ouvert ne peut faire lire une valeur fausse sans rien afficher** : les défauts silencieux du parseur sont fermés dans le code, et le §A.5 le dit.
 
 ⇒ Le mémo T.O couvre à lui seul volets, spoilers, ceintures, cabine, autobrake et configuration décollage. Ces six lignes ne se revérifient pas à la main : elles sont vertes, ou elles ne le sont pas.
 
@@ -1445,7 +1456,7 @@ OFP de moins de 2 h · MIN DIV et BINGO calculés · distance MCDU = distance OF
 
 ⚠ **Un vol conduit en accélération temporelle (menu MISC, TIME) ne remplit pas cette section.** Ni carburant, ni ETE, ni TOD, ni Fuel Factor. Le noter avant de partir : c'est un vol qui ne compte pas pour le dossier.
 
-**MASSES À VIDE — REGISTRE DE CE QUE MILAN A DONNÉ**
+**MASSES À VIDE : REGISTRE DE CE QUE MILAN A DONNÉ**
 
 Ce tableau n'est pas une liste de relevés à faire : c'est la mémoire des valeurs déjà fournies, pour ne pas les redemander deux fois.
 
@@ -1488,7 +1499,7 @@ A20N, environ 2,1 t/h en moyenne montée comprise `[CALC]`, sur un seul vol (VY1
 
 ⇒ Un seul relevé, sur une route que SimBrief a fait passer par Palma et la côte nord-africaine : il ne recale rien à lui seul.
 
-**IDENTIFICATION ET ÉQUIPEMENT — REGISTRE**
+**IDENTIFICATION ET ÉQUIPEMENT : REGISTRE**
 
 | Immatriculation | Fin | SELCAL | Mode-S | Chaîne équipement modifiée ? |
 |---|---|---|---|---|
@@ -1498,12 +1509,12 @@ A20N, environ 2,1 t/h en moyenne montée comprise `[CALC]`, sur un seul vol (VY1
 
 ⇒ Une chaîne composée avec un bouton **Constructeur** se recopie ici, sinon elle est refaite de zéro au vol suivant.
 
-**ÉCARTS SIMBRIEF — la colonne « valeur attendue » du §0**
+**ÉCARTS SIMBRIEF : la colonne « valeur attendue » du §0**
 Champ où ma valeur attendue s'est écartée ____ · écart ____ · méthode à corriger ____
 ⇒ pistes, contingence, réserve, taxi, FOB et FOD sont les six lignes à relever en priorité.
 
 
-**ÉCART DE MASSE — RELEVÉ AU POSTE**
+**ÉCART DE MASSE : RELEVÉ AU POSTE**
 `GW` lu ____ · `FOB` lu ____ · masse sans carburant obtenue ____ · EZFW de l'OFP ____ · écart ____
 ⇒ Trois relevés suffisent à dire si l'écart du §2.3 est constant ou proportionnel à la masse. C'est la différence entre un décalage qu'on compense et un défaut qu'on subit.
 **ÉCARTS EN VOL**
@@ -1512,16 +1523,16 @@ Carburant prévu / réel ____ / ____
 ETE prévu / réel ____ / ____ · TOD prévu / réel ____ / ____
 Cause de l'écart principal ____
 
-**VITESSES — RELEVÉ EN VOL** *(REV 32)*
+**VITESSES : RELEVÉ EN VOL** *(REV 32)*
 Vitesse de montée et Mach tenus ____ / ____ · Mach de croisière tenu ____ · masse lue en courte finale ____ · volets et train à 1 000 ft ____ · Vapp tenue ____ · avertissement de décrochage ou alarme vu ? à quelle vitesse ____
 ⇒ Une ligne remplie avec configuration et masse fait passer la Vref du type d'un rang 5 ou 3 à un rang 1 (§5.1), et ferme le point ouvert du §8 pour ce type.
 
-**AIDS — RELEVÉ D'ATTERRISSAGE**
+**AIDS : RELEVÉ D'ATTERRISSAGE**
 TD IAS / GS ____ / ____ · Vz au toucher ____ fpm · G max ____ · écart d'axe ____ m · 1K MARK ____ · ground roll ____
-⇒ Un atterrissage automatique, le jour où le §6.7 se réveille, se relève ici comme un autre — et se compare à un manuel à masse comparable.
+⇒ Un atterrissage automatique, le jour où le §6.7 se réveille, se relève ici comme un autre : et se compare à un manuel à masse comparable.
 
 **FMS**
 Comportement inattendu observé ____ · valeur affichée jugée fausse ____ · ligne du §2.3 à corriger ____
 Ligne de la liste « à revérifier » confirmée corrigée ____ ⇒ elle sort du dossier à la révision suivante.
 
-**FIN · REV 35 · Simulation uniquement**
+**FIN · REV 36 · Simulation uniquement**
